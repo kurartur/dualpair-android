@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">DualPair</string>
+    <string name="add_sociotype_header">Select your sociotype or start test</string>
+    <string name="start_test">Start test</string>
+    <string name="submit">Submit</string>
+    <string name="ok">Ok</string>
+    <string name="socionics_test">Socionics test</string>
+
+    <string name="sistematic">Sistematic</string>
+    <string name="spontaneous">Spontaneous</string>
+    <string name="structure">Structure</string>
+    <string name="flow">Flow</string>
+    <string name="plan">Plan</string>
+    <string name="improvisation">Improvisation</string>
+    <string name="solution">Solution</string>
+    <string name="impulse">Impulse</string>
+    <string name="regularity">Regularity</string>
+    <string name="accident">Accident</string>
+    <string name="organized">Organized</string>
+    <string name="impulsive">Impulsive</string>
+    <string name="preparation">Preparation</string>
+    <string name="impromtu">Impromtu</string>
+    <string name="resolute">Resolute</string>
+    <string name="dedicated">Dedicated</string>
+    <string name="solid">Solid</string>
+    <string name="kind_hearted">Kind-hearted</string>
+    <string name="prone_to_criticism">Prone to criticism</string>
+    <string name="wellwishing">Wellwishing</string>
+    <string name="advantage">Advantage</string>
+    <string name="luck">Luck</string>
+    <string name="head">Head</string>
+    <string name="heart">Heart</string>
+    <string name="thoughts">Thoughts</string>
+    <string name="feelings">Feelings</string>
+    <string name="analyze">Analyze</string>
+    <string name="sympathize">Sympathize</string>
+
+    <string name="lii_title">The Analyst</string>
+    <string name="ile_title">The Inventor</string>
+    <string name="ese_title">The Enthusiast</string>
+    <string name="sei_title">The Mediator</string>
+    <string name="lsi_title">The Inspector</string>
+    <string name="sle_title">The Conqueror</string>
+    <string name="eie_title">The Actor</string>
+    <string name="iei_title">The Romantic</string>
+    <string name="esi_title">The Guardian</string>
+    <string name="see_title">The Diplomat</string>
+    <string name="lie_title">The Entrepreneur</string>
+    <string name="ili_title">The Critic</string>
+    <string name="eii_title">The Empath</string>
+    <string name="iee_title">The Psychologist</string>
+    <string name="lse_title">The Director</string>
+    <string name="sli_title">The Craftsman</string>
+    <string name="confirm">Confirm</string>
+
+    <string name="tab_review">Review</string>
+    <string name="tab_pairs">Pairs</string>
+    <string name="tab_menu">Menu</string>
+    <string name="nope">Nope</string>
+    <string name="like">Like</string>
+    <string name="search_for_male">Search for male</string>
+    <string name="search_for_female">Search for female</string>
+    <string name="min_age">Minimum age</string>
+    <string name="max_age">Maximum age</string>
+
+</resources>
