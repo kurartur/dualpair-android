@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         android:animateLayoutChanges="true">
 
         <ScrollView
@@ -24,17 +24,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="300dp"
                     android:orientation="vertical">
 
                     <android.support.v4.view.ViewPager
                         android:id="@+id/photo_pager"
                         android:layout_width="match_parent"
-                        android:layout_height="300dp"/>
+                        android:layout_height="match_parent"/>
 
-                </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/photo_dots"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="5dp">
+
+                        <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/selected_item_dot"/>
+
+                        </LinearLayout>
+
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

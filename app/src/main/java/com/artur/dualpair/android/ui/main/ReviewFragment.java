@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -30,9 +31,11 @@ public class ReviewFragment extends Fragment implements ReviewView {
 
     ReviewPresenter reviewPresenter;
     Match match;
+    ImageView[] dotImages;
 
     @Bind(R.id.review) LinearLayout reviewLayout;
     @Bind(R.id.photo_pager) ViewPager photoPager;
+    @Bind(R.id.photo_dots) LinearLayout photoDots;
     @Bind(R.id.name_surname) TextView name;
     @Bind(R.id.age) TextView age;
     @Bind(R.id.location) TextView location;
@@ -65,6 +68,15 @@ public class ReviewFragment extends Fragment implements ReviewView {
             @Override
             public void onClick(View v) {
                 loadReview();
+            }
+        });
+        photoPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                for (int i = 0; i < dotImages.length; i++) {
+                    dotImages[i].setImageDrawable(getResources().getDrawable(R.drawable.non_selected_item_dot));
+                }
+                dotImages[position].setImageDrawable(getResources().getDrawable(R.drawable.selected_item_dot));
             }
         });
         reviewPresenter = new ReviewPresenter(this, this.getActivity());
@@ -133,6 +145,22 @@ public class ReviewFragment extends Fragment implements ReviewView {
 
     private void initPhotos(List<Photo> photos) {
         photoPager.setAdapter(new UserPhotosAdapter(this.getActivity(), photos));
+        photoDots.removeAllViews();
+        dotImages = new ImageView[photos.size()];
+        for (int i = 0; i < photos.size(); i++) {
+            dotImages[i] = new ImageView(this.getActivity());
+            if (i == 0) {
+                dotImages[i].setImageDrawable(getResources().getDrawable(R.drawable.selected_item_dot));
+            } else {
+                dotImages[i].setImageDrawable(getResources().getDrawable(R.drawable.non_selected_item_dot));
+            }
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(7, 0, 7, 0);
+            photoDots.addView(dotImages[i], params);
+        }
     }
 
     @Override
