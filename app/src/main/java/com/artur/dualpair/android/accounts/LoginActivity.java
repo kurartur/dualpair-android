@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +17,7 @@ import com.artur.dualpair.android.dto.User;
 import com.artur.dualpair.android.rx.EmptySubscriber;
 import com.artur.dualpair.android.services.authentication.RequestTokenClient;
 import com.artur.dualpair.android.services.user.GetUserPrincipal;
-import com.artur.dualpair.android.ui.main.MainActivity;
+import com.artur.dualpair.android.ui.SplashActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -57,22 +56,29 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         webView.loadUrl(buildOAuthUrl());
         webView.setWebViewClient(new WebViewClient() {
 
-            private boolean authComplete = false;
+            private boolean isCodePage(String url) {
+                return url.contains("?code=") && url.contains("localhost");
+            }
+
+            private boolean isErrorPage(String url) {
+                return url.contains("error") && url.contains("localhost");
+            }
 
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                if (url.contains("?code=") && !authComplete) {
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (isCodePage(url)) {
                     Uri uri = Uri.parse(url);
                     String authCode = uri.getQueryParameter("code");
-                    authComplete = true;
-                    LoginActivity.this.setResult(Activity.RESULT_OK);
                     getToken(authCode);
-                } else if (url.contains("error")) { // TODO
-                    authComplete = true;
+                    return true;
+                } else if (isErrorPage(url)) {
+                    // TODO display error
                     LoginActivity.this.setResult(Activity.RESULT_CANCELED);
+                    return true;
                 }
+                return false;
             }
+
         });
     }
 
@@ -118,15 +124,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
                         setAccountAuthenticatorResult(result);
 
-                        openMain();
+                        startActivity(SplashActivity.createIntent(LoginActivity.this));
+                        LoginActivity.this.setResult(Activity.RESULT_OK);
+                        finish();
                     }
                 });
-    }
-
-    private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     private String buildOAuthUrl() {

@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.artur.dualpair.android.accounts.AuthenticatedUserTask;
 import com.artur.dualpair.android.dto.Location;
+import com.artur.dualpair.android.services.user.SetLocationClient;
 
 public class SetLocationTask extends AuthenticatedUserTask<Void> {
 
@@ -16,6 +17,6 @@ public class SetLocationTask extends AuthenticatedUserTask<Void> {
 
     @Override
     protected Void run() throws Exception {
-        return null;
+        return new SetLocationClient(location).observable().toBlocking().first();
     }
 }

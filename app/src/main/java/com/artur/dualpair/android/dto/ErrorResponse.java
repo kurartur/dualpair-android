@@ -4,23 +4,15 @@ import com.google.gson.annotations.SerializedName;
 
 public class ErrorResponse {
 
-    @SerializedName("error_id")
-    private String errorId;
+    @SerializedName("message")
+    private String message;
 
-    @SerializedName("error_description")
-    private String errorDescription;
-
-    public ErrorResponse(String error, String errorDescription) {
-        this.errorId = error;
-        this.errorDescription = errorDescription;
+    public ErrorResponse(String message) {
+        this.message = message;
     }
 
-    public String getError() {
-        return errorId;
-    }
-
-    public String getErrorDescription() {
-        return errorDescription;
+    public String getMessage() {
+        return message;
     }
 
 }

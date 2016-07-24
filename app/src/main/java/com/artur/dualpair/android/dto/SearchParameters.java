@@ -1,6 +1,8 @@
 package com.artur.dualpair.android.dto;
 
-public class SearchParameters {
+import java.io.Serializable;
+
+public class SearchParameters implements Serializable {
 
     private Boolean searchMale;
     private Boolean searchFemale;

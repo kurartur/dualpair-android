@@ -8,5 +8,7 @@ public interface ReviewView {
 
     void showLoading();
 
-    void hideLoading();
+    void showLoadingError(String text);
+
+    void showNoMatches();
 }

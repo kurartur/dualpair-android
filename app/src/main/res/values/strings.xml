@@ -62,5 +62,10 @@
     <string name="search_for_female">Search for female</string>
     <string name="min_age">Minimum age</string>
     <string name="max_age">Maximum age</string>
+    <string name="loading_user">Loading user</string>
+    <string name="updating_location">Updating location</string>
+    <string name="retry">Retry</string>
+    <string name="loading">Loading</string>
+    <string name="no_matches_found">No matches found, please try again later.</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.artur.dualpair.android.ui.search;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +14,6 @@ import com.artur.dualpair.android.core.user.SetSearchParametersTask;
 import com.artur.dualpair.android.dto.SearchParameters;
 import com.artur.dualpair.android.rx.EmptySubscriber;
 import com.artur.dualpair.android.ui.BaseActivity;
-import com.artur.dualpair.android.ui.main.MainActivity;
 import com.artur.dualpair.android.utils.ToastUtils;
 
 import butterknife.Bind;
@@ -66,14 +66,13 @@ public class SearchParametersActivity extends BaseActivity {
 
             @Override
             public void onNext(Void aVoid) {
-                openMain();
+                setResult(RESULT_OK);
+                finish();
             }
         }, this);
     }
 
-    private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+    public static Intent createIntent(Activity activity) {
+        return new Intent(activity, SearchParametersActivity.class);
     }
 }

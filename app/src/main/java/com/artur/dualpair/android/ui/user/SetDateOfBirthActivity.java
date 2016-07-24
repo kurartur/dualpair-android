@@ -11,7 +11,6 @@ import android.widget.DatePicker;
 import com.artur.dualpair.android.R;
 import com.artur.dualpair.android.core.user.SetDateOfBirthTask;
 import com.artur.dualpair.android.rx.EmptySubscriber;
-import com.artur.dualpair.android.ui.main.MainActivity;
 import com.artur.dualpair.android.utils.ToastUtils;
 
 import java.util.Calendar;
@@ -47,7 +46,8 @@ public class SetDateOfBirthActivity extends Activity {
 
                     @Override
                     public void onNext(Void aVoid) {
-                        openMain();
+                        setResult(Activity.RESULT_OK);
+                        finish();
                     }
                 });
             }
@@ -63,10 +63,8 @@ public class SetDateOfBirthActivity extends Activity {
         return calendaer.getTime();
     }
 
-    private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+    public static Intent createIntent(Activity activity) {
+        return new Intent(activity, SetDateOfBirthActivity.class);
     }
 
 }

@@ -14,7 +14,6 @@ import com.artur.dualpair.android.core.user.SetUserSociotypesTask;
 import com.artur.dualpair.android.dto.Sociotype;
 import com.artur.dualpair.android.dto.User;
 import com.artur.dualpair.android.rx.EmptySubscriber;
-import com.artur.dualpair.android.ui.main.MainActivity;
 import com.artur.dualpair.android.utils.ToastUtils;
 
 import java.util.HashSet;
@@ -91,7 +90,7 @@ public class ConfirmSociotypeActivity extends Activity {
 
             @Override
             public void onNext(Void v) {
-                openMain();
+                setResult(Activity.RESULT_OK);
                 finish();
             }
         });
@@ -102,9 +101,9 @@ public class ConfirmSociotypeActivity extends Activity {
         header.setText(sociotype.getCode1());
     }
 
-    private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+    public static Intent createIntent(Activity activity, Sociotype sociotype) {
+        Intent intent = new Intent(activity, ConfirmSociotypeActivity.class);
+        intent.putExtra(PARAM_SOCIOTYPE, sociotype);
+        return intent;
     }
 }

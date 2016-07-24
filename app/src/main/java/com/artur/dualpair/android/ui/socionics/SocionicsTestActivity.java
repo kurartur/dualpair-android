@@ -80,7 +80,7 @@ public class SocionicsTestActivity extends ListActivity {
                         ServiceException se = (ServiceException)e;
                         String message;
                         try {
-                            message = "Couldn't evaluate test: " + se.getErrorBodyAs(ErrorResponse.class).getErrorDescription();
+                            message = "Couldn't evaluate test: " + se.getErrorBodyAs(ErrorResponse.class).getMessage();
                         } catch (IOException ioe) {
                             message = se.getMessage();
                         }

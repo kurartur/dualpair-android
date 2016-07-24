@@ -1,6 +1,8 @@
 package com.artur.dualpair.android.dto;
 
-public class Match {
+import java.io.Serializable;
+
+public class Match implements Serializable {
 
     private User user;
     private User opponent;

@@ -21,6 +21,8 @@ import butterknife.ButterKnife;
 
 public class AddSociotypeActivity extends Activity {
 
+    private static final int CONFIRM_REQUEST_CODE = 1;
+
     @Bind(R.id.button_start_test)
     LinearLayout startTestButton;
 
@@ -56,12 +58,26 @@ public class AddSociotypeActivity extends Activity {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(AddSociotypeActivity.this, ConfirmSociotypeActivity.class);
-                    intent.putExtra(ConfirmSociotypeActivity.PARAM_SOCIOTYPE, sociotype);
-                    startActivity(intent);
+                    openConfirmation(sociotype);
                 }
             });
             gridLayout.addView(view);
+        }
+    }
+
+    private void openConfirmation(Sociotype sociotype) {
+        startActivityForResult(ConfirmSociotypeActivity.createIntent(this, sociotype), CONFIRM_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case CONFIRM_REQUEST_CODE:
+                if (Activity.RESULT_OK == resultCode) {
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                }
+                break;
         }
     }
 
@@ -92,5 +108,9 @@ public class AddSociotypeActivity extends Activity {
         sociotype.setCode1(code1);
         sociotype.setCode2(code2);
         return sociotype;
+    }
+
+    public static Intent createIntent(Activity activity) {
+        return new Intent(activity, AddSociotypeActivity.class);
     }
 }
