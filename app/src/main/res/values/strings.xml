@@ -67,5 +67,8 @@
     <string name="retry">Retry</string>
     <string name="loading">Loading</string>
     <string name="no_matches_found">No matches found, please try again later.</string>
+    <string name="search_parameters">Search parameters</string>
+    <string name="logout">Logout</string>
+    <string name="sociotypes">Sociotypes</string>
 
 </resources>

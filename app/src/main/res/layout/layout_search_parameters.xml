@@ -25,11 +25,10 @@
             android:layout_height="wrap_content"
             android:text="@string/min_age"/>
 
-        <EditText
-            android:id="@+id/edit_text_min_age"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"/>
+        <Spinner
+            android:id="@+id/min_age_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
@@ -43,11 +42,10 @@
             android:layout_height="wrap_content"
             android:text="@string/max_age"/>
 
-        <EditText
-            android:id="@+id/edit_text_max_age"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"/>
+        <Spinner
+            android:id="@+id/max_age_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

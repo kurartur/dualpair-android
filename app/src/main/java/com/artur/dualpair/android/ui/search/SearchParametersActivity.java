@@ -1,17 +1,22 @@
 package com.artur.dualpair.android.ui.search;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.artur.dualpair.android.R;
+import com.artur.dualpair.android.core.user.GetUserPrincipalTask;
 import com.artur.dualpair.android.core.user.SetSearchParametersTask;
 import com.artur.dualpair.android.dto.SearchParameters;
+import com.artur.dualpair.android.dto.User;
 import com.artur.dualpair.android.rx.EmptySubscriber;
 import com.artur.dualpair.android.ui.BaseActivity;
 import com.artur.dualpair.android.utils.ToastUtils;
@@ -22,6 +27,8 @@ import butterknife.ButterKnife;
 public class SearchParametersActivity extends BaseActivity {
 
     private static final String TAG = "SearchParamActivity";
+    private static final Integer MIN_SEARCH_AGE = 13;
+    private static final Integer MAX_SEARCH_AGE = 120;
 
     @Bind(R.id.checkbox_search_for_male)
     CheckBox searchMale;
@@ -29,11 +36,11 @@ public class SearchParametersActivity extends BaseActivity {
     @Bind(R.id.checkbox_search_for_female)
     CheckBox searchFemale;
 
-    @Bind(R.id.edit_text_min_age)
-    EditText minAge;
+    @Bind(R.id.min_age_spinner)
+    Spinner minAge;
 
-    @Bind(R.id.edit_text_max_age)
-    EditText maxAge;
+    @Bind(R.id.max_age_spinner)
+    Spinner maxAge;
 
     @Bind(R.id.button_submit)
     Button submitButton;
@@ -42,7 +49,21 @@ public class SearchParametersActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_search_parameters);
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(R.string.search_parameters);
+        }
+
         ButterKnife.bind(this);
+
+        minAge.setAdapter(createAgeSpinnerAdapter());
+        maxAge.setAdapter(createAgeSpinnerAdapter());
+
+        loadSearchParameters();
+
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,12 +72,44 @@ public class SearchParametersActivity extends BaseActivity {
         });
     }
 
+    private void loadSearchParameters() {
+        final Activity activity = this;
+        new GetUserPrincipalTask(activity).execute(new EmptySubscriber<User>() {
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, "Unable to load search parameters", e);
+                ToastUtils.show(activity, "Unable to load search parameters");
+                finish();
+            }
+
+            @Override
+            public void onNext(User user) {
+                fillSearchParameters(user.getSearchParameters());
+            }
+        }, this);
+    }
+
+    private void fillSearchParameters(SearchParameters searchParameters) {
+        searchMale.setChecked(searchParameters.getSearchMale());
+        searchFemale.setChecked(searchParameters.getSearchFemale());
+        if (searchParameters.getMinAge() != null) {
+            ArrayAdapter<Integer> adapter = (ArrayAdapter)minAge.getAdapter();
+            int spinnerPosition = adapter.getPosition(searchParameters.getMinAge());
+            minAge.setSelection(spinnerPosition);
+        }
+        if (searchParameters.getMaxAge() != null) {
+            ArrayAdapter<Integer> adapter = (ArrayAdapter)maxAge.getAdapter();
+            int spinnerPosition = adapter.getPosition(searchParameters.getMaxAge());
+            maxAge.setSelection(spinnerPosition);
+        }
+    }
+
     private void postSearchParameters() {
         SearchParameters searchParameters = new SearchParameters();
         searchParameters.setSearchMale(searchMale.isChecked());
         searchParameters.setSearchFemale(searchFemale.isChecked());
-        searchParameters.setMinAge(Integer.valueOf(minAge.getText().toString()));
-        searchParameters.setMaxAge(Integer.valueOf(maxAge.getText().toString()));
+        searchParameters.setMinAge((Integer)minAge.getSelectedItem());
+        searchParameters.setMaxAge((Integer)maxAge.getSelectedItem());
         new SetSearchParametersTask(this, searchParameters).execute(new EmptySubscriber<Void>() {
             @Override
             public void onError(Throwable e) {
@@ -70,6 +123,24 @@ public class SearchParametersActivity extends BaseActivity {
                 finish();
             }
         }, this);
+    }
+
+    private ArrayAdapter<Integer> createAgeSpinnerAdapter() {
+        Integer[] items = new Integer[MAX_SEARCH_AGE - MIN_SEARCH_AGE + 1];
+        for (int i = MIN_SEARCH_AGE; i <= MAX_SEARCH_AGE; i++) {
+            items[i - MIN_SEARCH_AGE] = i;
+        }
+        return new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, items);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+        return false;
     }
 
     public static Intent createIntent(Activity activity) {
