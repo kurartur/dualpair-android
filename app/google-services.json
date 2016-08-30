@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "496841196410",
+    "project_id": "dualpair-1469800980893"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496841196410:android:9d0eadf63838ec8a",
+        "android_client_info": {
+          "package_name": "lt.dualpair.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3xXnGdpE80rqvLzObixgTiUwNo_5UqWU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

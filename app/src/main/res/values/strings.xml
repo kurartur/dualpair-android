@@ -70,5 +70,7 @@
     <string name="search_parameters">Search parameters</string>
     <string name="logout">Logout</string>
     <string name="sociotypes">Sociotypes</string>
+    <string name="history">History</string>
+    <string name="profile">Profile</string>
 
 </resources>

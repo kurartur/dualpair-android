@@ -4,6 +4,21 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/profile_layout"
+        style="@style/MenuFragmentItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile"
+            android:textSize="@dimen/menu_fragment_item_text_size"/>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/search_parameters_layout"
         style="@style/MenuFragmentItem"
         android:layout_width="match_parent"
@@ -29,6 +44,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sociotypes"
+            android:textSize="@dimen/menu_fragment_item_text_size"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/history_layout"
+        style="@style/MenuFragmentItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/history"
             android:textSize="@dimen/menu_fragment_item_text_size"/>
 
     </LinearLayout>

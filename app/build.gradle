@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.artur.dualpair.android"
+        applicationId "lt.dualpair.android"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
@@ -30,13 +31,14 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.android.support:support-v13:23.2.1'
     compile 'com.trello:rxlifecycle:0.5.0'
-
+    compile 'com.google.android.gms:play-services-gcm:9.0.0'
 
     testCompile 'junit:junit:4.12'
 
