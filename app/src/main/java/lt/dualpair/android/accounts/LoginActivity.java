@@ -115,6 +115,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                         userData.putString(ARG_USER_NAME, user.getName());
                         userData.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
 
+                        // TODO userData doesnt get overrided when account already exists.
                         accountManager.addAccountExplicitly(account, token.getRefreshToken(), userData);
                         accountManager.setAuthToken(account, AccountConstants.ACCOUNT_TYPE, token.getAccessToken());
 

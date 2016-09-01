@@ -24,4 +24,8 @@ public class Match implements Serializable {
     public Response getResponse() {
         return response;
     }
+
+    public boolean isMutual() {
+        return user.getResponse() == Response.YES && opponent.getResponse() == Response.YES;
+    }
 }

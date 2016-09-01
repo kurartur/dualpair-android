@@ -28,6 +28,8 @@ import lt.dualpair.android.resource.Response;
 import lt.dualpair.android.resource.Sociotype;
 import lt.dualpair.android.resource.User;
 import lt.dualpair.android.rx.EmptySubscriber;
+import lt.dualpair.android.rx.bus.NewMatchEvent;
+import lt.dualpair.android.rx.bus.RxBus;
 
 public class ReviewFragment extends Fragment implements ReviewView {
 
@@ -192,6 +194,9 @@ public class ReviewFragment extends Fragment implements ReviewView {
             @Override
             public void onNext(Match match) {
                 ReviewFragment.this.match = null;
+                if (match.isMutual()) {
+                    RxBus.getInstance().post(new NewMatchEvent(match)); // TODO probably shouldn't send this here, instead send when notification arrives from server
+                }
                 loadReview();
             }
         });
