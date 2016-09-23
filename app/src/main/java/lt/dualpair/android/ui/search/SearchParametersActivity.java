@@ -3,12 +3,12 @@ package lt.dualpair.android.ui.search;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 
@@ -24,6 +24,7 @@ import lt.dualpair.android.utils.ToastUtils;
 
 public class SearchParametersActivity extends BaseActivity {
 
+    private static final int MENU_ITEM_SAVE = 1;
     private static final String TAG = "SearchParamActivity";
     private static final Integer MIN_SEARCH_AGE = 13;
     private static final Integer MAX_SEARCH_AGE = 120;
@@ -40,19 +41,18 @@ public class SearchParametersActivity extends BaseActivity {
     @Bind(R.id.max_age_spinner)
     Spinner maxAge;
 
-    @Bind(R.id.button_submit)
-    Button submitButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_search_parameters);
+        setContentView(R.layout.search_parameters_layout);
 
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(R.string.search_parameters);
+            actionBar.setTitle(getResources().getString(R.string.search_parameters));
+            actionBar.setIcon(
+                    new ColorDrawable(getResources().getColor(android.R.color.transparent)));
         }
 
         ButterKnife.bind(this);
@@ -61,13 +61,6 @@ public class SearchParametersActivity extends BaseActivity {
         maxAge.setAdapter(createAgeSpinnerAdapter());
 
         loadSearchParameters();
-
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                postSearchParameters();
-            }
-        });
     }
 
     private void loadSearchParameters() {
@@ -132,11 +125,22 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                this.finish();
+                finish();
                 return true;
+            case MENU_ITEM_SAVE:
+                postSearchParameters();
+                finish(); // TODO finish after saving or show progress
+                return false;
         }
         return false;
     }

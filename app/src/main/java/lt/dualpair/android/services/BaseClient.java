@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 
+import lt.dualpair.android.BuildConfig;
 import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.rx.RxErrorHandlingCallAdapterFactory;
 import okhttp3.Interceptor;
@@ -19,15 +20,13 @@ import rx.Observable;
 
 public abstract class BaseClient<K> {
 
-    protected static final String API_BASE_URL = "http://10.0.2.2:8080";
-
     private Retrofit getRetrofit() {
         OkHttpClient.Builder okHttpClientBuilder =
                 new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor(HttpLoggingInterceptor.Level.BODY))
                 .addInterceptor(authorizationInterceptor());
 
         Retrofit.Builder retrofitBuilder =
-                new Retrofit.Builder().baseUrl(API_BASE_URL)
+                new Retrofit.Builder().baseUrl(BuildConfig.SERVER_HOST)
                         .client(okHttpClientBuilder.build())
                         .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
                         .addConverterFactory(ScalarsConverterFactory.create())

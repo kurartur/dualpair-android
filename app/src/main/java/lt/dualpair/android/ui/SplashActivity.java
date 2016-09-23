@@ -1,6 +1,8 @@
 package lt.dualpair.android.ui;
 
 import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,9 +23,11 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.core.user.GetSearchParametersTask;
 import lt.dualpair.android.core.user.GetUserPrincipalTask;
 import lt.dualpair.android.core.user.SetLocationTask;
+import lt.dualpair.android.data.provider.DbHelper;
 import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.resource.SearchParameters;
 import lt.dualpair.android.resource.User;
@@ -63,6 +68,8 @@ public class SplashActivity extends BaseActivity {
             actionBar.hide();
         }
 
+        new DbHelper(this, "1").getWritableDatabase().execSQL("select * from user_sociotypes");
+
         ButterKnife.bind(this);
     }
 
@@ -74,7 +81,24 @@ public class SplashActivity extends BaseActivity {
 
     private void init() {
         progressLayout.setVisibility(View.VISIBLE);
-        initUser();
+
+        final AccountManager accountManager = AccountManager.get(this);
+        Account account = AccountUtils.getAccount(accountManager, this);
+        if (account == null) {
+            new AsyncTask<Void, Void, Bundle>() {
+                @Override
+                protected Bundle doInBackground(Void... params) {
+                    return AccountUtils.addAccount(accountManager, SplashActivity.this);
+                }
+
+                @Override
+                protected void onPostExecute(Bundle bundle) {
+                    initUser();
+                }
+            }.execute((Void)null);
+        } else {
+            initUser();
+        }
     }
 
     private void initUser() {

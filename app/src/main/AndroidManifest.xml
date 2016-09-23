@@ -30,24 +30,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".accounts.LoginActivity"
             android:launchMode="singleTop"/>
-
         <activity android:name=".ui.main.MainActivity"/>
-
-        <activity android:name=".ui.user.UserSociotypesActivity"/>
-
         <activity android:name=".ui.user.AddSociotypeActivity"/>
-
         <activity android:name=".ui.user.ConfirmSociotypeActivity"/>
-
-        <activity android:name=".ui.socionics.SocionicsTestActivity"/>
-
         <activity android:name=".ui.user.SetDateOfBirthActivity"/>
-
+        <activity android:name=".ui.socionics.SocionicsTestActivity"/>
         <activity android:name=".ui.search.SearchParametersActivity"/>
+        <activity android:name=".ui.AboutActivity"/>
+        <activity android:name=".ui.match.MatchActivity"/>
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>
@@ -85,6 +78,11 @@
 
         <service
             android:name=".gcm.RegistrationService"
+            android:exported="false"/>
+        
+        <provider
+            android:authorities="lt.dualpair.android.data.User"
+            android:name=".data.provider.user.UserContentProvider"
             android:exported="false"/>
 
     </application>

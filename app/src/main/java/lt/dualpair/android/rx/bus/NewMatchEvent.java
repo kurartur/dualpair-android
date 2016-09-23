@@ -1,16 +1,14 @@
 package lt.dualpair.android.rx.bus;
 
-import lt.dualpair.android.resource.Match;
-
 public class NewMatchEvent extends Event {
 
-    private Match match;
+    private Long matchId;
 
-    public NewMatchEvent(Match match) {
-        this.match = match;
+    public NewMatchEvent(Long matchId) {
+        this.matchId = matchId;
     }
 
-    public Match getMatch() {
-        return match;
+    public Long getMatchId() {
+        return matchId;
     }
 }

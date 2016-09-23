@@ -1,12 +1,12 @@
 package lt.dualpair.android.utils;
 
-import android.app.Activity;
+import android.content.Context;
 import android.widget.Toast;
 
 public class ToastUtils {
 
-    public static void show(final Activity activity, String message) {
-        Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+    public static void show(final Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
 }

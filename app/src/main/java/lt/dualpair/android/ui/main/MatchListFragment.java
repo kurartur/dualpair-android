@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lt.dualpair.android.R;
+import lt.dualpair.android.core.match.GetMutualMatchTask;
 import lt.dualpair.android.core.match.GetUserMutualMatchListTask;
 import lt.dualpair.android.resource.Match;
 import lt.dualpair.android.resource.ResourceCollection;
+import lt.dualpair.android.rx.DefaultErrorHandlingSubscriber;
 import lt.dualpair.android.rx.EmptySubscriber;
 import lt.dualpair.android.rx.bus.NewMatchEvent;
 import lt.dualpair.android.rx.bus.RxBus;
@@ -48,7 +50,7 @@ public class MatchListFragment extends Fragment implements SwipeRefreshLayout.On
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        swipeRefreshLayout = (SwipeRefreshLayout)inflater.inflate(R.layout.layout_match_list, container, false);
+        swipeRefreshLayout = (SwipeRefreshLayout)inflater.inflate(R.layout.match_list_layout, container, false);
         gridView = (GridView)swipeRefreshLayout.findViewById(R.id.mutual_matches_grid);
         return swipeRefreshLayout;
     }
@@ -70,11 +72,7 @@ public class MatchListFragment extends Fragment implements SwipeRefreshLayout.On
         newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Action1<NewMatchEvent>() {
             @Override
             public void call(NewMatchEvent newMatchEvent) {
-                ArrayList<Match> tmpMatches = new ArrayList<>(matches);
-                matches.clear();
-                matches.add(newMatchEvent.getMatch());
-                matches.addAll(tmpMatches);
-                matchListAdapter.notifyDataSetChanged();
+                loadAndPrependMatch(newMatchEvent.getMatchId());
             }
         });
     }
@@ -106,6 +104,19 @@ public class MatchListFragment extends Fragment implements SwipeRefreshLayout.On
                 swipeRefreshLayout.setRefreshing(false);
             }
         }, (ActivityLifecycleProvider)activity);
+    }
+
+    private void loadAndPrependMatch(Long matchId) {
+        new GetMutualMatchTask(activity, matchId).execute(new DefaultErrorHandlingSubscriber<Match>(activity) {
+            @Override
+            public void onNext(Match match) {
+                ArrayList<Match> tmpMatches = new ArrayList<>(matches);
+                matches.clear();
+                matches.add(match);
+                matches.addAll(tmpMatches);
+                matchListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override

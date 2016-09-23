@@ -2,12 +2,17 @@ package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,10 +33,9 @@ import lt.dualpair.android.resource.Response;
 import lt.dualpair.android.resource.Sociotype;
 import lt.dualpair.android.resource.User;
 import lt.dualpair.android.rx.EmptySubscriber;
-import lt.dualpair.android.rx.bus.NewMatchEvent;
-import lt.dualpair.android.rx.bus.RxBus;
+import lt.dualpair.android.ui.search.SearchParametersActivity;
 
-public class ReviewFragment extends Fragment implements ReviewView {
+public class ReviewFragment extends Fragment implements ReviewView, LoaderManager.LoaderCallbacks {
 
     private static final String TAG = "ReviewFragment";
 
@@ -59,12 +63,13 @@ public class ReviewFragment extends Fragment implements ReviewView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_review, container, false);
+        View view = inflater.inflate(R.layout.review_layout, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
@@ -185,18 +190,15 @@ public class ReviewFragment extends Fragment implements ReviewView {
 
     private void sendResponse(final Response response) {
         final Activity activity = getActivity();
-        new SetResponseTask(activity, match.getId(), response).execute(new EmptySubscriber<Match>() {
+        new SetResponseTask(activity, match.getUser().getId(), response).execute(new EmptySubscriber<Void>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to send response", e);
             }
 
             @Override
-            public void onNext(Match match) {
+            public void onNext(Void v) {
                 ReviewFragment.this.match = null;
-                if (match.isMutual()) {
-                    RxBus.getInstance().post(new NewMatchEvent(match)); // TODO probably shouldn't send this here, instead send when notification arrives from server
-                }
                 loadReview();
             }
         });
@@ -206,5 +208,35 @@ public class ReviewFragment extends Fragment implements ReviewView {
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable("MATCH", match);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.review_fragment_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_parameters_menu_item:
+                startActivityForResult(SearchParametersActivity.createIntent(getActivity()), 1);
+                break;
+        }
+        return false;
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
     }
 }

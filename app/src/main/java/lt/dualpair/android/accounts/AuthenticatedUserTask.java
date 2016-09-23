@@ -4,7 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountsException;
 import android.accounts.OperationCanceledException;
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 
 import com.trello.rxlifecycle.ActivityLifecycleProvider;
@@ -20,10 +20,10 @@ import rx.schedulers.Schedulers;
 
 public abstract class AuthenticatedUserTask<Result> implements Callable<Result> {
 
-    protected Activity activity;
+    protected Context context;
 
-    public AuthenticatedUserTask(Activity activity) {
-        this.activity = activity;
+    public AuthenticatedUserTask(Context context) {
+        this.context = context;
     }
 
     public void execute(Subscriber<Result> subscriber) {
@@ -42,15 +42,15 @@ public abstract class AuthenticatedUserTask<Result> implements Callable<Result> 
     }
 
     protected Long getUserId() {
-        AccountManager accountManager = AccountManager.get(activity);
-        Account account = AccountUtils.getAccount(accountManager, activity);
+        AccountManager accountManager = AccountManager.get(context);
+        Account account = AccountUtils.getAccount(accountManager, context);
         return Long.valueOf(accountManager.getUserData(account, LoginActivity.ARG_USER_ID));
     }
 
     @Override
     public Result call() throws Exception {
-        AccountManager accountManager = AccountManager.get(activity);
-        Account account = AccountUtils.getAccount(accountManager, activity);
+        AccountManager accountManager = AccountManager.get(context);
+        Account account = AccountUtils.getAccount(accountManager, context);
 
         try {
             return run();
@@ -74,13 +74,13 @@ public abstract class AuthenticatedUserTask<Result> implements Callable<Result> 
     }
 
     private boolean handleUnauthorizedException(Account account, ServiceException e) {
-        AccountManager manager = AccountManager.get(activity);
+        AccountManager manager = AccountManager.get(context);
         try {
             manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
-            Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, activity, null, null).getResult();
+            Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
             return false;
         } catch (OperationCanceledException oce) {
-            activity.finish();
+            //context.finish(); // TODO
             return false;
         } catch (AccountsException ae) {
             return false;

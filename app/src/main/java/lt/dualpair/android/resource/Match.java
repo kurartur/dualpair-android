@@ -7,7 +7,6 @@ public class Match implements Serializable {
     private Long id;
     private MatchParty user;
     private MatchParty opponent;
-    private Response response;
 
     public Long getId() {
         return id;
@@ -21,11 +20,4 @@ public class Match implements Serializable {
         return opponent;
     }
 
-    public Response getResponse() {
-        return response;
-    }
-
-    public boolean isMutual() {
-        return user.getResponse() == Response.YES && opponent.getResponse() == Response.YES;
-    }
 }

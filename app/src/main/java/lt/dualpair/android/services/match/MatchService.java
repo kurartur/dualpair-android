@@ -15,13 +15,16 @@ public interface MatchService {
     @GET("/api/match/next")
     Observable<Match> getNext();
 
-    @GET("/api/user/{userId}/mutual-matches")
+    @GET("/api/user/{userId}/mutual-matches?sort=dateCreated&dateCreated.dir=desc")
     Observable<ResourceCollection<Match>> getUserMutualMatches(@Path("userId") Long userId, @Query("timestamp") Long timestamp);
 
     @GET
     Observable<ResourceCollection<Match>> getUserMutualMatches(@Url String url);
 
-    @PUT("/api/match/{matchId}/response")
-    Observable<Match> setResponse(@Path("matchId") Long matchId, @Body String response);
+    @GET("/api/user/{userId}/mutual-matches/{matchId}")
+    Observable<Match> getUserMutualMatch(@Path("userId") Long userId, @Path("matchId") Long matchId);
+
+    @PUT("/api/party/{matchPartyId}/response")
+    Observable<Void> setResponse(@Path("matchPartyId") Long matchPartyId, @Body String response);
 
 }

@@ -15,4 +15,7 @@ public interface OAuthService {
             @Field("redirect_uri") String redirectUri,
             @Field("grant_type") String grantType);
 
+    @POST("/signout")
+    Observable<Void> logout();
+
 }

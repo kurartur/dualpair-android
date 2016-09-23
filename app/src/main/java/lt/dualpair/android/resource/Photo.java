@@ -9,4 +9,8 @@ public class Photo implements Serializable {
     public String getSourceUrl() {
         return sourceUrl;
     }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
 }

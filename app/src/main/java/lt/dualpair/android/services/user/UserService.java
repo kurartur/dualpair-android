@@ -33,4 +33,5 @@ public interface UserService {
 
     @GET("api/user/{userId}/search-parameters")
     Observable<SearchParameters> getSearchParameters(@Path("userId") Long userId);
+
 }

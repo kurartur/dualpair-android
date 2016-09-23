@@ -3,20 +3,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <lt.dualpair.android.ui.SquareImageView
         android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/lovely_me"/>
+        android:src="@drawable/lovely_me"
+        />
 
-    <TextView
-        android:id="@+id/name"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:gravity="right"
-        android:text="Sample text"
-        android:padding="10dp"
-        />
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="Sample text"
+            android:layout_centerVertical="true"
+            android:textColor="@color/white"
+            android:shadowColor="@color/text_shadow"
+            android:shadowRadius="4"/>
+
+        <ImageButton
+            android:id="@+id/facebook_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/fb_f_logo__blue_50"
+            android:layout_alignParentRight="true"
+            android:scaleType="centerInside"
+            android:padding="7dp"/>
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,11 +10,18 @@ import android.widget.LinearLayout;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.rx.bus.NewMatchEvent;
+import lt.dualpair.android.rx.bus.RxBus;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.ui.match.MatchActivity;
+import rx.Subscription;
+import rx.functions.Action1;
 
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
+    private static volatile boolean isInForeground = false;
+    private Subscription newMatchEventSubscription;
 
     @Bind(R.id.tabs)
     TabLayout tabLayout;
@@ -29,17 +35,40 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_main);
+        setContentView(R.layout.main_layout);
         ButterKnife.bind(this);
-
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
 
         viewPager.setAdapter(new MainFragmentPageAdapter(this, getFragmentManager()));
         tabLayout.setupWithViewPager(viewPager);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Action1<NewMatchEvent>() {
+            @Override
+            public void call(NewMatchEvent newMatchEvent) {
+                showNewMatch();
+            }
+        });
+        isInForeground = true;
+    }
+
+    private void showNewMatch() {
+        Intent intent = new Intent(this, MatchActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isInForeground = false;
+        newMatchEventSubscription.unsubscribe();
+    }
+
+    public static boolean isInForeground() {
+        return isInForeground;
     }
 
     public static Intent createIntent(Activity activity) {

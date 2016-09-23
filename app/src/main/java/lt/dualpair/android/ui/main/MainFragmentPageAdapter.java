@@ -23,8 +23,8 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
                 return new ReviewFragment();
             case MATCH_LIST:
                 return new MatchListFragment();
-            case MENU:
-                return new MenuFragment();
+            case PROFILE:
+                return new ProfileFragment();
             default:
                 throw new IllegalArgumentException();
         }
@@ -42,8 +42,8 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
                 return context.getResources().getString(R.string.tab_review);
             case MATCH_LIST:
                 return context.getResources().getString(R.string.tab_pairs);
-            case MENU:
-                return context.getResources().getString(R.string.tab_menu);
+            case PROFILE:
+                return context.getResources().getString(R.string.profile);
             default:
                 throw new IllegalArgumentException();
         }
@@ -52,7 +52,7 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
     private enum Tab {
         REVIEW(0),
         MATCH_LIST(1),
-        MENU(2);
+        PROFILE(2);
 
         int position;
 

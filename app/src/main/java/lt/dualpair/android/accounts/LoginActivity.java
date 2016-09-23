@@ -7,11 +7,15 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import lt.dualpair.android.BuildConfig;
 import lt.dualpair.android.R;
 import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.resource.Token;
@@ -19,6 +23,7 @@ import lt.dualpair.android.resource.User;
 import lt.dualpair.android.rx.EmptySubscriber;
 import lt.dualpair.android.services.authentication.RequestTokenClient;
 import lt.dualpair.android.services.user.GetUserPrincipalClient;
+import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.SplashActivity;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -34,7 +39,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     public static final String CLIENT_SERCET = "secret";
     public static final String OAUTH_SCOPE = "trust";
     public static final String GRANT_TYPE = "authorization_code";
-    public static final String OAUTH_URL = "http://10.0.2.2:8080/oauth/authorize";
+    public static final String OAUTH_URL = "/oauth/authorize";
     public static final String REDIRECT_URI = "http://localhost";
 
     @Bind(R.id.login_webview)
@@ -54,7 +59,9 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     private void prepareWebView() {
         webView.clearCache(true);
         webView.clearHistory();
+        webView.setWebChromeClient(new WebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
         webView.loadUrl(buildOAuthUrl());
         webView.setWebViewClient(new WebViewClient() {
 
@@ -116,6 +123,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                         userData.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
 
                         // TODO userData doesnt get overrided when account already exists.
+                        accountManager.removeAccount(account, null, null);
                         accountManager.addAccountExplicitly(account, token.getRefreshToken(), userData);
                         accountManager.setAuthToken(account, AccountConstants.ACCOUNT_TYPE, token.getAccessToken());
 
@@ -125,6 +133,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                         result.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
 
                         TokenProvider.getInstance().storeToken(token.getAccessToken());
+
+                        AccountUtils.setAccount(accountManager, account, LoginActivity.this);
 
                         setAccountAuthenticatorResult(result);
 
@@ -137,11 +147,28 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
     private String buildOAuthUrl() {
         return new StringBuilder()
+                .append(BuildConfig.SERVER_HOST)
                 .append(OAUTH_URL)
                 .append("?redirect_uri=").append(REDIRECT_URI)
                 .append("&response_type=").append("code")
                 .append("&client_id=").append(CLIENT_ID)
                 .append("&scope=").append(OAUTH_SCOPE)
                 .toString();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.login_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.about_menu_item:
+                startActivity(AboutActivity.createIntent(this));
+                break;
+        }
+        return false;
     }
 }
