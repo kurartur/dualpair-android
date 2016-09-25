@@ -27,7 +27,6 @@ import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.core.user.GetSearchParametersTask;
 import lt.dualpair.android.core.user.GetUserPrincipalTask;
 import lt.dualpair.android.core.user.SetLocationTask;
-import lt.dualpair.android.data.provider.DbHelper;
 import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.resource.SearchParameters;
 import lt.dualpair.android.resource.User;
@@ -40,6 +39,7 @@ import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 import lt.dualpair.android.utils.LocationUtils;
 import lt.dualpair.android.utils.OnceOnlyLocationListener;
 import lt.dualpair.android.utils.ToastUtils;
+import rx.Subscription;
 
 public class SplashActivity extends BaseActivity {
 
@@ -58,6 +58,8 @@ public class SplashActivity extends BaseActivity {
     @Bind(R.id.progress_text)
     TextView progressText;
 
+    private Subscription subscription;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,8 +69,6 @@ public class SplashActivity extends BaseActivity {
         if (actionBar != null) {
             actionBar.hide();
         }
-
-        new DbHelper(this, "1").getWritableDatabase().execSQL("select * from user_sociotypes");
 
         ButterKnife.bind(this);
     }

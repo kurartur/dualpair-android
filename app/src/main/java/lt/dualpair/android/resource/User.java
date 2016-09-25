@@ -63,6 +63,13 @@ public class User extends BaseResource implements Serializable {
         return null;
     }
 
+    public Location getFirstLocation() {
+        if (!locations.isEmpty()) {
+            return locations.iterator().next();
+        }
+        return null;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }

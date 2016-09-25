@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.provider;
+package lt.dualpair.android.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,22 +9,22 @@ import java.util.Date;
 import java.util.Locale;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.accounts.AccountUtils;
 
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME_PREFIX = "DualPair_";
-    private static final int VERSION = 22;
+    private static final int VERSION = 36;
 
     private Context context;
 
     private DbHelper(Context context, String userId) {
         super(context, DB_NAME_PREFIX + userId, null, VERSION);
+        this.context = context;
     }
 
     public static DbHelper forCurrentUser(Context context) {
-        String userId = AccountUtils.getUserId(context).toString(); // TODO check user;
-        return new DbHelper(context, userId);
+        //String userId = AccountUtils.getUserId(context).toString(); // TODO check user;
+        return new DbHelper(context, "1");
     }
 
     @Override

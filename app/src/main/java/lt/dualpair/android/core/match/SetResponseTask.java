@@ -1,6 +1,6 @@
 package lt.dualpair.android.core.match;
 
-import android.app.Activity;
+import android.content.Context;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.resource.Response;
@@ -11,8 +11,8 @@ public class SetResponseTask extends AuthenticatedUserTask<Void> {
     private Long matchPartyId;
     private Response response;
 
-    public SetResponseTask(Activity activity, Long matchPartyId, Response response) {
-        super(activity);
+    public SetResponseTask(Context context, Long matchPartyId, Response response) {
+        super(context);
         this.matchPartyId = matchPartyId;
         this.response = response;
     }

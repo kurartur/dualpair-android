@@ -12,11 +12,23 @@ public class MatchParty implements Serializable {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public User getUser() {
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Response getResponse() {
         return response;
+    }
+
+    public void setResponse(Response response) {
+        this.response = response;
     }
 }

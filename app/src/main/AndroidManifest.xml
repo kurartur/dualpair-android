@@ -79,11 +79,6 @@
         <service
             android:name=".gcm.RegistrationService"
             android:exported="false"/>
-        
-        <provider
-            android:authorities="lt.dualpair.android.data.User"
-            android:name=".data.provider.user.UserContentProvider"
-            android:exported="false"/>
 
     </application>
 

@@ -1,6 +1,6 @@
 package lt.dualpair.android.core.user;
 
-import android.app.Activity;
+import android.content.Context;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.resource.SearchParameters;
@@ -10,8 +10,8 @@ public class SetSearchParametersTask extends AuthenticatedUserTask<Void> {
 
     private SearchParameters searchParameters;
 
-    public SetSearchParametersTask(Activity activity, SearchParameters searchParameters) {
-        super(activity);
+    public SetSearchParametersTask(Context context, SearchParameters searchParameters) {
+        super(context);
         this.searchParameters = searchParameters;
     }
 

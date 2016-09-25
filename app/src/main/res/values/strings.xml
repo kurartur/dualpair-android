@@ -86,7 +86,8 @@
 
     <string name="create_db"><![CDATA[
 
-        CREATE TABLE IF NOT EXISTS user (
+        DROP TABLE IF EXISTS users;
+        CREATE TABLE IF NOT EXISTS users (
             _id BIGINT,
             description TEXT NULL,
             date_of_birth DATE NULL,
@@ -96,14 +97,13 @@
             gender VARCHAR(1) NULL,
             PRIMARY KEY (_id));
 
+        DROP TABLE IF EXISTS search_parameters;
         CREATE TABLE IF NOT EXISTS search_parameters (
-            _id INT NOT NULL,
-            user_id BIGINT NOT NULL,
+            _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             min_age INT NULL,
             max_age INT NULL,
             search_female VARCHAR(1) NULL,
-            search_male VARCHAR(1) NULL,
-            PRIMARY KEY (_id));
+            search_male VARCHAR(1) NULL);
 
         DROP TABLE IF EXISTS user_sociotypes;
         CREATE TABLE IF NOT EXISTS user_sociotypes (
@@ -112,12 +112,14 @@
           code1 VARCHAR(45) NOT NULL,
           code2 VARCHAR(45) NOT NULL);
 
+        DROP TABLE IF EXISTS matches;
         CREATE TABLE IF NOT EXISTS matches (
           _id BIGINT NOT NULL,
           distance INT NOT NULL,
           create_time TIMESTAMP NOT NULL,
           PRIMARY KEY (_id));
 
+        DROP TABLE IF EXISTS user_accounts;
         CREATE TABLE IF NOT EXISTS user_accounts (
           _id BIGINT NOT NULL,
           user_id BIGINT NOT NULL,
@@ -125,14 +127,14 @@
           account_type VARCHAR(2) NOT NULL,
           PRIMARY KEY (_id));
 
+        DROP TABLE IF EXISTS user_locations;
         CREATE TABLE IF NOT EXISTS user_locations (
-          _id BIGINT NOT NULL,
+          _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
           user_id BIGINT NOT NULL,
           latitude DOUBLE NOT NULL,
           longitude DOUBLE NOT NULL,
           country_code VARCHAR(2) NOT NULL,
-          city VARCHAR(128) NOT NULL,
-          PRIMARY KEY (_id));
+          city VARCHAR(128) NOT NULL);
 
         DROP TABLE IF EXISTS user_photos;
         CREATE TABLE IF NOT EXISTS user_photos (
@@ -143,11 +145,13 @@
           source_link TEXT NULL,
           position SMALLINT NOT NULL DEFAULT 0);
 
+        DROP TABLE IF EXISTS match_parties;
         CREATE TABLE IF NOT EXISTS match_parties (
           _id BIGINT NOT NULL,
           match_id BIGINT NOT NULL,
           user_id BIGINT NOT NULL,
-          response VARCHAR(1) NOT NULL,
+          response VARCHAR NOT NULL,
+          row_status VARCHAR(1) NOT NULL DEFAULT \'I\',
           PRIMARY KEY (_id));
 
     ]]></string>

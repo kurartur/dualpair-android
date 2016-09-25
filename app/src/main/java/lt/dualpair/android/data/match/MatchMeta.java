@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.provider.match;
+package lt.dualpair.android.data.match;
 
 import android.provider.BaseColumns;
 

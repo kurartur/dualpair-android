@@ -1,11 +1,7 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Fragment;
-import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -15,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,19 +25,20 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.accounts.LoginActivity;
 import lt.dualpair.android.accounts.LogoutTask;
+import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.resource.Photo;
 import lt.dualpair.android.resource.Sociotype;
 import lt.dualpair.android.resource.User;
 import lt.dualpair.android.rx.EmptySubscriber;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
+import rx.Subscription;
 
-public class ProfileFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ProfileFragment extends Fragment {
 
     private static final int EDIT_FIRST_SOCIOTYPE_CODE = 1;
-    private static final int USER_LOADER = 1;
-    private static final int SOCIOTYPE_LOADER = 2;
-    private static final int PHOTO_LOADER = 3;
+
+    private Subscription userSubscription;
 
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
@@ -69,8 +67,13 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
                 startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), EDIT_FIRST_SOCIOTYPE_CODE);
             }
         });
-        load();
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        load();
     }
 
     @Override
@@ -92,10 +95,12 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void load() {
-        LoaderManager lm = getLoaderManager();
-        lm.initLoader(USER_LOADER, null, this);
-        lm.initLoader(SOCIOTYPE_LOADER, null, this);
-        lm.initLoader(PHOTO_LOADER, null, this);
+        userSubscription = new UserProvider(getActivity()).user(new EmptySubscriber<User>() {
+            @Override
+            public void onNext(User user) {
+                render(user);
+            }
+        });
     }
 
     private void render(User user) {
@@ -107,21 +112,25 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
         } else {
             description.setText(user.getDescription());
         }
-    }
 
-    private void render(Sociotype firstSociotype) {
+        final Photo photo = user.getPhotos().iterator().next();
+        mainPicture.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Picasso.with(getActivity())
+                        .load(photo.getSourceUrl())
+                        .resize(mainPicture.getWidth(), mainPicture.getHeight())
+                        .centerCrop()
+                        .error(R.drawable.image_not_found)
+                        .into(mainPicture);
+            }
+        });
+
+        Sociotype firstSociotype = user.getSociotypes().iterator().next();
         firstSociotypeCode.setText(firstSociotype.getCode1() + " (" + firstSociotype.getCode2() + ")");
         firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
         getActivity().findViewById(R.id.second_sociotype_container).setVisibility(View.GONE);
-    }
 
-    private void render(Photo photo, ImageView picture) {
-        Picasso.with(getActivity())
-                .load(photo.getSourceUrl())
-                .resize(picture.getWidth(), picture.getHeight())
-                .centerCrop()
-                .error(R.drawable.image_not_found)
-                .into(picture);
     }
 
     private void logout() {
@@ -137,88 +146,4 @@ public class ProfileFragment extends Fragment implements LoaderManager.LoaderCal
             }
         });
     }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case USER_LOADER:
-                // Returns a new CursorLoader
-                return new CursorLoader(
-                        getActivity(),   // Parent activity context
-                        lt.dualpair.android.data.provider.user.User.UserColumns.USER_URI,        // Table to query
-                        null,     // Projection to return
-                        null,            // No selection clause
-                        null,            // No selection arguments
-                        null             // Default sort order
-                );
-            case SOCIOTYPE_LOADER:
-                return new CursorLoader(
-                        getActivity(),   // Parent activity context
-                        lt.dualpair.android.data.provider.user.User.SociotypeColumns.SOCIOTYPES_URI,        // Table to query
-                        null,     // Projection to return
-                        null,            // No selection clause
-                        null,            // No selection arguments
-                        null             // Default sort order
-                );
-            case PHOTO_LOADER:
-                return new CursorLoader(
-                        getActivity(),   // Parent activity context
-                        lt.dualpair.android.data.provider.user.User.PhotoColumns.PHOTOS_URI,        // Table to query
-                        null,     // Projection to return
-                        null,            // No selection clause
-                        null,            // No selection arguments
-                        null             // Default sort order
-                );
-            default:
-                // An invalid id was passed in
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        switch (loader.getId()) {
-            case USER_LOADER:
-                if (data.moveToNext()) {
-                    render(createUser(data));
-                }
-                break;
-            case SOCIOTYPE_LOADER:
-                if (data.moveToNext()) {
-                    Sociotype firstSociotype = createSociotype(data);
-                    render(firstSociotype);
-                }
-                break;
-            case PHOTO_LOADER:
-                if (data.moveToNext()) {
-                    Photo photo = createPhoto(data);
-                    render(photo, mainPicture);
-                }
-                break;
-        }
-    }
-
-    private User createUser(Cursor cursor) {
-        User user = new User();
-        user.setName(cursor.getString(cursor.getColumnIndex(lt.dualpair.android.data.provider.user.User.UserColumns.NAME)));
-        user.setAge(cursor.getInt(cursor.getColumnIndex(lt.dualpair.android.data.provider.user.User.UserColumns.AGE)));
-        user.setDescription(cursor.getString(cursor.getColumnIndex(lt.dualpair.android.data.provider.user.User.UserColumns.DESCRIPTION)));
-        return user;
-    }
-
-    private Sociotype createSociotype(Cursor cursor) {
-        Sociotype sociotype = new Sociotype();
-        sociotype.setCode1(cursor.getString(cursor.getColumnIndex(lt.dualpair.android.data.provider.user.User.SociotypeColumns.CODE_1)));
-        sociotype.setCode2(cursor.getString(cursor.getColumnIndex(lt.dualpair.android.data.provider.user.User.SociotypeColumns.CODE_2)));
-        return sociotype;
-    }
-
-    private Photo createPhoto(Cursor cursor) {
-        Photo photo = new Photo();
-        photo.setSourceUrl(cursor.getString(cursor.getColumnIndex(lt.dualpair.android.data.provider.user.User.PhotoColumns.SOURCE_LINK)));
-        return photo;
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {}
 }

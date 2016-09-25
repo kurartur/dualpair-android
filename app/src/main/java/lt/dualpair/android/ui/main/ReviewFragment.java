@@ -1,11 +1,9 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.app.LoaderManager;
-import android.content.Loader;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -21,25 +19,30 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.core.match.SetResponseTask;
+import lt.dualpair.android.data.match.MatchProvider;
+import lt.dualpair.android.resource.ErrorResponse;
+import lt.dualpair.android.resource.Location;
 import lt.dualpair.android.resource.Match;
 import lt.dualpair.android.resource.Photo;
 import lt.dualpair.android.resource.Response;
 import lt.dualpair.android.resource.Sociotype;
 import lt.dualpair.android.resource.User;
 import lt.dualpair.android.rx.EmptySubscriber;
+import lt.dualpair.android.services.ServiceException;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
+import rx.Subscription;
 
-public class ReviewFragment extends Fragment implements ReviewView, LoaderManager.LoaderCallbacks {
+public class ReviewFragment extends Fragment {
 
     private static final String TAG = "ReviewFragment";
 
-    ReviewPresenter reviewPresenter;
+    private Subscription nextMatchSubscription;
     Match match;
     ImageView[] dotImages;
 
@@ -95,16 +98,15 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
         yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendResponse(Response.YES);
+                setResponse(Response.YES);
             }
         });
         noButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendResponse(Response.NO);
+                setResponse(Response.NO);
             }
         });
-        reviewPresenter = new ReviewPresenter(this, this.getActivity());
         if (savedInstanceState == null) {
             loadReview();
         } else {
@@ -117,19 +119,62 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
         }
     }
 
-    private void loadReview() {
-        if (reviewPresenter != null) {
-            reviewPresenter.initialize();
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+        nextMatchSubscription.unsubscribe();
     }
 
-    @Override
+    private void showViewLoading() {
+        showLoading();
+    }
+
+    private void loadReview() {
+        showViewLoading();
+        nextMatchSubscription = new MatchProvider(getActivity()).next(new EmptySubscriber<Match>() {
+            @Override
+            public void onError(Throwable e) {
+                if (e instanceof ServiceException) {
+                    ServiceException se = (ServiceException)e;
+                    if (se.getResponse().code() == 404) {final Handler handler = new Handler();
+                        showNoMatches();
+
+                    } else {showNoMatches();
+                        try {
+                            showLoadingError(se.getErrorBodyAs(ErrorResponse.class).getMessage());
+                        } catch (IOException ioe) {
+                            Log.e(TAG, "Error", ioe);
+                            showLoadingError(ioe.getMessage());
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "Error", e);
+                    showLoadingError(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onNext(Match match) {
+                if (match != null) {
+                    renderReview(match);
+                } else {
+                    showNoMatches();
+                }
+            }
+        });
+    }
+
     public void renderReview(Match match) {
         this.match = match;
         User user = match.getOpponent().getUser();
         name.setText(user.getName());
         age.setText(Integer.toString(user.getAge()));
-        location.setText(user.getLocations().iterator().next().getCity());
+        Location firstLocation = user.getFirstLocation();
+        if (firstLocation != null) {
+            location.setText(firstLocation.getCity());
+        } else {
+            location.setText("Unknown");
+        }
         StringBuilder sb = new StringBuilder();
         String prefix = "";
         for (Sociotype sociotype : user.getSociotypes()) {
@@ -144,7 +189,6 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
         reviewLayout.setVisibility(View.VISIBLE);
     }
 
-    @Override
     public void showLoading() {
         progressText.setText(getResources().getString(R.string.loading) + "...");
         retryButton.setVisibility(View.GONE);
@@ -153,7 +197,6 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
         reviewLayout.setVisibility(View.GONE);
     }
 
-    @Override
     public void showLoadingError(String text) {
         progressText.setText(text);
         progressText.setTextColor(Color.RED);
@@ -161,7 +204,6 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
         retryButton.setVisibility(View.VISIBLE);
     }
 
-    @Override
     public void showNoMatches() {
         progressText.setText(getResources().getString(R.string.no_matches_found));
         progressBar.setVisibility(View.GONE);
@@ -188,20 +230,10 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
         }
     }
 
-    private void sendResponse(final Response response) {
-        final Activity activity = getActivity();
-        new SetResponseTask(activity, match.getUser().getId(), response).execute(new EmptySubscriber<Void>() {
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Unable to send response", e);
-            }
-
-            @Override
-            public void onNext(Void v) {
-                ReviewFragment.this.match = null;
-                loadReview();
-            }
-        });
+    private void setResponse(final Response response) {
+        new MatchProvider(getActivity()).setResponse(match.getId(), response);
+        match = null;
+        loadReview();
     }
 
     @Override
@@ -223,20 +255,5 @@ public class ReviewFragment extends Fragment implements ReviewView, LoaderManage
                 break;
         }
         return false;
-    }
-
-    @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader loader, Object data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader loader) {
-
     }
 }

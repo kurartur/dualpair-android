@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -15,12 +14,11 @@ import android.widget.Spinner;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.core.user.GetSearchParametersTask;
-import lt.dualpair.android.core.user.SetSearchParametersTask;
+import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.resource.SearchParameters;
 import lt.dualpair.android.rx.EmptySubscriber;
 import lt.dualpair.android.ui.BaseActivity;
-import lt.dualpair.android.utils.ToastUtils;
+import rx.Subscription;
 
 public class SearchParametersActivity extends BaseActivity {
 
@@ -28,6 +26,8 @@ public class SearchParametersActivity extends BaseActivity {
     private static final String TAG = "SearchParamActivity";
     private static final Integer MIN_SEARCH_AGE = 13;
     private static final Integer MAX_SEARCH_AGE = 120;
+
+    private Subscription subscription;
 
     @Bind(R.id.checkbox_search_for_male)
     CheckBox searchMale;
@@ -64,20 +64,21 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     private void loadSearchParameters() {
-        final Activity activity = this;
-        new GetSearchParametersTask(activity).execute(new EmptySubscriber<SearchParameters>() {
+        subscription = new UserProvider(this).searchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, "Unable to load search parameters", e);
-                ToastUtils.show(activity, "Unable to load search parameters");
+                //Log.e(TAG, "Unable to load search parameters", e);
+                //ToastUtils.show(activity, "Unable to load search parameters");
                 finish();
             }
 
             @Override
             public void onNext(SearchParameters searchParameters) {
-                fillSearchParameters(searchParameters);
+                if (searchParameters != null) {
+                    fillSearchParameters(searchParameters);
+                }
             }
-        }, this);
+        });
     }
 
     private void fillSearchParameters(SearchParameters searchParameters) {
@@ -101,19 +102,10 @@ public class SearchParametersActivity extends BaseActivity {
         searchParameters.setSearchFemale(searchFemale.isChecked());
         searchParameters.setMinAge((Integer)minAge.getSelectedItem());
         searchParameters.setMaxAge((Integer)maxAge.getSelectedItem());
-        new SetSearchParametersTask(this, searchParameters).execute(new EmptySubscriber<Void>() {
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Unable to save search parameters", e);
-                ToastUtils.show(SearchParametersActivity.this, e.getMessage());
-            }
+        new UserProvider(this).setSearchParameters(searchParameters);
+        setResult(RESULT_OK);
+        finish();
 
-            @Override
-            public void onNext(Void aVoid) {
-                setResult(RESULT_OK);
-                finish();
-            }
-        }, this);
     }
 
     private ArrayAdapter<Integer> createAgeSpinnerAdapter() {
@@ -139,7 +131,7 @@ public class SearchParametersActivity extends BaseActivity {
                 return true;
             case MENU_ITEM_SAVE:
                 postSearchParameters();
-                finish(); // TODO finish after saving or show progress
+                finish();
                 return false;
         }
         return false;
