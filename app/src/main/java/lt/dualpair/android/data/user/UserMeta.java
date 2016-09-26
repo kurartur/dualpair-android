@@ -4,9 +4,9 @@ import android.provider.BaseColumns;
 
 public class UserMeta {
 
-    public static final class UserColumns implements BaseColumns {
+    public static final class User implements BaseColumns {
 
-        private UserColumns() {}
+        public static final String TABLE_NAME = "users";
 
         public static final String NAME = "name";
         public static final String DESCRIPTION = "description";
@@ -15,9 +15,9 @@ public class UserMeta {
 
     }
 
-    public static final class SociotypeColumns implements BaseColumns {
+    public static final class Sociotype implements BaseColumns {
 
-        private SociotypeColumns() {}
+        public static final String TABLE_NAME = "user_sociotypes";
 
         public static final String USER_ID = "user_id";
         public static final String CODE_1 = "code1";
@@ -25,15 +25,21 @@ public class UserMeta {
 
     }
 
-    public static final class PhotoColumns implements BaseColumns {
+    public static final class Photo implements BaseColumns {
 
-        private PhotoColumns() {}
+        public static final String TABLE_NAME = "user_photos";
 
         public static final String USER_ID = "user_id";
         public static final String ACCOUNT_TYPE = "account_type";
         public static final String ID_ON_ACCOUNT = "id_on_account";
         public static final String SOURCE_LINK = "source_link";
         public static final String POSITION = "position";
+
+    }
+
+    public static final class Location implements BaseColumns {
+
+        public static final String TABLE_NAME = "user_locations";
 
     }
 

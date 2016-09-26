@@ -9,17 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lt.dualpair.android.data.Repository;
 import lt.dualpair.android.resource.Location;
 import lt.dualpair.android.resource.Photo;
 import lt.dualpair.android.resource.Sociotype;
 import lt.dualpair.android.resource.User;
 
-public class UserRepository {
-
-    private SQLiteDatabase db;
+public class UserRepository extends Repository<User> {
 
     public UserRepository(SQLiteDatabase db) {
-        this.db = db;
+        super(db);
     }
 
     public User get(Long userId) {
@@ -31,7 +30,8 @@ public class UserRepository {
         }
     }
 
-    public void save(User user) {
+    @Override
+    protected User doSave(User user) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("_id", user.getId());
         contentValues.put("description", user.getDescription());
@@ -63,10 +63,11 @@ public class UserRepository {
             contentValues.put("city", location.getCity());
             rowId = db.insert("user_locations", null, contentValues);
         }
+
+        return user;
     }
 
     private User map(Cursor c) {
-
         User user = new User();
         user.setId(c.getLong(c.getColumnIndex("_id")));
         user.setAge(c.getInt(c.getColumnIndex("age")));
@@ -74,7 +75,7 @@ public class UserRepository {
         user.setDescription(c.getString(c.getColumnIndex("description")));
 
         Set<Sociotype> sociotypes = new HashSet<>();
-        Cursor sociotypesCursor = db.query("user_sociotypes", null, "user_id=?", new String[]{user.getId().toString()}, null, null, null);
+        Cursor sociotypesCursor = db.query(UserMeta.Sociotype.TABLE_NAME, null, "user_id=?", new String[]{user.getId().toString()}, null, null, null);
         while (sociotypesCursor.moveToNext()) {
             Sociotype sociotype = new Sociotype();
             sociotype.setCode1(sociotypesCursor.getString(sociotypesCursor.getColumnIndex("code1")));
@@ -84,7 +85,7 @@ public class UserRepository {
         user.setSociotypes(sociotypes);
 
         List<Photo> photos = new ArrayList<>();
-        Cursor photosCursor = db.query("user_photos", null, "user_id=?", new String[]{user.getId().toString()}, null, null, null);
+        Cursor photosCursor = db.query(UserMeta.Photo.TABLE_NAME, null, "user_id=?", new String[]{user.getId().toString()}, null, null, null);
         while (photosCursor.moveToNext()) {
             Photo photo = new Photo();
             photo.setSourceUrl(photosCursor.getString(photosCursor.getColumnIndex("source_link")));
@@ -93,7 +94,7 @@ public class UserRepository {
         user.setPhotos(photos);
 
         Set<Location> locations = new HashSet<>();
-        Cursor locationsCursor = db.query("user_locations", null, "user_id=?", new String[]{user.getId().toString()}, null, null, null);
+        Cursor locationsCursor = db.query(UserMeta.Location.TABLE_NAME, null, "user_id=?", new String[]{user.getId().toString()}, null, null, null);
         while (locationsCursor.moveToNext()) {
             Location location = new Location();
             location.setLatitude(locationsCursor.getDouble(locationsCursor.getColumnIndex("latitude")));
@@ -107,4 +108,12 @@ public class UserRepository {
         return user;
     }
 
+    @Override
+    protected void doDelete(User user) {
+        String userId = user.getId().toString();
+        db.delete(UserMeta.Location.TABLE_NAME, "user_id=?", args(userId));
+        db.delete(UserMeta.Photo.TABLE_NAME, "user_id=?", args(userId));
+        db.delete(UserMeta.Sociotype.TABLE_NAME, "user_id=?", args(userId));
+        db.delete(UserMeta.User.TABLE_NAME, "_id=?", args(userId));
+    }
 }

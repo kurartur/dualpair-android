@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import lt.dualpair.android.R;
+import lt.dualpair.android.accounts.AccountUtils;
 
 public class DbHelper extends SQLiteOpenHelper {
 
@@ -23,8 +24,8 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     public static DbHelper forCurrentUser(Context context) {
-        //String userId = AccountUtils.getUserId(context).toString(); // TODO check user;
-        return new DbHelper(context, "1");
+        String userId = AccountUtils.getUserId(context).toString(); // TODO check user;
+        return new DbHelper(context, userId);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package lt.dualpair.android.data.match;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
@@ -23,8 +22,11 @@ public class MatchProvider extends Provider {
 
     private static Subject<Match, Match> globalSubject = PublishSubject.create();
 
+    private MatchRepository matchRepository;
+
     public MatchProvider(Context context) {
         super(context);
+        matchRepository = new MatchRepository(DbHelper.forCurrentUser(context).getWritableDatabase());
     }
 
     public Subscription next(Subscriber<Match> subscriber) {
@@ -32,7 +34,6 @@ public class MatchProvider extends Provider {
         final Subject<Match, Match> subject = PublishSubject.create();
         Subscription subscription = subject.subscribe(subscriber);
 
-        final MatchRepository matchRepository = new MatchRepository(getDbHelper().getWritableDatabase());
         List<Match> matchList = matchRepository.next(getUserId());
         if (!matchList.isEmpty()) {
             final Match match = matchList.get(0);
@@ -68,25 +69,16 @@ public class MatchProvider extends Provider {
     }
 
     public void setResponse(Long matchId, Response response) {
-
-        DbHelper dbHelper = DbHelper.forCurrentUser(context);
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final Long userId = AccountUtils.getUserId(context);
-
-        MatchRepository repository = new MatchRepository(db);
-        Match match = repository.one(matchId, userId);
+        Match match = matchRepository.one(matchId, getUserId());
         match.getUser().setResponse(response);
-        repository.setResponse(match.getUser().getId(), response);
-
+        matchRepository.setResponse(match.getUser().getId(), response);
         new SetResponseTask(context, match.getUser().getId(), response).execute(new EmptySubscriber<Void>() {
-
+            @Override
+            public void onNext(Void aVoid) {
+                // TODO update row
+            }
         });
-
-        //globalSubject.onNext(match);
-    }
-
-    private DbHelper getDbHelper() {
-        return DbHelper.forCurrentUser(context);
+        globalSubject.onNext(match);
     }
 
     private Long getUserId() {
