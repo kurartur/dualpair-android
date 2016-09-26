@@ -5,9 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import lt.dualpair.android.data.Repository;
-import lt.dualpair.android.resource.SearchParameters;
+import lt.dualpair.android.data.resource.SearchParameters;
 
-public class SearchParametersRepository extends Repository {
+public class SearchParametersRepository extends Repository<SearchParameters> {
 
     public SearchParametersRepository(SQLiteDatabase db) {
         super(db);
@@ -36,12 +36,19 @@ public class SearchParametersRepository extends Repository {
         return sp;
     }
 
-    public void save(SearchParameters sp) {
+    @Override
+    protected SearchParameters doSave(SearchParameters sp) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("min_age", sp.getMinAge());
         contentValues.put("max_age", sp.getMaxAge());
         contentValues.put("search_female", sp.getSearchFemale() ? "Y" : "N");
         contentValues.put("search_male", sp.getSearchMale() ? "Y" : "N");
-        long rowId= db.insert("search_parameters", null, contentValues);
+        long rowId = db.insert("search_parameters", null, contentValues);
+        return sp;
+    }
+
+    @Override
+    protected void doDelete(SearchParameters searchParameters) {
+        db.delete(SearchParametersMeta.SearchParameters.TABLE_NAME, null, null);
     }
 }

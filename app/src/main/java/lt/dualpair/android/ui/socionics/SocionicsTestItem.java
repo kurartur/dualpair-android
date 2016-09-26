@@ -1,7 +1,7 @@
 package lt.dualpair.android.ui.socionics;
 
-import lt.dualpair.android.resource.Choice;
-import lt.dualpair.android.resource.ChoicePair;
+import lt.dualpair.android.data.resource.Choice;
+import lt.dualpair.android.data.resource.ChoicePair;
 
 public class SocionicsTestItem {
 

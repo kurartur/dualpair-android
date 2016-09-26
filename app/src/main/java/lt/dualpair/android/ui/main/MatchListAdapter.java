@@ -19,9 +19,9 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.resource.Match;
-import lt.dualpair.android.resource.User;
-import lt.dualpair.android.resource.UserAccount;
+import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.resource.UserAccount;
 
 public class MatchListAdapter extends BaseAdapter {
 

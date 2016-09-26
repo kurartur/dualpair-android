@@ -15,7 +15,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.resource.Sociotype;
+import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.ui.socionics.SocionicsTestActivity;
 
 public class AddSociotypeActivity extends Activity {

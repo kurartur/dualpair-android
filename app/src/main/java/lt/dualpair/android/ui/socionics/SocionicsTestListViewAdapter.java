@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.resource.Choice;
-import lt.dualpair.android.resource.ChoicePair;
+import lt.dualpair.android.data.resource.Choice;
+import lt.dualpair.android.data.resource.ChoicePair;
 
 public class SocionicsTestListViewAdapter extends BaseAdapter implements View.OnClickListener {
 

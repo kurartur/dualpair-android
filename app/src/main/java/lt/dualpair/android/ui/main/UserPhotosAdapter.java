@@ -14,7 +14,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.resource.Photo;
+import lt.dualpair.android.data.resource.Photo;
 
 public class UserPhotosAdapter extends PagerAdapter {
 

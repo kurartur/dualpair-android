@@ -10,11 +10,11 @@ import java.util.List;
 
 import lt.dualpair.android.data.DbHelper;
 import lt.dualpair.android.data.Repository;
+import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.MatchParty;
+import lt.dualpair.android.data.resource.Response;
+import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.user.UserRepository;
-import lt.dualpair.android.resource.Match;
-import lt.dualpair.android.resource.MatchParty;
-import lt.dualpair.android.resource.Response;
-import lt.dualpair.android.resource.User;
 
 public class MatchRepository extends Repository<Match> {
 

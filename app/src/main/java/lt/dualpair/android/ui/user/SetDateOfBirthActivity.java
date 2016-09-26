@@ -14,8 +14,8 @@ import java.util.Date;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.core.user.SetDateOfBirthTask;
-import lt.dualpair.android.rx.EmptySubscriber;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.task.user.SetDateOfBirthTask;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class SetDateOfBirthActivity extends Activity {

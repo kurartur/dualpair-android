@@ -18,13 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.core.socionics.EvaluateTestTask;
-import lt.dualpair.android.resource.Choice;
-import lt.dualpair.android.resource.ChoicePair;
-import lt.dualpair.android.resource.ErrorResponse;
-import lt.dualpair.android.resource.Sociotype;
-import lt.dualpair.android.rx.EmptySubscriber;
-import lt.dualpair.android.services.ServiceException;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.services.ServiceException;
+import lt.dualpair.android.data.remote.task.socionics.EvaluateTestTask;
+import lt.dualpair.android.data.resource.Choice;
+import lt.dualpair.android.data.resource.ChoicePair;
+import lt.dualpair.android.data.resource.ErrorResponse;
+import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.ui.user.ConfirmSociotypeActivity;
 import lt.dualpair.android.utils.ToastUtils;
 

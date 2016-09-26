@@ -17,14 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.core.match.GetMutualMatchTask;
-import lt.dualpair.android.core.match.GetUserMutualMatchListTask;
-import lt.dualpair.android.resource.Match;
-import lt.dualpair.android.resource.ResourceCollection;
-import lt.dualpair.android.rx.DefaultErrorHandlingSubscriber;
-import lt.dualpair.android.rx.EmptySubscriber;
-import lt.dualpair.android.rx.bus.NewMatchEvent;
-import lt.dualpair.android.rx.bus.RxBus;
+import lt.dualpair.android.bus.NewMatchEvent;
+import lt.dualpair.android.bus.RxBus;
+import lt.dualpair.android.data.DefaultErrorHandlingSubscriber;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.task.match.GetMutualMatchTask;
+import lt.dualpair.android.data.remote.task.match.GetUserMutualMatchListTask;
+import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.ResourceCollection;
 import rx.Subscription;
 import rx.functions.Action1;
 

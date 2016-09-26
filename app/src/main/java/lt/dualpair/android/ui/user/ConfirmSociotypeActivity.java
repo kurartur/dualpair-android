@@ -14,11 +14,11 @@ import java.util.Set;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.core.user.GetUserPrincipalTask;
-import lt.dualpair.android.core.user.SetUserSociotypesTask;
-import lt.dualpair.android.resource.Sociotype;
-import lt.dualpair.android.resource.User;
-import lt.dualpair.android.rx.EmptySubscriber;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.task.user.GetUserPrincipalTask;
+import lt.dualpair.android.data.remote.task.user.SetUserSociotypesTask;
+import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class ConfirmSociotypeActivity extends Activity {

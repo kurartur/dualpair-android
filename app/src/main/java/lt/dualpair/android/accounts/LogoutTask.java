@@ -2,7 +2,7 @@ package lt.dualpair.android.accounts;
 
 import android.app.Activity;
 
-import lt.dualpair.android.services.authentication.LogoutClient;
+import lt.dualpair.android.data.remote.services.authentication.LogoutClient;
 
 public class LogoutTask extends AuthenticatedUserTask<Void> {
 

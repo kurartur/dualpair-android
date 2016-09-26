@@ -5,13 +5,13 @@ import android.content.Context;
 import java.util.List;
 
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.core.match.GetNextMatchTask;
-import lt.dualpair.android.core.match.SetResponseTask;
 import lt.dualpair.android.data.DbHelper;
+import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.Provider;
-import lt.dualpair.android.resource.Match;
-import lt.dualpair.android.resource.Response;
-import lt.dualpair.android.rx.EmptySubscriber;
+import lt.dualpair.android.data.remote.task.match.GetNextMatchTask;
+import lt.dualpair.android.data.remote.task.match.SetResponseTask;
+import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.Response;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -49,7 +49,7 @@ public class MatchProvider extends Provider {
 
                 @Override
                 public void onNext(Match match) {
-                    matchRepository.save(match, getUserId());
+                    matchRepository.save(match);
                     globalSubject.filter(createFilter(match.getId()))
                             .subscribe(subject);
                     subject.onNext(match);

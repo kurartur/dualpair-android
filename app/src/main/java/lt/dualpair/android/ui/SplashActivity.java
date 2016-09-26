@@ -24,14 +24,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.core.user.GetSearchParametersTask;
-import lt.dualpair.android.core.user.GetUserPrincipalTask;
-import lt.dualpair.android.core.user.SetLocationTask;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.services.ServiceException;
+import lt.dualpair.android.data.remote.task.user.GetSearchParametersTask;
+import lt.dualpair.android.data.remote.task.user.GetUserPrincipalTask;
+import lt.dualpair.android.data.remote.task.user.SetLocationTask;
+import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.gcm.RegistrationService;
-import lt.dualpair.android.resource.SearchParameters;
-import lt.dualpair.android.resource.User;
-import lt.dualpair.android.rx.EmptySubscriber;
-import lt.dualpair.android.services.ServiceException;
 import lt.dualpair.android.ui.main.MainActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
@@ -96,9 +96,11 @@ public class SplashActivity extends BaseActivity {
                     initUser();
                 }
             }.execute((Void)null);
+            return;
         } else {
             initUser();
         }
+
     }
 
     private void initUser() {
@@ -203,7 +205,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void saveLocation(Location location) {
-        new SetLocationTask(this, lt.dualpair.android.resource.Location.fromAndroidLocation(location)).execute(new EmptySubscriber<Void>() {
+        new SetLocationTask(this, lt.dualpair.android.data.resource.Location.fromAndroidLocation(location)).execute(new EmptySubscriber<Void>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to set location", e);

@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.accounts.AccountsException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.trello.rxlifecycle.ActivityLifecycleProvider;
@@ -12,7 +13,7 @@ import com.trello.rxlifecycle.ActivityLifecycleProvider;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import lt.dualpair.android.services.ServiceException;
+import lt.dualpair.android.data.remote.services.ServiceException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -78,9 +79,9 @@ public abstract class AuthenticatedUserTask<Result> implements Callable<Result> 
         try {
             manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
             Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
+            context.startActivity((Intent)result.get(AccountManager.KEY_INTENT));
             return false;
         } catch (OperationCanceledException oce) {
-            //context.finish(); // TODO
             return false;
         } catch (AccountsException ae) {
             return false;

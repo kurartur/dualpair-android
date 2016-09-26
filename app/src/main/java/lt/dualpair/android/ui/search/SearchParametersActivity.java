@@ -14,9 +14,9 @@ import android.widget.Spinner;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.user.UserProvider;
-import lt.dualpair.android.resource.SearchParameters;
-import lt.dualpair.android.rx.EmptySubscriber;
 import lt.dualpair.android.ui.BaseActivity;
 import rx.Subscription;
 

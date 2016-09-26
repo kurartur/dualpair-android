@@ -10,9 +10,9 @@ import android.support.v4.app.TaskStackBuilder;
 import com.google.gson.Gson;
 
 import lt.dualpair.android.R;
+import lt.dualpair.android.bus.NewMatchEvent;
+import lt.dualpair.android.bus.RxBus;
 import lt.dualpair.android.gcm.message.NewMatchMessage;
-import lt.dualpair.android.rx.bus.NewMatchEvent;
-import lt.dualpair.android.rx.bus.RxBus;
 import lt.dualpair.android.ui.main.MainActivity;
 
 public class NewMatchMessageHandler implements MessageHandler<NewMatchMessage> {

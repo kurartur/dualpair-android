@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 import lt.dualpair.android.data.Repository;
-import lt.dualpair.android.resource.Location;
-import lt.dualpair.android.resource.Photo;
-import lt.dualpair.android.resource.Sociotype;
-import lt.dualpair.android.resource.User;
+import lt.dualpair.android.data.resource.Location;
+import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.resource.User;
 
 public class UserRepository extends Repository<User> {
 
