@@ -184,4 +184,11 @@
 
     </LinearLayout>
 
+    <ListView
+        android:id="@+id/accounts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp"
+        android:background="@drawable/profile_section_background"/>
+
 </LinearLayout>

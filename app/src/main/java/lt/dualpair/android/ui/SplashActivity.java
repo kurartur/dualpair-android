@@ -26,11 +26,10 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.remote.services.ServiceException;
-import lt.dualpair.android.data.remote.task.user.GetSearchParametersTask;
-import lt.dualpair.android.data.remote.task.user.GetUserPrincipalTask;
 import lt.dualpair.android.data.remote.task.user.SetLocationTask;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.ui.main.MainActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
@@ -58,7 +57,8 @@ public class SplashActivity extends BaseActivity {
     @Bind(R.id.progress_text)
     TextView progressText;
 
-    private Subscription subscription;
+    private Subscription userSubscription;
+    private Subscription searchParametersSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +79,17 @@ public class SplashActivity extends BaseActivity {
         init();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (userSubscription != null) {
+            userSubscription.unsubscribe();
+        }
+        if (searchParametersSubscription != null ) {
+            searchParametersSubscription.unsubscribe();
+        }
+    }
+
     private void init() {
         progressLayout.setVisibility(View.VISIBLE);
 
@@ -96,7 +107,6 @@ public class SplashActivity extends BaseActivity {
                     initUser();
                 }
             }.execute((Void)null);
-            return;
         } else {
             initUser();
         }
@@ -105,7 +115,7 @@ public class SplashActivity extends BaseActivity {
 
     private void initUser() {
         progressText.setText(getResources().getString(R.string.loading_user) + "...");
-        new GetUserPrincipalTask(this).execute(new EmptySubscriber<User>() {
+        userSubscription = new UserProvider(this).user(new EmptySubscriber<User>() {
             @Override
             public void onError(Throwable e) {
                 if (e instanceof ServiceException && ((ServiceException)e).getResponse().code() != 401) {
@@ -117,6 +127,7 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onNext(User user) {
+                userSubscription.unsubscribe(); // TODO throws null pointer, because is not initliazied at this moment.
                 validateUser(user);
             }
         });
@@ -134,7 +145,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void validateSearchParameters() {
-        new GetSearchParametersTask(this).execute(new EmptySubscriber<SearchParameters>() {
+        searchParametersSubscription = new UserProvider(this).searchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
                 super.onError(e);

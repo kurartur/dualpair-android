@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -14,7 +15,7 @@ import lt.dualpair.android.accounts.AccountUtils;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME_PREFIX = "DualPair_";
-    private static final int VERSION = 36;
+    private static final int VERSION = 1;
 
     private Context context;
 
@@ -47,5 +48,15 @@ public class DbHelper extends SQLiteOpenHelper {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         return dateFormat.format(date);
+    }
+
+    public static Date getDateFromString(String dateTimeString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        try {
+            return dateFormat.parse(dateTimeString);
+        } catch (ParseException pe) {
+            throw new RuntimeException(pe);
+        }
     }
 }

@@ -13,7 +13,10 @@ import rx.Observable;
 public interface MatchService {
 
     @GET("/api/match/next")
-    Observable<Match> getNext();
+    Observable<Match> getNext(@Query("mia") Integer minAge,
+                              @Query("maa") Integer maxAge,
+                              @Query("sf") String searchFemale,
+                              @Query("sm") String searchMale);
 
     @GET("/api/user/{userId}/mutual-matches?sort=dateCreated&dateCreated.dir=desc")
     Observable<ResourceCollection<Match>> getUserMutualMatches(@Path("userId") Long userId, @Query("timestamp") Long timestamp);

@@ -15,6 +15,7 @@ import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -49,6 +50,7 @@ public class ProfileFragment extends Fragment {
     @Bind(R.id.second_sociotype_code) TextView secondSociotypeCode;
     @Bind(R.id.second_sociotype_title) TextView secondSociotypeTitle;
     @Bind(R.id.edit_first_sociotype) Button editFirstSociotype;
+    @Bind(R.id.accounts) ListView accountsListView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -131,6 +133,7 @@ public class ProfileFragment extends Fragment {
         firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
         getActivity().findViewById(R.id.second_sociotype_container).setVisibility(View.GONE);
 
+        accountsListView.setAdapter(new AccountListAdapter(user.getAccounts(), this.getActivity()));
     }
 
     private void logout() {

@@ -1,6 +1,7 @@
 package lt.dualpair.android.data.match;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
@@ -12,6 +13,8 @@ import lt.dualpair.android.data.remote.task.match.GetNextMatchTask;
 import lt.dualpair.android.data.remote.task.match.SetResponseTask;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.Response;
+import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.user.SearchParametersRepository;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -23,10 +26,13 @@ public class MatchProvider extends Provider {
     private static Subject<Match, Match> globalSubject = PublishSubject.create();
 
     private MatchRepository matchRepository;
+    private SearchParametersRepository searchParametersRepository;
 
     public MatchProvider(Context context) {
         super(context);
-        matchRepository = new MatchRepository(DbHelper.forCurrentUser(context).getWritableDatabase());
+        SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
+        matchRepository = new MatchRepository(db);
+        searchParametersRepository = new SearchParametersRepository(db);
     }
 
     public Subscription next(Subscriber<Match> subscriber) {
@@ -41,7 +47,8 @@ public class MatchProvider extends Provider {
                     .subscribe(subject);
             subject.onNext(match);
         } else {
-            new GetNextMatchTask(context).execute(new EmptySubscriber<Match>() {
+            SearchParameters sp = searchParametersRepository.get();
+            new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale()).execute(new EmptySubscriber<Match>() {
                 @Override
                 public void onError(Throwable e) {
                     subject.onError(e);

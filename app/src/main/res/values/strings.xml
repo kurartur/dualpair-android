@@ -121,11 +121,10 @@
 
         DROP TABLE IF EXISTS user_accounts;
         CREATE TABLE IF NOT EXISTS user_accounts (
-          _id BIGINT NOT NULL,
+          _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
           user_id BIGINT NOT NULL,
           account_id TEXT NOT NULL,
-          account_type VARCHAR(2) NOT NULL,
-          PRIMARY KEY (_id));
+          account_type VARCHAR(2) NOT NULL);
 
         DROP TABLE IF EXISTS user_locations;
         CREATE TABLE IF NOT EXISTS user_locations (

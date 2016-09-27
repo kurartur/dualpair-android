@@ -15,16 +15,19 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.remote.task.user.GetUserPrincipalTask;
 import lt.dualpair.android.data.remote.task.user.SetUserSociotypesTask;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.utils.ToastUtils;
+import rx.Subscription;
 
 public class ConfirmSociotypeActivity extends Activity {
 
     private static final String TAG = "ConfirmSocActivity";
     public static final String PARAM_SOCIOTYPE = "sociotype";
+
+    private Subscription userSubscription;
 
     @Bind(R.id.header)
     TextView header;
@@ -51,8 +54,14 @@ public class ConfirmSociotypeActivity extends Activity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        userSubscription.unsubscribe();
+    }
+
     private void updateUserSociotypes() {
-        new GetUserPrincipalTask(ConfirmSociotypeActivity.this).execute(new EmptySubscriber<User>() {
+        userSubscription = new UserProvider(this).user(new EmptySubscriber<User>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to get user", e);
@@ -61,6 +70,7 @@ public class ConfirmSociotypeActivity extends Activity {
 
             @Override
             public void onNext(User user) {
+                userSubscription.unsubscribe();
                 Set<Sociotype> currentSociotypes = user.getSociotypes();
                 if (currentSociotypes.size() > 1) {
                     if (currentSociotypes.contains(sociotype)) {

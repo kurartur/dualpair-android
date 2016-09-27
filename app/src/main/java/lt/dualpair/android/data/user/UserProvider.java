@@ -43,6 +43,11 @@ public class UserProvider extends Provider {
         } else {
             new GetUserPrincipalTask(context).execute(new EmptySubscriber<User>() {
                 @Override
+                public void onError(Throwable e) {
+                    Log.e(TAG, "Unable to get user", e);
+                }
+
+                @Override
                 public void onNext(User user) {
                     userRepository.save(user);
                     userSubject.onNext(user);

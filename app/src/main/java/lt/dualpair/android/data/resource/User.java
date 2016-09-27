@@ -1,6 +1,7 @@
 package lt.dualpair.android.data.resource;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,7 @@ public class User extends BaseResource implements Serializable {
     private Set<Location> locations;
     private String description;
     private List<Photo> photos;
-    private Set<UserAccount> accounts;
+    private List<UserAccount> accounts = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -50,7 +51,7 @@ public class User extends BaseResource implements Serializable {
         return photos;
     }
 
-    public Set<UserAccount> getAccounts() {
+    public List<UserAccount> getAccounts() {
         return accounts;
     }
 
@@ -102,7 +103,7 @@ public class User extends BaseResource implements Serializable {
         this.photos = photos;
     }
 
-    public void setAccounts(Set<UserAccount> accounts) {
+    public void setAccounts(List<UserAccount> accounts) {
         this.accounts = accounts;
     }
 }

@@ -9,11 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lt.dualpair.android.data.DbHelper;
 import lt.dualpair.android.data.Repository;
 import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.resource.UserAccount;
 
 public class UserRepository extends Repository<User> {
 
@@ -35,6 +37,9 @@ public class UserRepository extends Repository<User> {
         ContentValues contentValues = new ContentValues();
         contentValues.put("_id", user.getId());
         contentValues.put("description", user.getDescription());
+        if (user.getDateOfBirth() != null) {
+            contentValues.put("date_of_birth", DbHelper.getDateTimeString(user.getDateOfBirth()));
+        }
         contentValues.put("age", user.getAge());
         contentValues.put("name", user.getName());
         long rowId = db.insert("users", null, contentValues);
@@ -64,12 +69,26 @@ public class UserRepository extends Repository<User> {
             rowId = db.insert("user_locations", null, contentValues);
         }
 
+        for (UserAccount userAccount : user.getAccounts()) {
+            contentValues = new ContentValues();
+            contentValues.put("user_id", user.getId());
+            contentValues.put("account_id", userAccount.getAccountId());
+            contentValues.put("account_type", userAccount.getAccountType());
+            rowId = db.insert("user_accounts", null, contentValues);
+        }
+
         return user;
     }
 
     private User map(Cursor c) {
         User user = new User();
         user.setId(c.getLong(c.getColumnIndex("_id")));
+
+        String dateTimeString = c.getString(c.getColumnIndex("date_of_birth"));
+        if (dateTimeString != null) {
+            user.setDateOfBirth(DbHelper.getDateFromString(dateTimeString));
+        }
+
         user.setAge(c.getInt(c.getColumnIndex("age")));
         user.setName(c.getString(c.getColumnIndex("name")));
         user.setDescription(c.getString(c.getColumnIndex("description")));
