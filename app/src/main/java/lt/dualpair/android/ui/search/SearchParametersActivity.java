@@ -64,7 +64,7 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     private void loadSearchParameters() {
-        subscription = new UserProvider(this).searchParameters(new EmptySubscriber<SearchParameters>() {
+        subscription = new UserProvider(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
                 //Log.e(TAG, "Unable to load search parameters", e);

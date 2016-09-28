@@ -1,5 +1,6 @@
 package lt.dualpair.android.data.match;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -9,9 +10,10 @@ import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.DbHelper;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.Provider;
+import lt.dualpair.android.data.remote.SyncStatus;
 import lt.dualpair.android.data.remote.task.match.GetNextMatchTask;
-import lt.dualpair.android.data.remote.task.match.SetResponseTask;
 import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.user.SearchParametersRepository;
@@ -23,7 +25,7 @@ import rx.subjects.Subject;
 
 public class MatchProvider extends Provider {
 
-    private static Subject<Match, Match> globalSubject = PublishSubject.create();
+    private static Subject<Match, Match> matchesSubjects = PublishSubject.create();
 
     private MatchRepository matchRepository;
     private SearchParametersRepository searchParametersRepository;
@@ -43,11 +45,11 @@ public class MatchProvider extends Provider {
         List<Match> matchList = matchRepository.next(getUserId());
         if (!matchList.isEmpty()) {
             final Match match = matchList.get(0);
-            globalSubject.filter(createFilter(match.getId()))
+            matchesSubjects.filter(createFilter(match.getId()))
                     .subscribe(subject);
             subject.onNext(match);
         } else {
-            SearchParameters sp = searchParametersRepository.get();
+            SearchParameters sp = searchParametersRepository.getLastUsed();
             new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale()).execute(new EmptySubscriber<Match>() {
                 @Override
                 public void onError(Throwable e) {
@@ -57,7 +59,7 @@ public class MatchProvider extends Provider {
                 @Override
                 public void onNext(Match match) {
                     matchRepository.save(match);
-                    globalSubject.filter(createFilter(match.getId()))
+                    matchesSubjects.filter(createFilter(match.getId()))
                             .subscribe(subject);
                     subject.onNext(match);
                 }
@@ -76,16 +78,20 @@ public class MatchProvider extends Provider {
     }
 
     public void setResponse(Long matchId, Response response) {
-        Match match = matchRepository.one(matchId, getUserId());
+        Match match = matchRepository.findOne(matchId, getUserId());
         match.getUser().setResponse(response);
-        matchRepository.setResponse(match.getUser().getId(), response);
-        new SetResponseTask(context, match.getUser().getId(), response).execute(new EmptySubscriber<Void>() {
-            @Override
-            public void onNext(Void aVoid) {
-                // TODO update row
-            }
-        });
-        globalSubject.onNext(match);
+
+        MatchParty matchParty = match.getUser();
+        matchRepository.setResponse(matchParty.getId(), response);
+        matchRepository.setMatchPartySyncStatus(matchParty.getId(), SyncStatus.UPDATE);
+
+        matchesSubjects.onNext(match);
+
+        ContentResolver.requestSync(AccountUtils.getAccount(context), null, null);
+    }
+
+    public void notifySubscribers(Match match) {
+        matchesSubjects.onNext(match);
     }
 
     private Long getUserId() {

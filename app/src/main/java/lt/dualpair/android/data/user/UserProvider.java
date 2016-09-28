@@ -35,7 +35,7 @@ public class UserProvider extends Provider {
         searchParametersRepository = new SearchParametersRepository(db);
     }
 
-    public Subscription user(Subscriber<User> subscriber) {
+    public Subscription getUser(Subscriber<User> subscriber) {
         Subscription subscription = userSubject.subscribe(subscriber);
         User user = userRepository.get(AccountUtils.getUserId(context));
         if (user != null) {
@@ -57,9 +57,9 @@ public class UserProvider extends Provider {
         return subscription;
     }
 
-    public Subscription searchParameters(Subscriber<SearchParameters> subscriber) {
+    public Subscription getSearchParameters(Subscriber<SearchParameters> subscriber) {
         Subscription subscription = searchParametersSubject.subscribe(subscriber);
-        SearchParameters sp = searchParametersRepository.get();
+        SearchParameters sp = searchParametersRepository.getLastUsed();
         if (sp != null) {
             searchParametersSubject.onNext(sp);
         } else {

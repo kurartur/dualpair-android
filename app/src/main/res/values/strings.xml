@@ -103,7 +103,8 @@
             min_age INT NULL,
             max_age INT NULL,
             search_female VARCHAR(1) NULL,
-            search_male VARCHAR(1) NULL);
+            search_male VARCHAR(1) NULL),
+            sync_status VARCHAR(1) NOT NULL DEFAULT \'C\';
 
         DROP TABLE IF EXISTS user_sociotypes;
         CREATE TABLE IF NOT EXISTS user_sociotypes (
@@ -150,7 +151,7 @@
           match_id BIGINT NOT NULL,
           user_id BIGINT NOT NULL,
           response VARCHAR NOT NULL,
-          row_status VARCHAR(1) NOT NULL DEFAULT \'I\',
+          sync_status VARCHAR(1) NOT NULL DEFAULT \'C\',
           PRIMARY KEY (_id));
 
     ]]></string>

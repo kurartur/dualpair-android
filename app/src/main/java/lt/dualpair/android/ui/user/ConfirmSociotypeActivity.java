@@ -61,7 +61,7 @@ public class ConfirmSociotypeActivity extends Activity {
     }
 
     private void updateUserSociotypes() {
-        userSubscription = new UserProvider(this).user(new EmptySubscriber<User>() {
+        userSubscription = new UserProvider(this).getUser(new EmptySubscriber<User>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to get user", e);

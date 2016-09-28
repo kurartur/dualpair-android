@@ -16,6 +16,11 @@ public class AccountUtils {
 
     private static final String CURRENT_ACCOUNT_NAME = "CURRENT_ACCOUNT_NAME";
 
+    public static Account getAccount(final Context context) {
+        AccountManager am = AccountManager.get(context);
+        return getAccount(am, context);
+    }
+
     public static Account getAccount(final AccountManager accountManager, final Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String currentAccountName = preferences.getString(CURRENT_ACCOUNT_NAME, null);

@@ -115,7 +115,7 @@ public class SplashActivity extends BaseActivity {
 
     private void initUser() {
         progressText.setText(getResources().getString(R.string.loading_user) + "...");
-        userSubscription = new UserProvider(this).user(new EmptySubscriber<User>() {
+        userSubscription = new UserProvider(this).getUser(new EmptySubscriber<User>() {
             @Override
             public void onError(Throwable e) {
                 if (e instanceof ServiceException && ((ServiceException)e).getResponse().code() != 401) {
@@ -127,7 +127,7 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onNext(User user) {
-                userSubscription.unsubscribe(); // TODO throws null pointer, because is not initliazied at this moment.
+                unsubscribe();
                 validateUser(user);
             }
         });
@@ -145,7 +145,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void validateSearchParameters() {
-        searchParametersSubscription = new UserProvider(this).searchParameters(new EmptySubscriber<SearchParameters>() {
+        searchParametersSubscription = new UserProvider(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
                 super.onError(e);
@@ -153,6 +153,7 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onNext(SearchParameters searchParameters) {
+                unsubscribe();
                 if (searchParameters == null
                         || (!searchParameters.getSearchFemale() && !searchParameters.getSearchMale())
                         || searchParameters.getMinAge() == null

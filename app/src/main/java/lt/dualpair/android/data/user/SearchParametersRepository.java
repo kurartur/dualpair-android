@@ -13,8 +13,8 @@ public class SearchParametersRepository extends Repository<SearchParameters> {
         super(db);
     }
 
-    public SearchParameters get() {
-        Cursor c = db.query("search_parameters", null, null, null, null, null, "_id desc");
+    public SearchParameters getLastUsed() {
+        Cursor c = db.query(SearchParametersMeta.SearchParameters.TABLE_NAME, null, null, null, null, null, "_id desc");
         if (c.moveToNext()) {
             return map(c);
         } else {
@@ -24,14 +24,14 @@ public class SearchParametersRepository extends Repository<SearchParameters> {
 
     private SearchParameters map(Cursor c) {
         SearchParameters sp = new SearchParameters();
-        sp.setMinAge(c.getInt(c.getColumnIndex("min_age")));
-        sp.setMaxAge(c.getInt(c.getColumnIndex("max_age")));
+        sp.setMinAge(c.getInt(c.getColumnIndex(SearchParametersMeta.SearchParameters.MIN_AGE)));
+        sp.setMaxAge(c.getInt(c.getColumnIndex(SearchParametersMeta.SearchParameters.MAX_AGE)));
 
-        String searchFemale = c.getString(c.getColumnIndex("search_female"));
-        sp.setSearchFemale("Y".equals(searchFemale) ? true : false);
+        String searchFemale = c.getString(c.getColumnIndex(SearchParametersMeta.SearchParameters.SEARCH_FEMALE));
+        sp.setSearchFemale("Y".equals(searchFemale));
 
-        String searchMale = c.getString(c.getColumnIndex("search_male"));
-        sp.setSearchMale("Y".equals(searchMale) ? true : false);
+        String searchMale = c.getString(c.getColumnIndex(SearchParametersMeta.SearchParameters.SEARCH_MALE));
+        sp.setSearchMale("Y".equals(searchMale));
         
         return sp;
     }
@@ -39,11 +39,11 @@ public class SearchParametersRepository extends Repository<SearchParameters> {
     @Override
     protected SearchParameters doSave(SearchParameters sp) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put("min_age", sp.getMinAge());
-        contentValues.put("max_age", sp.getMaxAge());
-        contentValues.put("search_female", sp.getSearchFemale() ? "Y" : "N");
-        contentValues.put("search_male", sp.getSearchMale() ? "Y" : "N");
-        long rowId = db.insert("search_parameters", null, contentValues);
+        contentValues.put(SearchParametersMeta.SearchParameters.MIN_AGE, sp.getMinAge());
+        contentValues.put(SearchParametersMeta.SearchParameters.MAX_AGE, sp.getMaxAge());
+        contentValues.put(SearchParametersMeta.SearchParameters.SEARCH_FEMALE, sp.getSearchFemale() ? "Y" : "N");
+        contentValues.put(SearchParametersMeta.SearchParameters.SEARCH_MALE, sp.getSearchMale() ? "Y" : "N");
+        long rowId = db.insert(SearchParametersMeta.SearchParameters.TABLE_NAME, null, contentValues);
         return sp;
     }
 

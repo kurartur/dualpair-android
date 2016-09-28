@@ -97,7 +97,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void load() {
-        userSubscription = new UserProvider(getActivity()).user(new EmptySubscriber<User>() {
+        userSubscription = new UserProvider(getActivity()).getUser(new EmptySubscriber<User>() {
             @Override
             public void onNext(User user) {
                 render(user);
