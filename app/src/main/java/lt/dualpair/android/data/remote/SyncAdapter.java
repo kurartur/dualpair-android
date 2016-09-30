@@ -12,11 +12,11 @@ import android.os.Bundle;
 import java.util.List;
 
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.DbHelper;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.match.MatchProvider;
-import lt.dualpair.android.data.match.MatchRepository;
+import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.remote.task.match.SetResponseTask;
+import lt.dualpair.android.data.repo.DbHelper;
+import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.resource.MatchParty;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
@@ -45,7 +45,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 @Override
                 public void onNext(Void aVoid) {
                     matchRepository.setMatchPartySyncStatus(partyId, SyncStatus.READY);
-                    new MatchProvider(context).notifySubscribers(matchRepository.findByPartyId(partyId, AccountUtils.getUserId(context)));
+                    new MatchDataManager(context).notifySubscribers(matchRepository.findByPartyId(partyId, AccountUtils.getUserId(context)));
                 }
             });
         }

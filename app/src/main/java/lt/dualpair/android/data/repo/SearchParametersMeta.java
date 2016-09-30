@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.user;
+package lt.dualpair.android.data.repo;
 
 import android.provider.BaseColumns;
 

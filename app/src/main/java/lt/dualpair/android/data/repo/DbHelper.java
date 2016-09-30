@@ -1,4 +1,4 @@
-package lt.dualpair.android.data;
+package lt.dualpair.android.data.repo;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

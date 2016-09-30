@@ -26,7 +26,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.match.MatchProvider;
+import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.remote.services.ServiceException;
 import lt.dualpair.android.data.resource.ErrorResponse;
 import lt.dualpair.android.data.resource.Location;
@@ -131,7 +131,7 @@ public class ReviewFragment extends Fragment {
 
     private void loadReview() {
         showViewLoading();
-        nextMatchSubscription = new MatchProvider(getActivity()).next(new EmptySubscriber<Match>() {
+        nextMatchSubscription = new MatchDataManager(getActivity()).next(new EmptySubscriber<Match>() {
             @Override
             public void onError(Throwable e) {
                 if (e instanceof ServiceException) {
@@ -231,7 +231,7 @@ public class ReviewFragment extends Fragment {
     }
 
     private void setResponse(final Response response) {
-        new MatchProvider(getActivity()).setResponse(match.getId(), response);
+        new MatchDataManager(getActivity()).setResponse(match.getId(), response);
         match = null;
         loadReview();
     }

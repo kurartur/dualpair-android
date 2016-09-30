@@ -27,10 +27,10 @@ import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.accounts.LoginActivity;
 import lt.dualpair.android.accounts.LogoutTask;
 import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import rx.Subscription;
@@ -97,7 +97,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void load() {
-        userSubscription = new UserProvider(getActivity()).getUser(new EmptySubscriber<User>() {
+        userSubscription = new UserDataManager(getActivity()).getUser(new EmptySubscriber<User>() {
             @Override
             public void onNext(User user) {
                 render(user);

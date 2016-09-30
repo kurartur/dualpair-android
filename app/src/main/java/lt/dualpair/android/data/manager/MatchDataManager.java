@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.match;
+package lt.dualpair.android.data.manager;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -7,30 +7,30 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.List;
 
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.DbHelper;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.Provider;
 import lt.dualpair.android.data.remote.SyncStatus;
 import lt.dualpair.android.data.remote.task.match.GetNextMatchTask;
+import lt.dualpair.android.data.repo.DbHelper;
+import lt.dualpair.android.data.repo.MatchRepository;
+import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
-import lt.dualpair.android.data.user.SearchParametersRepository;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 
-public class MatchProvider extends Provider {
+public class MatchDataManager extends DataManager {
 
     private static Subject<Match, Match> matchesSubjects = PublishSubject.create();
 
     private MatchRepository matchRepository;
     private SearchParametersRepository searchParametersRepository;
 
-    public MatchProvider(Context context) {
+    public MatchDataManager(Context context) {
         super(context);
         SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
         matchRepository = new MatchRepository(db);

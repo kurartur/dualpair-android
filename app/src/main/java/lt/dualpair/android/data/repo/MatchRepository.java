@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.match;
+package lt.dualpair.android.data.repo;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -8,14 +8,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import lt.dualpair.android.data.DbHelper;
-import lt.dualpair.android.data.Repository;
 import lt.dualpair.android.data.remote.SyncStatus;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.user.UserRepository;
 
 public class MatchRepository extends Repository<Match> {
 

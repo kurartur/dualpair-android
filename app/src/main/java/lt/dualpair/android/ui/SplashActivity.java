@@ -25,11 +25,11 @@ import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.remote.services.ServiceException;
 import lt.dualpair.android.data.remote.task.user.SetLocationTask;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.ui.main.MainActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
@@ -115,7 +115,7 @@ public class SplashActivity extends BaseActivity {
 
     private void initUser() {
         progressText.setText(getResources().getString(R.string.loading_user) + "...");
-        userSubscription = new UserProvider(this).getUser(new EmptySubscriber<User>() {
+        userSubscription = new UserDataManager(this).getUser(new EmptySubscriber<User>() {
             @Override
             public void onError(Throwable e) {
                 if (e instanceof ServiceException && ((ServiceException)e).getResponse().code() != 401) {
@@ -145,7 +145,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void validateSearchParameters() {
-        searchParametersSubscription = new UserProvider(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
+        searchParametersSubscription = new UserDataManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
                 super.onError(e);

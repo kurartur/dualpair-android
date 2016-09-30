@@ -15,10 +15,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.remote.task.user.SetUserSociotypesTask;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.user.UserProvider;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.Subscription;
 
@@ -61,7 +61,7 @@ public class ConfirmSociotypeActivity extends Activity {
     }
 
     private void updateUserSociotypes() {
-        userSubscription = new UserProvider(this).getUser(new EmptySubscriber<User>() {
+        userSubscription = new UserDataManager(this).getUser(new EmptySubscriber<User>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to get user", e);

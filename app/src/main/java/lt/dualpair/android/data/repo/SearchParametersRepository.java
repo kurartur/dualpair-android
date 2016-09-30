@@ -1,10 +1,9 @@
-package lt.dualpair.android.data.user;
+package lt.dualpair.android.data.repo;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import lt.dualpair.android.data.Repository;
 import lt.dualpair.android.data.resource.SearchParameters;
 
 public class SearchParametersRepository extends Repository<SearchParameters> {
