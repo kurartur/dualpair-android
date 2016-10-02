@@ -15,7 +15,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
+import lt.dualpair.android.data.manager.SearchParametersManager;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.ui.BaseActivity;
 import rx.Subscription;
@@ -64,7 +64,7 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     private void loadSearchParameters() {
-        subscription = new UserDataManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
+        subscription = new SearchParametersManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
                 //Log.e(TAG, "Unable to load search parameters", e);
@@ -102,7 +102,7 @@ public class SearchParametersActivity extends BaseActivity {
         searchParameters.setSearchFemale(searchFemale.isChecked());
         searchParameters.setMinAge((Integer)minAge.getSelectedItem());
         searchParameters.setMaxAge((Integer)maxAge.getSelectedItem());
-        new UserDataManager(this).setSearchParameters(searchParameters);
+        new SearchParametersManager(this).setSearchParameters(searchParameters);
         setResult(RESULT_OK);
         finish();
 

@@ -85,6 +85,7 @@ public class MatchListFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void initializeList() {
         swipeRefreshLayout.setRefreshing(true);
+
         new GetUserMutualMatchListTask(activity).execute(new EmptySubscriber<ResourceCollection<Match>>() {
             @Override
             public void onError(Throwable e) {

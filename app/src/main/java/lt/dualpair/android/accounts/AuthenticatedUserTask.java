@@ -11,15 +11,15 @@ import android.os.Bundle;
 import com.trello.rxlifecycle.ActivityLifecycleProvider;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 import lt.dualpair.android.data.remote.services.ServiceException;
+import lt.dualpair.android.data.task.Task;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public abstract class AuthenticatedUserTask<Result> implements Callable<Result> {
+public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
 
     protected Context context;
 

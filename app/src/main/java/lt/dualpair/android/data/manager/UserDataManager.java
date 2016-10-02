@@ -1,16 +1,15 @@
 package lt.dualpair.android.data.manager;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.os.ResultReceiver;
+import android.util.Log;
 
 import lt.dualpair.android.accounts.AccountUtils;
+import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.task.user.GetUserPrincipalTask;
 import lt.dualpair.android.data.repo.DbHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.service.DataService;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
@@ -36,14 +35,18 @@ public class UserDataManager extends DataManager {
         if (user != null) {
             userSubject.onNext(user);
         } else {
-            Intent intent = new Intent(context, DataService.class);
-            intent.putExtra("RECEIVER", new ResultReceiver(null) {
+            enqueueTask(new QueuedTask<>("getUser", new GetUserPrincipalTask(context), new EmptySubscriber<User>() {
                 @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    userSubject.onNext((User)resultData.getSerializable("USER"));
+                public void onError(Throwable e) {
+                    Log.e(TAG, "Error while loading user", e);
                 }
-            });
-            context.startService(intent);
+
+                @Override
+                public void onNext(User u) {
+                    userRepository.save(u);
+                    userSubject.onNext(u);
+                }
+            }));
         }
         return subscription;
     }

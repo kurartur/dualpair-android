@@ -1,17 +1,15 @@
 package lt.dualpair.android.data.manager;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.os.ResultReceiver;
+import android.util.Log;
 
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.remote.task.user.GetSearchParametersTask;
+import lt.dualpair.android.data.remote.task.user.SetSearchParametersTask;
 import lt.dualpair.android.data.repo.DbHelper;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.SearchParameters;
-import lt.dualpair.android.data.service.DataService;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
@@ -37,26 +35,30 @@ public class SearchParametersManager extends DataManager {
         if (sp != null) {
             searchParametersSubject.onNext(sp);
         } else {
-            new GetSearchParametersTask(context).execute(new EmptySubscriber<SearchParameters>() {
+            enqueueTask(new QueuedTask<>("getSearchParameters", new GetSearchParametersTask(context), new EmptySubscriber<SearchParameters>() {
                 @Override
                 public void onNext(SearchParameters searchParameters) {
                     searchParametersRepository.save(searchParameters);
                     searchParametersSubject.onNext(searchParameters);
                 }
-            });
+            }));
         }
         return subscription;
     }
 
     public void setSearchParameters(final SearchParameters sp) {
-        Intent intent = new Intent(context, DataService.class);
-        intent.putExtra("RECEIVER", new ResultReceiver(null) {
+        enqueueTask(new QueuedTask<>("setSearchParameters", new SetSearchParametersTask(context, sp), new EmptySubscriber<Void>() {
             @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                searchParametersSubject.onNext((SearchParameters) resultData.getSerializable("SP"));
+            public void onError(Throwable e) {
+                Log.e(TAG, "Unable to save sp", e);
             }
-        });
-        context.startService(intent);
+
+            @Override
+            public void onNext(Void aVoid) {
+                searchParametersRepository.save(sp);
+                searchParametersSubject.onNext(sp);
+            }
+        }));
     }
 
 

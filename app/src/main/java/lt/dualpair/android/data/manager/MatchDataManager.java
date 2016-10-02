@@ -17,6 +17,7 @@ import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.task.Task;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -50,7 +51,8 @@ public class MatchDataManager extends DataManager {
             subject.onNext(match);
         } else {
             SearchParameters sp = searchParametersRepository.getLastUsed();
-            new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale()).execute(new EmptySubscriber<Match>() {
+            Task<Match> task = new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale());
+            enqueueTask(new QueuedTask<>("nextMatch", task, new EmptySubscriber<Match>() {
                 @Override
                 public void onError(Throwable e) {
                     subject.onError(e);
@@ -63,7 +65,7 @@ public class MatchDataManager extends DataManager {
                             .subscribe(subject);
                     subject.onNext(match);
                 }
-            });
+            }));
         }
         return subscription;
     }

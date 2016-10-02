@@ -67,12 +67,15 @@ public class UserRepository extends Repository<User> {
             rowId = db.insert("user_locations", null, contentValues);
         }
 
-        for (UserAccount userAccount : user.getAccounts()) {
-            contentValues = new ContentValues();
-            contentValues.put("user_id", user.getId());
-            contentValues.put("account_id", userAccount.getAccountId());
-            contentValues.put("account_type", userAccount.getAccountType());
-            rowId = db.insert("user_accounts", null, contentValues);
+        List<UserAccount> userAccounts = user.getAccounts();
+        if (userAccounts!= null) {
+            for (UserAccount userAccount : userAccounts) {
+                contentValues = new ContentValues();
+                contentValues.put("user_id", user.getId());
+                contentValues.put("account_id", userAccount.getAccountId());
+                contentValues.put("account_type", userAccount.getAccountType());
+                rowId = db.insert("user_accounts", null, contentValues);
+            }
         }
 
         return user;

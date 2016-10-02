@@ -15,7 +15,7 @@ import lt.dualpair.android.accounts.AccountUtils;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME_PREFIX = "DualPair_";
-    private static final int VERSION = 1;
+    private static final int VERSION = 3;
 
     private Context context;
 

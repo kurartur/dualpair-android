@@ -25,6 +25,7 @@ import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.manager.SearchParametersManager;
 import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.remote.services.ServiceException;
 import lt.dualpair.android.data.remote.task.user.SetLocationTask;
@@ -145,7 +146,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void validateSearchParameters() {
-        searchParametersSubscription = new UserDataManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
+        searchParametersSubscription = new SearchParametersManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
             @Override
             public void onError(Throwable e) {
                 super.onError(e);

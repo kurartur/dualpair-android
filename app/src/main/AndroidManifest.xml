@@ -94,6 +94,10 @@
                 android:resource="@xml/syncadapter" />
         </service>
 
+        <service
+            android:name=".data.service.DataService"
+            android:exported="false"/>
+
         <provider
             android:name="lt.dualpair.android.data.remote.StubContentProvider"
             android:authorities="lt.dualpair.android.data.provider"
