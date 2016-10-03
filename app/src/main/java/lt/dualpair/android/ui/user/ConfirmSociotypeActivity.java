@@ -16,18 +16,17 @@ import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.remote.task.user.SetUserSociotypesTask;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.ToastUtils;
-import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class ConfirmSociotypeActivity extends Activity {
+public class ConfirmSociotypeActivity extends BaseActivity {
 
     private static final String TAG = "ConfirmSocActivity";
     public static final String PARAM_SOCIOTYPE = "sociotype";
-
-    private Subscription userSubscription;
 
     @Bind(R.id.header)
     TextView header;
@@ -54,55 +53,57 @@ public class ConfirmSociotypeActivity extends Activity {
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        userSubscription.unsubscribe();
-    }
-
     private void updateUserSociotypes() {
-        userSubscription = new UserDataManager(this).getUser(new EmptySubscriber<User>() {
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Unable to get user", e);
-                ToastUtils.show(ConfirmSociotypeActivity.this, e.getMessage());
-            }
-
-            @Override
-            public void onNext(User user) {
-                userSubscription.unsubscribe();
-                Set<Sociotype> currentSociotypes = user.getSociotypes();
-                if (currentSociotypes.size() > 1) {
-                    if (currentSociotypes.contains(sociotype)) {
-                        // TODO you already have this sociotype, leave only this one?
-                    } else {
-                        // TODO leave only this one?
-                    }
-                } else if (currentSociotypes.size() == 1 && currentSociotypes.contains(sociotype)) {
-                    // TODO already have this
-                } else {
-                    Set<String> newSociotypes = new HashSet<>();
-                    newSociotypes.add(sociotype.getCode1());
-                    setSociotypes(newSociotypes);
+        new UserDataManager(this).getUser()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .compose(this.<User>bindToLifecycle())
+            .subscribe(new EmptySubscriber<User>() {
+                @Override
+                public void onError(Throwable e) {
+                    Log.e(TAG, "Unable to get user", e);
+                    ToastUtils.show(ConfirmSociotypeActivity.this, e.getMessage());
                 }
-            }
-        });
+
+                @Override
+                public void onNext(User user) {
+                    unsubscribe();
+                    Set<Sociotype> currentSociotypes = user.getSociotypes();
+                    if (currentSociotypes.size() > 1) {
+                        if (currentSociotypes.contains(sociotype)) {
+                            // TODO you already have this sociotype, leave only this one?
+                        } else {
+                            // TODO leave only this one?
+                        }
+                    } else if (currentSociotypes.size() == 1 && currentSociotypes.contains(sociotype)) {
+                        // TODO already have this
+                    } else {
+                        Set<Sociotype> newSociotypes = new HashSet<>();
+                        newSociotypes.add(sociotype);
+                        setSociotypes(newSociotypes);
+                    }
+                }
+            });
     }
 
-    private void setSociotypes(Set<String> resultingSociotypes) {
-        new SetUserSociotypesTask(this, resultingSociotypes).execute(new EmptySubscriber<Void>() {
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Unable to set sociotypes", e);
-                ToastUtils.show(ConfirmSociotypeActivity.this, e.getMessage());
-            }
+    private void setSociotypes(Set<Sociotype> sociotypes) {
+        new UserDataManager(this).setSociotypes(sociotypes)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<Void>bindToLifecycle())
+                .subscribe(new EmptySubscriber<Void>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Unable to set sociotypes", e);
+                        ToastUtils.show(ConfirmSociotypeActivity.this, e.getMessage());
+                    }
 
-            @Override
-            public void onNext(Void v) {
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
-        });
+                    @Override
+                    public void onNext(Void v) {
+                        setResult(Activity.RESULT_OK);
+                        finish();
+                    }
+                });
     }
 
     private void loadSociotype(Sociotype sociotype) {

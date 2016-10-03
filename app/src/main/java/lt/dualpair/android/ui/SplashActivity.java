@@ -40,6 +40,8 @@ import lt.dualpair.android.utils.LocationUtils;
 import lt.dualpair.android.utils.OnceOnlyLocationListener;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class SplashActivity extends BaseActivity {
 
@@ -116,22 +118,26 @@ public class SplashActivity extends BaseActivity {
 
     private void initUser() {
         progressText.setText(getResources().getString(R.string.loading_user) + "...");
-        userSubscription = new UserDataManager(this).getUser(new EmptySubscriber<User>() {
-            @Override
-            public void onError(Throwable e) {
-                if (e instanceof ServiceException && ((ServiceException)e).getResponse().code() != 401) {
-                    Log.e(TAG, "Unable to load user", e);
-                    ToastUtils.show(SplashActivity.this, "Unable to load user");
+        new UserDataManager(this).getUser()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .compose(this.<User>bindToLifecycle())
+            .subscribe(new EmptySubscriber<User>() {
+                @Override
+                public void onError(Throwable e) {
+                    if (e instanceof ServiceException && ((ServiceException)e).getResponse().code() != 401) {
+                        Log.e(TAG, "Unable to load user", e);
+                        ToastUtils.show(SplashActivity.this, "Unable to load user");
+                    }
+                    finish();
                 }
-                finish();
-            }
 
-            @Override
-            public void onNext(User user) {
-                unsubscribe();
-                validateUser(user);
-            }
-        });
+                @Override
+                public void onNext(User user) {
+                    unsubscribe();
+                    validateUser(user);
+                }
+            });
     }
 
     private void validateUser(User user) {

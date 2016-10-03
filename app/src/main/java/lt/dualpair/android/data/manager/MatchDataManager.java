@@ -18,8 +18,7 @@ import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.Task;
-import rx.Subscriber;
-import rx.Subscription;
+import rx.Observable;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -38,11 +37,8 @@ public class MatchDataManager extends DataManager {
         searchParametersRepository = new SearchParametersRepository(db);
     }
 
-    public Subscription next(Subscriber<Match> subscriber) {
-
-        final Subject<Match, Match> subject = PublishSubject.create();
-        Subscription subscription = subject.subscribe(subscriber);
-
+    public Observable<Match> next() {
+        final PublishSubject<Match> subject = PublishSubject.create();
         List<Match> matchList = matchRepository.next(getUserId());
         if (!matchList.isEmpty()) {
             final Match match = matchList.get(0);
@@ -67,7 +63,7 @@ public class MatchDataManager extends DataManager {
                 }
             }));
         }
-        return subscription;
+        return subject.asObservable();
     }
 
     private Func1<Match, Boolean> createFilter(final Long matchId) {

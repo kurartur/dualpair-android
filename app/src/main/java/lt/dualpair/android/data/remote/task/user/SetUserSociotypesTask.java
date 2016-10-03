@@ -1,19 +1,23 @@
 package lt.dualpair.android.data.remote.task.user;
 
-import android.app.Activity;
+import android.content.Context;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.services.user.SetUserSociotypesClient;
+import lt.dualpair.android.data.resource.Sociotype;
 
 public class SetUserSociotypesTask extends AuthenticatedUserTask<Void> {
 
-    private Set<String> codes;
+    private Set<String> codes = new HashSet<>();
 
-    public SetUserSociotypesTask(Activity activity, Set<String> codes) {
-        super(activity);
-        this.codes = codes;
+    public SetUserSociotypesTask(Context context, Set<Sociotype> sociotypes) {
+        super(context);
+        for (Sociotype sociotype : sociotypes) {
+            codes.add(sociotype.getCode1());
+        }
     }
 
     @Override

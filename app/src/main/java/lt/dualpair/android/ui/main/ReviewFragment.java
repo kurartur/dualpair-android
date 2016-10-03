@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,10 +34,13 @@ import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class ReviewFragment extends Fragment {
+public class ReviewFragment extends BaseFragment {
 
     private static final String TAG = "ReviewFragment";
 
@@ -119,49 +121,47 @@ public class ReviewFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        nextMatchSubscription.unsubscribe();
-    }
-
     private void showViewLoading() {
         showLoading();
     }
 
     private void loadReview() {
         showViewLoading();
-        nextMatchSubscription = new MatchDataManager(getActivity()).next(new EmptySubscriber<Match>() {
-            @Override
-            public void onError(Throwable e) {
-                if (e instanceof ServiceException) {
-                    ServiceException se = (ServiceException)e;
-                    if (se.getResponse().code() == 404) {final Handler handler = new Handler();
-                        showNoMatches();
+        new MatchDataManager(getActivity()).next()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<Match>bindToLifecycle())
+                .subscribe(new EmptySubscriber<Match>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        if (e instanceof ServiceException) {
+                            ServiceException se = (ServiceException)e;
+                            if (se.getResponse().code() == 404) {final Handler handler = new Handler();
+                                showNoMatches();
 
-                    } else {showNoMatches();
-                        try {
-                            showLoadingError(se.getErrorBodyAs(ErrorResponse.class).getMessage());
-                        } catch (IOException ioe) {
-                            Log.e(TAG, "Error", ioe);
-                            showLoadingError(ioe.getMessage());
+                            } else {showNoMatches();
+                                try {
+                                    showLoadingError(se.getErrorBodyAs(ErrorResponse.class).getMessage());
+                                } catch (IOException ioe) {
+                                    Log.e(TAG, "Error", ioe);
+                                    showLoadingError(ioe.getMessage());
+                                }
+                            }
+                        } else {
+                            Log.e(TAG, "Error", e);
+                            showLoadingError(e.getMessage());
                         }
                     }
-                } else {
-                    Log.e(TAG, "Error", e);
-                    showLoadingError(e.getMessage());
-                }
-            }
 
-            @Override
-            public void onNext(Match match) {
-                if (match != null) {
-                    renderReview(match);
-                } else {
-                    showNoMatches();
-                }
-            }
-        });
+                    @Override
+                    public void onNext(Match match) {
+                        if (match != null) {
+                            renderReview(match);
+                        } else {
+                            showNoMatches();
+                        }
+                    }
+                });
     }
 
     public void renderReview(Match match) {

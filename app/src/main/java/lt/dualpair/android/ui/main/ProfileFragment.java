@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,10 +31,13 @@ import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.AboutActivity;
+import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends BaseFragment {
 
     private static final int EDIT_FIRST_SOCIOTYPE_CODE = 1;
 
@@ -97,12 +99,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void load() {
-        userSubscription = new UserDataManager(getActivity()).getUser(new EmptySubscriber<User>() {
-            @Override
-            public void onNext(User user) {
-                render(user);
-            }
-        });
+        new UserDataManager(getActivity()).getUser()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<User>bindToLifecycle())
+                .subscribe(new EmptySubscriber<User>() {
+                @Override
+                public void onNext(User user) {
+                    render(user);
+                }
+            });
     }
 
     private void render(User user) {
