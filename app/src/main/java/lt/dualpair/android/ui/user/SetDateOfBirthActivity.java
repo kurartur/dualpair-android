@@ -15,10 +15,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.remote.task.user.SetDateOfBirthTask;
+import lt.dualpair.android.data.manager.UserDataManager;
+import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.ToastUtils;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-public class SetDateOfBirthActivity extends Activity {
+public class SetDateOfBirthActivity extends BaseActivity {
 
     private static final String TAG = "SetDateOfBirthActivity";
 
@@ -36,19 +40,23 @@ public class SetDateOfBirthActivity extends Activity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new SetDateOfBirthTask(SetDateOfBirthActivity.this, getDate()).execute(new EmptySubscriber<Void>() {
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "Unable to set date of birth", e);
-                        ToastUtils.show(SetDateOfBirthActivity.this, e.getMessage());
-                    }
+                new UserDataManager(SetDateOfBirthActivity.this).setDateOfBirth(getDate())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .compose(SetDateOfBirthActivity.this.<User>bindToLifecycle())
+                        .subscribe(new EmptySubscriber<User>() {
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "Unable to set date of birth", e);
+                                ToastUtils.show(SetDateOfBirthActivity.this, e.getMessage());
+                            }
 
-                    @Override
-                    public void onNext(Void aVoid) {
-                        setResult(Activity.RESULT_OK);
-                        finish();
-                    }
-                });
+                            @Override
+                            public void onNext(User u) {
+                                setResult(Activity.RESULT_OK);
+                                finish();
+                            }
+                        });
             }
         });
     }

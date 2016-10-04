@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.task.socionics;
+package lt.dualpair.android.data.task.socionics;
 
 import android.app.Activity;
 

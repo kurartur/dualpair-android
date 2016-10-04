@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.task.user;
+package lt.dualpair.android.data.task.user;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

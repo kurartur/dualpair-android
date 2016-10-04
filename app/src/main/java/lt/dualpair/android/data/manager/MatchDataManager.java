@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.SyncStatus;
-import lt.dualpair.android.data.remote.task.match.GetNextMatchTask;
 import lt.dualpair.android.data.repo.DbHelper;
 import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
@@ -15,6 +14,7 @@ import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.Task;
+import lt.dualpair.android.data.task.match.GetNextMatchTask;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -74,10 +74,6 @@ public class MatchDataManager extends DataManager {
         matchesSubjects.onNext(match);
 
         ContentResolver.requestSync(AccountUtils.getAccount(context), null, null);
-    }
-
-    public void notifySubscribers(Match match) {
-        matchesSubjects.onNext(match);
     }
 
     private Long getUserId() {

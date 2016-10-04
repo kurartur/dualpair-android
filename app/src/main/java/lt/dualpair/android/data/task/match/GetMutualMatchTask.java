@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.task.match;
+package lt.dualpair.android.data.task.match;
 
 import android.app.Activity;
 

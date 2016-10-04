@@ -21,10 +21,10 @@ import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
 import lt.dualpair.android.data.DefaultErrorHandlingSubscriber;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.remote.task.match.GetMutualMatchTask;
-import lt.dualpair.android.data.remote.task.match.GetUserMutualMatchListTask;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
+import lt.dualpair.android.data.task.match.GetMutualMatchTask;
+import lt.dualpair.android.data.task.match.GetUserMutualMatchListTask;
 import rx.Subscription;
 import rx.functions.Action1;
 

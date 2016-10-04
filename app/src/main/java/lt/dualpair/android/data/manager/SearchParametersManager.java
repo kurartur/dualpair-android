@@ -2,10 +2,10 @@ package lt.dualpair.android.data.manager;
 
 import android.content.Context;
 
-import lt.dualpair.android.data.remote.task.user.GetSearchParametersTask;
-import lt.dualpair.android.data.remote.task.user.SetSearchParametersTask;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.Task;
+import lt.dualpair.android.data.task.user.GetSearchParametersTask;
+import lt.dualpair.android.data.task.user.SetSearchParametersTask;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
