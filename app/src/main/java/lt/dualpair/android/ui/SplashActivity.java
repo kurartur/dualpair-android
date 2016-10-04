@@ -82,17 +82,6 @@ public class SplashActivity extends BaseActivity {
         init();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (userSubscription != null) {
-            userSubscription.unsubscribe();
-        }
-        if (searchParametersSubscription != null ) {
-            searchParametersSubscription.unsubscribe();
-        }
-    }
-
     private void init() {
         progressLayout.setVisibility(View.VISIBLE);
 
@@ -152,25 +141,29 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void validateSearchParameters() {
-        searchParametersSubscription = new SearchParametersManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
-            @Override
-            public void onError(Throwable e) {
-                super.onError(e);
-            }
+        new SearchParametersManager(this).getSearchParameters()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<SearchParameters>bindToLifecycle())
+                .subscribe(new EmptySubscriber<SearchParameters>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                    }
 
-            @Override
-            public void onNext(SearchParameters searchParameters) {
-                unsubscribe();
-                if (searchParameters == null
-                        || (!searchParameters.getSearchFemale() && !searchParameters.getSearchMale())
-                        || searchParameters.getMinAge() == null
-                        || searchParameters.getMaxAge() == null) {
-                    startActivityForResult(SearchParametersActivity.createIntent(SplashActivity.this), SEARCH_PARAMETERS_REQUEST_CODE);
-                } else {
-                    requestLocationUpdate();
-                }
-            }
-        });
+                    @Override
+                    public void onNext(SearchParameters searchParameters) {
+                        unsubscribe();
+                        if (searchParameters == null
+                                || (!searchParameters.getSearchFemale() && !searchParameters.getSearchMale())
+                                || searchParameters.getMinAge() == null
+                                || searchParameters.getMaxAge() == null) {
+                            startActivityForResult(SearchParametersActivity.createIntent(SplashActivity.this), SEARCH_PARAMETERS_REQUEST_CODE);
+                        } else {
+                            requestLocationUpdate();
+                        }
+                    }
+                });
     }
 
     private void requestLocationUpdate() {

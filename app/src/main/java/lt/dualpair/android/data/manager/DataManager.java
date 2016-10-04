@@ -6,9 +6,9 @@ import android.content.Intent;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import lt.dualpair.android.data.service.DataService;
+import lt.dualpair.android.data.service.TaskProcessingService;
 import lt.dualpair.android.data.task.Task;
-import rx.Subscriber;
+import rx.Observer;
 
 public abstract class DataManager {
 
@@ -23,7 +23,7 @@ public abstract class DataManager {
 
     public void enqueueTask(QueuedTask queuedTask) {
         tasks.add(queuedTask);
-        Intent intent = new Intent(context, DataService.class);
+        Intent intent = new Intent(context, TaskProcessingService.class);
         context.startService(intent);
     }
 
@@ -34,25 +34,29 @@ public abstract class DataManager {
     public static class QueuedTask<T> {
 
         private String key;
-        private Task task;
-        private Subscriber subscriber;
+        private TaskCreator<T> creator;
+        private Observer<T> observer;
 
-        public QueuedTask(String key, Task<T> task, Subscriber<T> subscriber) {
+        public QueuedTask(String key, TaskCreator<T> creator, Observer<T> subscriber) {
             this.key = key;
-            this.task = task;
-            this.subscriber = subscriber;
+            this.creator = creator;
+            this.observer = subscriber;
         }
 
         public String getKey() {
             return key;
         }
 
-        public Task getTask() {
-            return task;
+        public TaskCreator<T> getCreator() {
+            return creator;
         }
 
-        public Subscriber getSubscriber() {
-            return subscriber;
+        public Observer<T> getObserver() {
+            return observer;
         }
+    }
+
+    public interface TaskCreator<T> {
+        Task<T> createTask(Context context);
     }
 }

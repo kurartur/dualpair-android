@@ -1,64 +1,51 @@
 package lt.dualpair.android.data.manager;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.remote.task.user.GetSearchParametersTask;
 import lt.dualpair.android.data.remote.task.user.SetSearchParametersTask;
-import lt.dualpair.android.data.repo.DbHelper;
-import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.SearchParameters;
-import rx.Subscriber;
-import rx.Subscription;
+import lt.dualpair.android.data.task.Task;
+import rx.Observable;
+import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 
 public class SearchParametersManager extends DataManager {
 
-    private static final String TAG = "SPManager";
-
     private static Subject<SearchParameters, SearchParameters> searchParametersSubject = PublishSubject.create();
-
-    private SearchParametersRepository searchParametersRepository;
 
     public SearchParametersManager(Context context) {
         super(context);
-        SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
-        searchParametersRepository = new SearchParametersRepository(db);
     }
 
-    public Subscription getSearchParameters(Subscriber<SearchParameters> subscriber) {
-        Subscription subscription = searchParametersSubject.subscribe(subscriber);
-        SearchParameters sp = searchParametersRepository.getLastUsed();
-        if (sp != null) {
-            searchParametersSubject.onNext(sp);
-        } else {
-            enqueueTask(new QueuedTask<>("getSearchParameters", new GetSearchParametersTask(context), new EmptySubscriber<SearchParameters>() {
-                @Override
-                public void onNext(SearchParameters searchParameters) {
-                    searchParametersRepository.save(searchParameters);
-                    searchParametersSubject.onNext(searchParameters);
-                }
-            }));
-        }
-        return subscription;
+    public Observable<SearchParameters> getSearchParameters() {
+        PublishSubject<SearchParameters> subject = PublishSubject.create();
+        searchParametersSubject.subscribe(subject);
+        enqueueTask(new QueuedTask<>("getSearchParameters", new TaskCreator<SearchParameters>() {
+            @Override
+            public Task<SearchParameters> createTask(Context context) {
+                return new GetSearchParametersTask(context);
+            }
+        }, subject));
+        return subject.asObservable();
     }
 
-    public void setSearchParameters(final SearchParameters sp) {
-        enqueueTask(new QueuedTask<>("setSearchParameters", new SetSearchParametersTask(context, sp), new EmptySubscriber<Void>() {
+    public Observable<SearchParameters> setSearchParameters(final SearchParameters sp) {
+        PublishSubject<SearchParameters> subject = PublishSubject.create();
+        subject.doOnNext(new Action1<SearchParameters>() {
             @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "Unable to save sp", e);
+            public void call(SearchParameters searchParameters) {
+                searchParametersSubject.onNext(searchParameters);
             }
-
+        });
+        enqueueTask(new QueuedTask<>("setSearchParameters", new TaskCreator<SearchParameters>() {
             @Override
-            public void onNext(Void aVoid) {
-                searchParametersRepository.save(sp);
-                searchParametersSubject.onNext(sp);
+            public Task<SearchParameters> createTask(Context context) {
+                return new SetSearchParametersTask(context, sp);
             }
-        }));
+        }, subject));
+        return subject.asObservable();
     }
 
 

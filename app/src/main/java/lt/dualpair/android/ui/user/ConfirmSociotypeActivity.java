@@ -90,8 +90,8 @@ public class ConfirmSociotypeActivity extends BaseActivity {
         new UserDataManager(this).setSociotypes(sociotypes)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .compose(this.<Void>bindToLifecycle())
-                .subscribe(new EmptySubscriber<Void>() {
+                .compose(this.<User>bindToLifecycle())
+                .subscribe(new EmptySubscriber<User>() {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Unable to set sociotypes", e);
@@ -99,7 +99,7 @@ public class ConfirmSociotypeActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onNext(Void v) {
+                    public void onNext(User u) {
                         setResult(Activity.RESULT_OK);
                         finish();
                     }

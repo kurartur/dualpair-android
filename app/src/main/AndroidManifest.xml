@@ -95,7 +95,7 @@
         </service>
 
         <service
-            android:name=".data.service.DataService"
+            android:name=".data.service.TaskProcessingService"
             android:exported="false"/>
 
         <provider

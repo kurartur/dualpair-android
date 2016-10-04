@@ -4,10 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.List;
-
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.remote.SyncStatus;
 import lt.dualpair.android.data.remote.task.match.GetNextMatchTask;
 import lt.dualpair.android.data.repo.DbHelper;
@@ -19,6 +16,7 @@ import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.Task;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -39,30 +37,20 @@ public class MatchDataManager extends DataManager {
 
     public Observable<Match> next() {
         final PublishSubject<Match> subject = PublishSubject.create();
-        List<Match> matchList = matchRepository.next(getUserId());
-        if (!matchList.isEmpty()) {
-            final Match match = matchList.get(0);
-            matchesSubjects.filter(createFilter(match.getId()))
-                    .subscribe(subject);
-            subject.onNext(match);
-        } else {
-            SearchParameters sp = searchParametersRepository.getLastUsed();
-            Task<Match> task = new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale());
-            enqueueTask(new QueuedTask<>("nextMatch", task, new EmptySubscriber<Match>() {
-                @Override
-                public void onError(Throwable e) {
-                    subject.onError(e);
-                }
-
-                @Override
-                public void onNext(Match match) {
-                    matchRepository.save(match);
-                    matchesSubjects.filter(createFilter(match.getId()))
-                            .subscribe(subject);
-                    subject.onNext(match);
-                }
-            }));
-        }
+        subject.doOnNext(new Action1<Match>() {
+            @Override
+            public void call(Match match) {
+                matchesSubjects.filter(createFilter(match.getId()))
+                        .subscribe(subject);
+            }
+        });
+        final SearchParameters sp = searchParametersRepository.getLastUsed();
+        enqueueTask(new QueuedTask<>("nextMatch", new TaskCreator<Match>() {
+            @Override
+            public Task<Match> createTask(Context context) {
+                return new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale());
+            }
+        }, subject));
         return subject.asObservable();
     }
 

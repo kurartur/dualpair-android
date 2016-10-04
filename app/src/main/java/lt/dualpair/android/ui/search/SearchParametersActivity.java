@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -18,7 +19,9 @@ import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.SearchParametersManager;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.ui.BaseActivity;
-import rx.Subscription;
+import lt.dualpair.android.utils.ToastUtils;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class SearchParametersActivity extends BaseActivity {
 
@@ -26,8 +29,6 @@ public class SearchParametersActivity extends BaseActivity {
     private static final String TAG = "SearchParamActivity";
     private static final Integer MIN_SEARCH_AGE = 13;
     private static final Integer MAX_SEARCH_AGE = 120;
-
-    private Subscription subscription;
 
     @Bind(R.id.checkbox_search_for_male)
     CheckBox searchMale;
@@ -64,21 +65,24 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     private void loadSearchParameters() {
-        subscription = new SearchParametersManager(this).getSearchParameters(new EmptySubscriber<SearchParameters>() {
-            @Override
-            public void onError(Throwable e) {
-                //Log.e(TAG, "Unable to load search parameters", e);
-                //ToastUtils.show(activity, "Unable to load search parameters");
-                finish();
-            }
+        new SearchParametersManager(this).getSearchParameters().observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<SearchParameters>bindToLifecycle())
+                .subscribe(new EmptySubscriber<SearchParameters>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Unable to load search parameters", e);
+                        ToastUtils.show(SearchParametersActivity.this, "Unable to load search parameters");
+                        finish();
+                    }
 
-            @Override
-            public void onNext(SearchParameters searchParameters) {
-                if (searchParameters != null) {
-                    fillSearchParameters(searchParameters);
-                }
-            }
-        });
+                    @Override
+                    public void onNext(SearchParameters searchParameters) {
+                        if (searchParameters != null) {
+                            fillSearchParameters(searchParameters);
+                        }
+                    }
+                });
     }
 
     private void fillSearchParameters(SearchParameters searchParameters) {
