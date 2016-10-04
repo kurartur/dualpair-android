@@ -43,4 +43,10 @@ public class UserMeta {
 
     }
 
+    public static final class UserAccount implements BaseColumns {
+
+        public static final String TABLE_NAME = "user_accounts";
+
+    }
+
 }

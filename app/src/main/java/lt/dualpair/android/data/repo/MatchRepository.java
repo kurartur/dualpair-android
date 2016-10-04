@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import lt.dualpair.android.data.remote.SyncStatus;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
@@ -18,6 +17,7 @@ public class MatchRepository extends Repository<Match> {
 
     private static final String MATCH_QUERY = "" +
             "SELECT m._id as match_id," +
+            "   m.distance," +
             "   mp1._id as user_party_id," +
             "   mp1.user_id as user_id, " +
             "   mp1.response as user_response, " +
@@ -37,28 +37,25 @@ public class MatchRepository extends Repository<Match> {
     }
 
     public List<Match> next(Long userId) {
-        Cursor cursor = db.rawQuery(MATCH_QUERY +
-                "WHERE mp1.response = 'UNDEFINED' ", args(userId.toString(), userId.toString()));
-        List<Match> matches = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            matches.add(mapMatch(cursor));
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery(MATCH_QUERY +
+                    "WHERE mp1.response = 'UNDEFINED' ", args(userId.toString(), userId.toString()));
+            List<Match> matches = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                matches.add(mapMatch(cursor));
+            }
+            return matches;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        return matches;
     }
 
     public Match findOne(Long matchId, Long userId) {
         Cursor cursor = db.rawQuery(MATCH_QUERY +
                 "WHERE m._id=? ", args(userId.toString(), userId.toString(), matchId.toString()));
-        if (cursor.moveToNext()) {
-            return mapMatch(cursor);
-        } else {
-            return null;
-        }
-    }
-
-    public Match findByPartyId(Long partyId, Long userId) {
-        Cursor cursor = db.rawQuery(MATCH_QUERY +
-                "WHERE mp1._id=? OR mp2._id=? ", args(userId.toString(), userId.toString(), partyId.toString(), partyId.toString()));
         if (cursor.moveToNext()) {
             return mapMatch(cursor);
         } else {
@@ -100,21 +97,28 @@ public class MatchRepository extends Repository<Match> {
     @Override
     protected Match doSave(Match match) {
         Long matchId = match.getId();
-        Cursor matchCursor = db.rawQuery(MATCH_QUERY + "WHERE m._id=?", args(matchId.toString()));
-        if (matchCursor.moveToNext()) {
-            // delete and save again
-            matchCursor.close();
+        Cursor matchCursor = null;
+        try {
+            matchCursor = db.rawQuery(MATCH_QUERY + "WHERE m._id=?", args(matchId.toString()));
+            if (matchCursor.moveToNext()) {
+                // delete and save again
+                matchCursor.close();
 
-            db.delete(MatchMeta.Party.TABLE_NAME, "match_id=?", args(match.getId().toString()));
-            db.delete(MatchMeta.Match.TABLE_NAME, "_id=?", args(match.getId().toString()));
-            userRepository.delete(match.getOpponent().getUser());
+                db.delete(MatchMeta.Party.TABLE_NAME, "match_id=?", args(match.getId().toString()));
+                db.delete(MatchMeta.Match.TABLE_NAME, "_id=?", args(match.getId().toString()));
+                userRepository.delete(match.getOpponent().getUser());
+            }
+            userRepository.save(match.getOpponent().getUser());
+        } finally {
+            if (matchCursor != null && !matchCursor.isClosed()) {
+                matchCursor.close();
+            }
         }
-        userRepository.save(match.getOpponent().getUser());
 
         ContentValues contentValues = new ContentValues();
         contentValues.put("_id", match.getId());
         contentValues.put("distance", match.getDistance());
-        contentValues.put("create_time", DbHelper.getDateTimeString(new Date()));
+        contentValues.put("create_time", DatabaseHelper.getDateTimeString(new Date()));
         long rowId = db.insert("matches", null, contentValues);
 
         contentValues = new ContentValues();
@@ -145,18 +149,4 @@ public class MatchRepository extends Repository<Match> {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public List<MatchParty> getMatchPartiesWithSyncStatus(SyncStatus syncStatus) {
-        Cursor c = db.query(MatchMeta.Party.TABLE_NAME, null, "sync_status=?", new String[]{syncStatus.getCode()}, null, null, null);
-        List<MatchParty> parties = new ArrayList<>();
-        while (c.moveToNext()) {
-            parties.add(mapParty(c));
-        }
-        return parties;
-    }
-
-    public void setMatchPartySyncStatus(Long partyId, SyncStatus syncStatus) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("sync_status", syncStatus.getCode());
-        db.update(MatchMeta.Party.TABLE_NAME, contentValues, "_id=?", new String[]{partyId.toString()});
-    }
 }

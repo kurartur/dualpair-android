@@ -8,7 +8,7 @@ import java.util.Date;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.user.SetDateOfBirthClient;
-import lt.dualpair.android.data.repo.DbHelper;
+import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;
 
@@ -20,7 +20,7 @@ public class SetDateOfBirthTask extends AuthenticatedUserTask<User> {
     public SetDateOfBirthTask(Context context, Date date) {
         super(context);
         this.date = date;
-        SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
+        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
         userRepository = new UserRepository(db);
     }
 

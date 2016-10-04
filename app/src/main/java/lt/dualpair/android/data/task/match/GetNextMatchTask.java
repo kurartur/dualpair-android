@@ -7,8 +7,9 @@ import java.util.List;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.match.GetNextMatchClient;
-import lt.dualpair.android.data.repo.DbHelper;
+import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.MatchRepository;
+import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.Match;
 
 public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
@@ -19,6 +20,7 @@ public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
     private Boolean searchMale;
 
     private MatchRepository matchRepository;
+    private UserRepository userRepository;
 
     public GetNextMatchTask(Context context, Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
         super(context);
@@ -27,8 +29,9 @@ public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
         this.searchFemale = searchFemale;
         this.searchMale = searchMale;
 
-        SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
+        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
         matchRepository = new MatchRepository(db);
+        userRepository = new UserRepository(db);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
             return matchList.get(0);
         } else {
             Match match = new GetNextMatchClient(minAge, maxAge, searchFemale, searchMale).observable().toBlocking().first();
+            match.getUser().setUser(userRepository.get(getUserId()));
             matchRepository.save(match);
             return match;
         }

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.user.SetSearchParametersClient;
-import lt.dualpair.android.data.repo.DbHelper;
+import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.SearchParameters;
 
@@ -17,7 +17,7 @@ public class SetSearchParametersTask extends AuthenticatedUserTask<SearchParamet
     public SetSearchParametersTask(Context context, SearchParameters searchParameters) {
         super(context);
         this.searchParameters = searchParameters;
-        SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
+        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
         searchParametersRepository = new SearchParametersRepository(db);
     }
 

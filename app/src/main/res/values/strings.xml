@@ -131,8 +131,8 @@
         CREATE TABLE IF NOT EXISTS user_locations (
           _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
           user_id BIGINT NOT NULL,
-          latitude DOUBLE NOT NULL,
-          longitude DOUBLE NOT NULL,
+          latitude DOUBLE NULL,
+          longitude DOUBLE NULL,
           country_code VARCHAR(2) NOT NULL,
           city VARCHAR(128) NOT NULL);
 

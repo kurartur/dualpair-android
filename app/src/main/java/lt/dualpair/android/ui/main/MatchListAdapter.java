@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,7 @@ public class MatchListAdapter extends BaseAdapter {
             @Override
             public void onGlobalLayout() {
                 loadPhoto(match.getOpponent().getUser(), picture);
+                picture.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
@@ -100,8 +102,8 @@ public class MatchListAdapter extends BaseAdapter {
         Picasso.with(activity)
             .load(user.getPhotos().get(0).getSourceUrl())
             .resize(picture.getWidth(), picture.getHeight())
-            .centerCrop()
             .error(R.drawable.image_not_found)
+            .centerCrop()
             .into(picture, new Callback() {
                 @Override
                 public void onSuccess() {
@@ -109,6 +111,7 @@ public class MatchListAdapter extends BaseAdapter {
 
                 @Override
                 public void onError() {
+                    Log.e("MatchListPhoto", "Error while loading photo");
                 }
         });
     }

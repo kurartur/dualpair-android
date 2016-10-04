@@ -9,7 +9,7 @@ import java.util.Set;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.user.SetUserSociotypesClient;
-import lt.dualpair.android.data.repo.DbHelper;
+import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
@@ -22,7 +22,7 @@ public class SetUserSociotypesTask extends AuthenticatedUserTask<User> {
     public SetUserSociotypesTask(Context context, Set<Sociotype> sociotypes) {
         super(context);
         this.sociotypes = sociotypes;
-        SQLiteDatabase db = DbHelper.forCurrentUser(context).getWritableDatabase();
+        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
         userRepository = new UserRepository(db);
     }
 

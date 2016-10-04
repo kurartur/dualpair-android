@@ -71,6 +71,7 @@ public class BaseFragment extends Fragment implements FragmentLifecycleProvider 
 
     @Override
     public void onPause() {
+        super.onPause();
         lifecycleSubject.onNext(FragmentEvent.PAUSE);
     }
 

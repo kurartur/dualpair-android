@@ -69,7 +69,13 @@ public class ReviewFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
+
+        if (savedInstanceState != null) {
+            match = (Match)savedInstanceState.getSerializable("MATCH");
+        }
     }
+
+
 
     @Nullable
     @Override
@@ -109,15 +115,15 @@ public class ReviewFragment extends BaseFragment {
                 setResponse(Response.NO);
             }
         });
-        if (savedInstanceState == null) {
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (match == null) {
             loadReview();
         } else {
-            Match match = (Match)savedInstanceState.getSerializable("MATCH");
-            if (match != null) {
-                renderReview(match);
-            } else {
-                loadReview();
-            }
+            renderReview(match);
         }
     }
 
@@ -156,6 +162,7 @@ public class ReviewFragment extends BaseFragment {
                     @Override
                     public void onNext(Match match) {
                         if (match != null) {
+                            ReviewFragment.this.match = match;
                             renderReview(match);
                         } else {
                             showNoMatches();
@@ -165,7 +172,6 @@ public class ReviewFragment extends BaseFragment {
     }
 
     public void renderReview(Match match) {
-        this.match = match;
         User user = match.getOpponent().getUser();
         name.setText(user.getName());
         age.setText(Integer.toString(user.getAge()));
@@ -231,9 +237,17 @@ public class ReviewFragment extends BaseFragment {
     }
 
     private void setResponse(final Response response) {
-        new MatchDataManager(getActivity()).setResponse(match.getId(), response);
-        match = null;
-        loadReview();
+        new MatchDataManager(getActivity()).setResponse(match.getId(), response)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<Match>bindToLifecycle())
+                .subscribe(new EmptySubscriber<Match>() {
+                    @Override
+                    public void onNext(Match m) {
+                        match = null;
+                        loadReview();
+                    }
+                });
     }
 
     @Override
