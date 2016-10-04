@@ -1,10 +1,10 @@
-package lt.dualpair.android.data.remote.services.user;
+package lt.dualpair.android.data.remote.client.user;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import lt.dualpair.android.data.remote.services.BaseClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
 import retrofit2.Retrofit;
 import rx.Observable;
 

@@ -1,8 +1,8 @@
-package lt.dualpair.android.data.remote.services.socionics;
+package lt.dualpair.android.data.remote.client.socionics;
 
 import java.util.Map;
 
-import lt.dualpair.android.data.remote.services.BaseClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Sociotype;
 import retrofit2.Retrofit;
 import rx.Observable;

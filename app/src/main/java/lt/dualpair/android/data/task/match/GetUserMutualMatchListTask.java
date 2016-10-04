@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.text.TextUtils;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.match.GetUserMutualMatchListClient;
+import lt.dualpair.android.data.remote.client.match.GetUserMutualMatchListClient;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
 

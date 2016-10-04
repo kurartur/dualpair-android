@@ -62,4 +62,21 @@ public class AccountUtils {
         }
     }
 
+    public static String getAuthToken(final Context context) {
+        AccountManager am = AccountManager.get(context);
+        try {
+            Bundle result = am.getAuthToken(getAccount(context), AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
+            return (String)result.get(AccountManager.KEY_AUTHTOKEN);
+        } catch (OperationCanceledException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (AuthenticatorException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
 }

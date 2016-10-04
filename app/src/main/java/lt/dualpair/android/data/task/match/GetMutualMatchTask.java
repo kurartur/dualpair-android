@@ -3,7 +3,7 @@ package lt.dualpair.android.data.task.match;
 import android.app.Activity;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.match.GetMutualMatchClient;
+import lt.dualpair.android.data.remote.client.match.GetMutualMatchClient;
 import lt.dualpair.android.data.resource.Match;
 
 public class GetMutualMatchTask extends AuthenticatedUserTask<Match> {

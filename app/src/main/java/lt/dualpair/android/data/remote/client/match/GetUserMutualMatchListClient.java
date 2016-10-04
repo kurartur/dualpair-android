@@ -1,10 +1,10 @@
-package lt.dualpair.android.data.remote.services.match;
+package lt.dualpair.android.data.remote.client.match;
 
 import android.text.TextUtils;
 
 import java.util.Date;
 
-import lt.dualpair.android.data.remote.services.BaseClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
 import retrofit2.Retrofit;

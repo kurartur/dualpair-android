@@ -1,8 +1,8 @@
-package lt.dualpair.android.data.remote.services.user;
+package lt.dualpair.android.data.remote.client.user;
 
 import java.util.Set;
 
-import lt.dualpair.android.data.remote.services.BaseClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
 import retrofit2.Retrofit;
 import rx.Observable;
 

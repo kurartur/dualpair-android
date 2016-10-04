@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services.user;
+package lt.dualpair.android.data.remote.client.user;
 
 import java.util.Set;
 

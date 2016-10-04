@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.user.GetSearchParametersClient;
+import lt.dualpair.android.data.remote.client.user.GetSearchParametersClient;
 import lt.dualpair.android.data.repo.DbHelper;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.SearchParameters;

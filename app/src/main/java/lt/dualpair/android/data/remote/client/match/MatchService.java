@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services.match;
+package lt.dualpair.android.data.remote.client.match;
 
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;

@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services.socionics;
+package lt.dualpair.android.data.remote.client.socionics;
 
 import java.util.Map;
 

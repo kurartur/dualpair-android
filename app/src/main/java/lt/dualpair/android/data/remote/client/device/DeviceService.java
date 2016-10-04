@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services.device;
+package lt.dualpair.android.data.remote.client.device;
 
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;

@@ -19,7 +19,7 @@ import java.util.List;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.remote.services.ServiceException;
+import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.Choice;
 import lt.dualpair.android.data.resource.ChoicePair;
 import lt.dualpair.android.data.resource.ErrorResponse;

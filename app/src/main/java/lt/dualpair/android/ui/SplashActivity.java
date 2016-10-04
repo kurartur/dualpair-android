@@ -27,7 +27,7 @@ import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.SearchParametersManager;
 import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.remote.services.ServiceException;
+import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.user.SetLocationTask;

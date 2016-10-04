@@ -1,6 +1,6 @@
-package lt.dualpair.android.data.remote.services.match;
+package lt.dualpair.android.data.remote.client.match;
 
-import lt.dualpair.android.data.remote.services.BaseClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Match;
 import retrofit2.Retrofit;
 import rx.Observable;

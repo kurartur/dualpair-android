@@ -1,10 +1,10 @@
-package lt.dualpair.android.data.remote.services.authentication;
+package lt.dualpair.android.data.remote.client.authentication;
 
 import android.util.Base64;
 
 import java.io.IOException;
 
-import lt.dualpair.android.data.remote.services.BaseClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Token;
 import okhttp3.Interceptor;
 import okhttp3.Request;

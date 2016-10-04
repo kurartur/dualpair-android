@@ -7,7 +7,7 @@ import java.util.Date;
 
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.user.SetDateOfBirthClient;
+import lt.dualpair.android.data.remote.client.user.SetDateOfBirthClient;
 import lt.dualpair.android.data.repo.DbHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;

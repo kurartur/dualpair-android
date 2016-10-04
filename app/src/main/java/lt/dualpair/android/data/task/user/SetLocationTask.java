@@ -3,7 +3,7 @@ package lt.dualpair.android.data.task.user;
 import android.app.Activity;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.user.SetLocationClient;
+import lt.dualpair.android.data.remote.client.user.SetLocationClient;
 import lt.dualpair.android.data.resource.Location;
 
 public class SetLocationTask extends AuthenticatedUserTask<Void> {

@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services.authentication;
+package lt.dualpair.android.data.remote.client.authentication;
 
 import lt.dualpair.android.data.resource.Token;
 import retrofit2.http.Field;

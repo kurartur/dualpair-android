@@ -12,7 +12,7 @@ import java.io.IOException;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.remote.services.device.RegisterDeviceClient;
+import lt.dualpair.android.data.remote.client.device.RegisterDeviceClient;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 

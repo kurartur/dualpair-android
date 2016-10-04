@@ -5,7 +5,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
-import lt.dualpair.android.data.remote.services.ServiceException;
+import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.ErrorResponse;
 import lt.dualpair.android.utils.ToastUtils;
 

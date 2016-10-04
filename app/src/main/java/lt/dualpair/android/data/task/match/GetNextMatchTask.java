@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.List;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.match.GetNextMatchClient;
+import lt.dualpair.android.data.remote.client.match.GetNextMatchClient;
 import lt.dualpair.android.data.repo.DbHelper;
 import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.resource.Match;

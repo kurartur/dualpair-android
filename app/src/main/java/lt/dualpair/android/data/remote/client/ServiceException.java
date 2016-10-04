@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services;
+package lt.dualpair.android.data.remote.client;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

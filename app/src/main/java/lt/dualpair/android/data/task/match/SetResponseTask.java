@@ -3,7 +3,7 @@ package lt.dualpair.android.data.task.match;
 import android.content.Context;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.services.match.SetResponseClient;
+import lt.dualpair.android.data.remote.client.match.SetResponseClient;
 import lt.dualpair.android.data.resource.Response;
 
 public class SetResponseTask extends AuthenticatedUserTask<Void> {

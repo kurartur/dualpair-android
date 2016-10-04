@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.services;
+package lt.dualpair.android.data.remote.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
