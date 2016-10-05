@@ -50,7 +50,7 @@ public class UserRepository extends Repository<User> {
         contentValues.put(UserMeta.User.AGE, user.getAge());
         contentValues.put(UserMeta.User.NAME, user.getName());
 
-        boolean userExists = db.query(UserMeta.User.TABLE_NAME, new String[]{"_id"}, "_id=?", new String[]{userId.toString()}, null, null, null).moveToNext();
+        boolean userExists = db.query(UserMeta.User.TABLE_NAME, new String[]{UserMeta.User._ID}, "_id=?", new String[]{userId.toString()}, null, null, null).moveToNext();
 
         if (!userExists) {
             assertOperation(db.insert("users", null, contentValues), "Unable to insert user " + user);
@@ -76,31 +76,31 @@ public class UserRepository extends Repository<User> {
     private void insertSociotypes(Long userId, Set<Sociotype> sociotypes) {
         for (Sociotype sociotype : sociotypes) {
             ContentValues contentValues = new ContentValues();
-            contentValues.put("user_id", userId);
-            contentValues.put("code1", sociotype.getCode1());
-            contentValues.put("code2", sociotype.getCode2());
-            assertOperation(db.insert("user_sociotypes", null, contentValues), "Unable to insert sociotype: " + sociotype);
+            contentValues.put(UserMeta.Sociotype.USER_ID, userId);
+            contentValues.put(UserMeta.Sociotype.CODE_1, sociotype.getCode1());
+            contentValues.put(UserMeta.Sociotype.CODE_2, sociotype.getCode2());
+            assertOperation(db.insert(UserMeta.Sociotype.TABLE_NAME, null, contentValues), "Unable to insert sociotype: " + sociotype);
         }
     }
 
     private void insertPhotos(Long userId, List<Photo> photos) {
         for (Photo photo : photos) {
             ContentValues contentValues = new ContentValues();
-            contentValues.put("user_id", userId);
-            contentValues.put("source_link", photo.getSourceUrl());
-            assertOperation(db.insert("user_photos", null, contentValues), "Unable to insert photo " + photo);
+            contentValues.put(UserMeta.Photo.USER_ID, userId);
+            contentValues.put(UserMeta.Photo.SOURCE_LINK, photo.getSourceUrl());
+            assertOperation(db.insert(UserMeta.Photo.TABLE_NAME, null, contentValues), "Unable to insert photo " + photo);
         }
     }
 
     private void insertLocations(Long userId, Set<Location> locations) {
         for (Location location : locations) {
             ContentValues contentValues = new ContentValues();
-            contentValues.put("user_id", userId);
-            contentValues.put("latitude", location.getLatitude());
-            contentValues.put("longitude", location.getLongitude());
-            contentValues.put("country_code", location.getCountryCode());
-            contentValues.put("city", location.getCity());
-            assertOperation(db.insert("user_locations", null, contentValues), "Unable to insert location " + location);
+            contentValues.put(UserMeta.Location.USER_ID, userId);
+            contentValues.put(UserMeta.Location.LATITUDE, location.getLatitude());
+            contentValues.put(UserMeta.Location.LONGITUDE, location.getLongitude());
+            contentValues.put(UserMeta.Location.COUNTRY_CODE, location.getCountryCode());
+            contentValues.put(UserMeta.Location.CITY, location.getCity());
+            assertOperation(db.insert(UserMeta.Location.TABLE_NAME, null, contentValues), "Unable to insert location " + location);
         }
 
     }
@@ -109,10 +109,10 @@ public class UserRepository extends Repository<User> {
         if (userAccounts!= null) {
             for (UserAccount userAccount : userAccounts) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put("user_id", userId);
-                contentValues.put("account_id", userAccount.getAccountId());
-                contentValues.put("account_type", userAccount.getAccountType());
-                assertOperation(db.insert("user_accounts", null, contentValues), "Unable to insert account " + userAccount);
+                contentValues.put(UserMeta.UserAccount.USER_ID, userId);
+                contentValues.put(UserMeta.UserAccount.ACCOUNT_ID, userAccount.getAccountId());
+                contentValues.put(UserMeta.UserAccount.ACCOUNT_TYPE, userAccount.getAccountType());
+                assertOperation(db.insert(UserMeta.UserAccount.TABLE_NAME, null, contentValues), "Unable to insert account " + userAccount);
             }
         }
     }
@@ -123,14 +123,14 @@ public class UserRepository extends Repository<User> {
         Long userId = c.getLong(c.getColumnIndex(UserMeta.User._ID));
         user.setId(userId);
 
-        String dateTimeString = c.getString(c.getColumnIndex("date_of_birth"));
+        String dateTimeString = c.getString(c.getColumnIndex(UserMeta.User.DATE_OF_BIRTH));
         if (dateTimeString != null) {
             user.setDateOfBirth(DatabaseHelper.getDateFromString(dateTimeString));
         }
 
-        user.setAge(c.getInt(c.getColumnIndex("age")));
-        user.setName(c.getString(c.getColumnIndex("name")));
-        user.setDescription(c.getString(c.getColumnIndex("description")));
+        user.setAge(c.getInt(c.getColumnIndex(UserMeta.User.AGE)));
+        user.setName(c.getString(c.getColumnIndex(UserMeta.User.NAME)));
+        user.setDescription(c.getString(c.getColumnIndex(UserMeta.User.DESCRIPTION)));
 
         user.setSociotypes(getSociotypes(userId));
         user.setPhotos(getPhotos(userId));
@@ -146,8 +146,8 @@ public class UserRepository extends Repository<User> {
             sociotypesCursor = db.query(UserMeta.Sociotype.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
             while (sociotypesCursor.moveToNext()) {
                 Sociotype sociotype = new Sociotype();
-                sociotype.setCode1(sociotypesCursor.getString(sociotypesCursor.getColumnIndex("code1")));
-                sociotype.setCode2(sociotypesCursor.getString(sociotypesCursor.getColumnIndex("code2")));
+                sociotype.setCode1(sociotypesCursor.getString(sociotypesCursor.getColumnIndex(UserMeta.Sociotype.CODE_1)));
+                sociotype.setCode2(sociotypesCursor.getString(sociotypesCursor.getColumnIndex(UserMeta.Sociotype.CODE_2)));
                 sociotypes.add(sociotype);
             }
             return sociotypes;
@@ -165,7 +165,7 @@ public class UserRepository extends Repository<User> {
             photosCursor = db.query(UserMeta.Photo.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
             while (photosCursor.moveToNext()) {
                 Photo photo = new Photo();
-                photo.setSourceUrl(photosCursor.getString(photosCursor.getColumnIndex("source_link")));
+                photo.setSourceUrl(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.SOURCE_LINK)));
                 photos.add(photo);
             }
             return photos;
@@ -183,10 +183,10 @@ public class UserRepository extends Repository<User> {
             locationsCursor = db.query(UserMeta.Location.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
             while (locationsCursor.moveToNext()) {
                 Location location = new Location();
-                location.setLatitude(locationsCursor.getDouble(locationsCursor.getColumnIndex("latitude")));
-                location.setLongitude(locationsCursor.getDouble(locationsCursor.getColumnIndex("longitude")));
-                location.setCountryCode(locationsCursor.getString(locationsCursor.getColumnIndex("country_code")));
-                location.setCity(locationsCursor.getString(locationsCursor.getColumnIndex("city")));
+                location.setLatitude(locationsCursor.getDouble(locationsCursor.getColumnIndex(UserMeta.Location.LATITUDE)));
+                location.setLongitude(locationsCursor.getDouble(locationsCursor.getColumnIndex(UserMeta.Location.LONGITUDE)));
+                location.setCountryCode(locationsCursor.getString(locationsCursor.getColumnIndex(UserMeta.Location.COUNTRY_CODE)));
+                location.setCity(locationsCursor.getString(locationsCursor.getColumnIndex(UserMeta.Location.CITY)));
                 locations.add(location);
             }
             return locations;

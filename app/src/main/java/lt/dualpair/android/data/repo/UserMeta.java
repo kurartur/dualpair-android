@@ -41,11 +41,21 @@ public class UserMeta {
 
         public static final String TABLE_NAME = "user_locations";
 
+        public static final String USER_ID = "user_id";
+        public static final String LATITUDE = "latitude";
+        public static final String LONGITUDE = "longitude";
+        public static final String COUNTRY_CODE = "country_code";
+        public static final String CITY = "city";
+
     }
 
     public static final class UserAccount implements BaseColumns {
 
         public static final String TABLE_NAME = "user_accounts";
+
+        public static final String USER_ID = "user_id";
+        public static final String ACCOUNT_ID = "account_id";
+        public static final String ACCOUNT_TYPE = "account_type";
 
     }
 
