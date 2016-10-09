@@ -11,7 +11,15 @@ public class UserAccount implements Serializable {
         return accountType;
     }
 
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
     public String getAccountId() {
         return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 }

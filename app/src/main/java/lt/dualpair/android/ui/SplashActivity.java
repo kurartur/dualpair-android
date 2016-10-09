@@ -60,9 +60,6 @@ public class SplashActivity extends BaseActivity {
     @Bind(R.id.progress_text)
     TextView progressText;
 
-    private Subscription userSubscription;
-    private Subscription searchParametersSubscription;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,11 +71,7 @@ public class SplashActivity extends BaseActivity {
         }
 
         ButterKnife.bind(this);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
         init();
     }
 
@@ -96,6 +89,7 @@ public class SplashActivity extends BaseActivity {
 
                 @Override
                 protected void onPostExecute(Bundle bundle) {
+                    Log.i(TAG, "onPostExecute");
                     initUser();
                 }
             }.execute((Void)null);

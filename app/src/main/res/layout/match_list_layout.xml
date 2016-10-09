@@ -1,16 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/refresh_layout"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:background="@color/windowBackground">
 
-    <GridView
-        android:id="@+id/mutual_matches_grid"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="2"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="1dp"
-        android:horizontalSpacing="1dp"/>
+        android:measureAllChildren="true">
+
+        <GridView
+            android:id="@+id/mutual_matches_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:numColumns="2"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="1dp"
+            android:horizontalSpacing="1dp"/>
+
+        <ScrollView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <TextView
+                android:id="@+id/no_matches_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/you_have_no_matches"
+                android:gravity="center"/>
+
+        </ScrollView>
+
+    </FrameLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

@@ -14,6 +14,7 @@ import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.match.MatchActivity;
+import lt.dualpair.android.ui.match.NewMatchActivity;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -38,9 +39,17 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.main_layout);
         ButterKnife.bind(this);
 
-        viewPager.setAdapter(new MainFragmentPageAdapter(this, getFragmentManager()));
+        MainFragmentPageAdapter adapter = new MainFragmentPageAdapter(this, getFragmentManager());
+        viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
-
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (adapter.getIconId(i) == null) {
+                tab.setText(adapter.getTitleId(i));
+            } else {
+                tab.setIcon(adapter.getIconId(i));
+            }
+        }
     }
 
     @Override
@@ -49,15 +58,14 @@ public class MainActivity extends BaseActivity {
         newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Action1<NewMatchEvent>() {
             @Override
             public void call(NewMatchEvent newMatchEvent) {
-                showNewMatch();
+                showNewMatch(newMatchEvent.getMatchId());
             }
         });
         isInForeground = true;
     }
 
-    private void showNewMatch() {
-        Intent intent = new Intent(this, MatchActivity.class);
-        startActivity(intent);
+    private void showNewMatch(Long matchId) {
+        startActivity(NewMatchActivity.createIntent(this, matchId));
     }
 
     @Override

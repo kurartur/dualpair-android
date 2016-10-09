@@ -1,5 +1,6 @@
 package lt.dualpair.android.data.repo;
 
+import android.accounts.Account;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -135,6 +136,7 @@ public class UserRepository extends Repository<User> {
         user.setSociotypes(getSociotypes(userId));
         user.setPhotos(getPhotos(userId));
         user.setLocations(getLocations(userId));
+        user.setAccounts(getAccounts(userId));
 
         return user;
     }
@@ -193,6 +195,25 @@ public class UserRepository extends Repository<User> {
         } finally {
             if (locationsCursor != null) {
                 locationsCursor.close();
+            }
+        }
+    }
+
+    private List<UserAccount> getAccounts(Long userId) {
+        Cursor accountsCursor = null;
+        try {
+            List<UserAccount> accounts = new ArrayList<>();
+            accountsCursor = db.query(UserMeta.UserAccount.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
+            while (accountsCursor.moveToNext()) {
+                UserAccount account = new UserAccount();
+                account.setAccountId(accountsCursor.getString(accountsCursor.getColumnIndex(UserMeta.UserAccount.ACCOUNT_ID)));
+                account.setAccountType(accountsCursor.getString(accountsCursor.getColumnIndex(UserMeta.UserAccount.ACCOUNT_TYPE)));
+                accounts.add(account);
+            }
+            return accounts;
+        } finally {
+            if (accountsCursor != null) {
+                accountsCursor.close();
             }
         }
     }

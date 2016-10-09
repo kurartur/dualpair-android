@@ -45,6 +45,9 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
     protected Long getUserId() {
         AccountManager accountManager = AccountManager.get(context);
         Account account = AccountUtils.getAccount(accountManager, context);
+        if (account == null) {
+            throw new RuntimeException("Unauthorized");
+        }
         return Long.valueOf(accountManager.getUserData(account, LoginActivity.ARG_USER_ID));
     }
 

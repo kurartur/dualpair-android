@@ -116,14 +116,15 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                 .subscribe(new EmptySubscriber<User>() {
                     @Override
                     public void onNext(User user) {
-                        Account account = new Account(user.getName(), AccountConstants.ACCOUNT_TYPE);
+
+                        Log.i(TAG, "START endAuth");
+
+                        String accountName = user.getName() + " (" + user.getId() + ")";
+                        Account account = new Account(accountName, AccountConstants.ACCOUNT_TYPE);
                         Bundle userData = new Bundle();
                         userData.putString(ARG_USER_ID, user.getId().toString());
                         userData.putString(ARG_USER_NAME, user.getName());
-                        userData.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
 
-                        // TODO userData doesnt get overrided when account already exists.
-                        accountManager.removeAccount(account, null, null);
                         accountManager.addAccountExplicitly(account, token.getRefreshToken(), userData);
                         accountManager.setAuthToken(account, AccountConstants.ACCOUNT_TYPE, token.getAccessToken());
 
@@ -134,12 +135,13 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
                         TokenProvider.getInstance().storeToken(token.getAccessToken());
 
-                        AccountUtils.setAccount(accountManager, account, LoginActivity.this);
+                        AccountUtils.setAccount(account, LoginActivity.this);
 
                         setAccountAuthenticatorResult(result);
-
-                        startActivity(SplashActivity.createIntent(LoginActivity.this));
                         LoginActivity.this.setResult(Activity.RESULT_OK);
+
+                        Log.i(TAG, "END endAuth");
+
                         finish();
                     }
                 });

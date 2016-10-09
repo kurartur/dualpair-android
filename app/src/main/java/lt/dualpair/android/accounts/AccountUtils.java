@@ -36,7 +36,7 @@ public class AccountUtils {
         return null;
     }
 
-    public static void setAccount(final AccountManager accountManager, final Account account, final Context context) {
+    public static void setAccount(final Account account, final Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(CURRENT_ACCOUNT_NAME, account.name);

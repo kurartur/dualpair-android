@@ -4,12 +4,14 @@
     <item
         android:id="@+id/search_parameters_menu_item"
         android:title="@string/search_parameters"
-        android:showAsAction="always">
+        android:showAsAction="always"
+        android:icon="@drawable/search_icon">
     </item>
     <item
         android:id="@+id/history_menu_item"
         android:title="@string/history"
-        android:showAsAction="ifRoom">
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/history_icon">
     </item>
 
 </menu>

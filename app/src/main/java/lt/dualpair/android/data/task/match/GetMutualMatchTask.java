@@ -1,6 +1,6 @@
 package lt.dualpair.android.data.task.match;
 
-import android.app.Activity;
+import android.content.Context;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.match.GetMutualMatchClient;
@@ -10,8 +10,8 @@ public class GetMutualMatchTask extends AuthenticatedUserTask<Match> {
 
     private Long matchId;
 
-    public GetMutualMatchTask(Activity activity, Long matchId) {
-        super(activity);
+    public GetMutualMatchTask(Context context, Long matchId) {
+        super(context);
         this.matchId = matchId;
     }
 

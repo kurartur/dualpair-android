@@ -3,13 +3,18 @@ package lt.dualpair.android.ui.main;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 
 import lt.dualpair.android.R;
 
 public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
 
-    Context context;
+    private Context context;
 
     public MainFragmentPageAdapter(Context context, FragmentManager fragmentManager) {
         super(fragmentManager);
@@ -18,16 +23,7 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (Tab.fromPosition(position)) {
-            case REVIEW:
-                return new ReviewFragment();
-            case MATCH_LIST:
-                return new MatchListFragment();
-            case PROFILE:
-                return new ProfileFragment();
-            default:
-                throw new IllegalArgumentException();
-        }
+        return Tab.fromPosition(position).getFragmentCreator().create();
     }
 
     @Override
@@ -35,29 +31,44 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
         return Tab.values().length;
     }
 
-    @Override
-    public CharSequence getPageTitle(int position) {
-        switch (Tab.fromPosition(position)) {
-            case REVIEW:
-                return context.getResources().getString(R.string.tab_review);
-            case MATCH_LIST:
-                return context.getResources().getString(R.string.tab_pairs);
-            case PROFILE:
-                return context.getResources().getString(R.string.profile);
-            default:
-                throw new IllegalArgumentException();
-        }
+    public Integer getIconId(int position) {
+        return Tab.fromPosition(position).getIcon();
+    }
+
+    public Integer getTitleId(int position) {
+        return Tab.fromPosition(position).getTitle();
     }
 
     private enum Tab {
-        REVIEW(0),
-        MATCH_LIST(1),
-        PROFILE(2);
+        REVIEW(0, null, R.string.tab_review, new FragmentCreator() {
+            @Override
+            public Fragment create() {
+                return new ReviewFragment();
+            }
+        }),
+        MATCH_LIST(1, null, R.string.tab_pairs, new FragmentCreator() {
+            @Override
+            public Fragment create() {
+                return new MatchListFragment();
+            }
+        }),
+        PROFILE(2, R.drawable.profile_icon, R.string.profile, new FragmentCreator() {
+            @Override
+            public Fragment create() {
+                return new ProfileFragment();
+            }
+        });
 
         int position;
+        Integer icon;
+        Integer title;
+        FragmentCreator fragmentCreator;
 
-        Tab(int position) {
+        Tab(int position, Integer icon, Integer title, FragmentCreator fragmentCreator) {
             this.position = position;
+            this.icon = icon;
+            this.title = title;
+            this.fragmentCreator = fragmentCreator;
         }
 
         public static Tab fromPosition(int position) throws IllegalArgumentException {
@@ -72,5 +83,21 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
         public int getPosition() {
             return position;
         }
+
+        public Integer getIcon() {
+            return icon;
+        }
+
+        public Integer getTitle() {
+            return title;
+        }
+
+        public FragmentCreator getFragmentCreator() {
+            return fragmentCreator;
+        }
+    }
+
+    private interface FragmentCreator {
+        Fragment create();
     }
 }

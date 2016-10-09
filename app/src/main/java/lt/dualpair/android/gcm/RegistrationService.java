@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.remote.client.device.RegisterDeviceClient;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -36,7 +37,14 @@ public class RegistrationService extends IntentService {
                     .subscribe(new EmptySubscriber<Void>() {
                         @Override
                         public void onError(Throwable e) {
-                            Log.e(SERVICE_NAME, "Unable to register device", e);
+                            if (e instanceof ServiceException) {
+                                ServiceException se = (ServiceException)e;
+                                if (se.getResponse().code() == 409) {
+                                    Log.i(SERVICE_NAME, "Device already registered");
+                                } else {
+                                    Log.e(SERVICE_NAME, "Unable to register device", e);
+                                }
+                            }
                         }
 
                         @Override

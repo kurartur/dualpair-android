@@ -73,7 +73,8 @@
     <string name="history">History</string>
     <string name="profile">Profile</string>
 
-    <string name="you_have_new_match">You have new match</string>
+    <string name="you_have_new_match">You have new match!</string>
+    <string name="you_have_no_matches">You have no matches</string>
     <string name="user_liked_you">%1$s liked you</string>
     <string name="save">Save</string>
     <string name="user_profile">User profile</string>

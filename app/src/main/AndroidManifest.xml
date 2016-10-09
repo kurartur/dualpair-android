@@ -45,6 +45,7 @@
         <activity android:name=".ui.search.SearchParametersActivity"/>
         <activity android:name=".ui.AboutActivity"/>
         <activity android:name=".ui.match.MatchActivity"/>
+        <activity android:name=".ui.match.NewMatchActivity"/>
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>

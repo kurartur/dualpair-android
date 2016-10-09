@@ -75,8 +75,6 @@ public class ReviewFragment extends BaseFragment {
         }
     }
 
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

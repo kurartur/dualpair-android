@@ -50,9 +50,11 @@ public class MatchListFragment extends Fragment implements SwipeRefreshLayout.On
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        swipeRefreshLayout = (SwipeRefreshLayout)inflater.inflate(R.layout.match_list_layout, container, false);
+        View view = inflater.inflate(R.layout.match_list_layout, container, false);
+        swipeRefreshLayout = (SwipeRefreshLayout)view;
         gridView = (GridView)swipeRefreshLayout.findViewById(R.id.mutual_matches_grid);
-        return swipeRefreshLayout;
+        gridView.setEmptyView(view.findViewById(android.R.id.empty));
+        return view;
     }
 
     @Override
