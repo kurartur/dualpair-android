@@ -84,6 +84,10 @@
     <string name="edit">Edit</string>
     <string name="add">Add</string>
     <string name="remove">Remove</string>
+    <string name="about_text">
+        <p>made by <b>Artur</b></p>
+    </string>
+    <string name="admin_email">kur.artur@gmail.com</string>
 
     <string name="create_db"><![CDATA[
 

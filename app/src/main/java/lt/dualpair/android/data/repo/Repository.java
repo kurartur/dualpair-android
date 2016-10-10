@@ -47,4 +47,8 @@ public abstract class Repository<T> {
         return args;
     }
 
+    protected void assertOperation(long rowId, String message) {
+        if (rowId == -1) throw new RepositoryException(message);
+    }
+
 }

@@ -80,62 +80,43 @@ public class MatchRepository extends Repository<Match> {
         match.setId(c.getLong(c.getColumnIndex("match_id")));
         match.setOpponent(opponentParty);
         match.setUser(userParty);
-        match.setDistance(c.getInt(c.getColumnIndex("distance")));
+        match.setDistance(c.getInt(c.getColumnIndex(MatchMeta.Match.DISTANCE)));
 
         return match;
-    }
-
-    private MatchParty mapParty(Cursor c) {
-        User user = userRepository.get(c.getLong(c.getColumnIndex("user_id")));
-        MatchParty matchParty = new MatchParty();
-        matchParty.setId(c.getLong(c.getColumnIndex(MatchMeta.Party._ID)));
-        matchParty.setResponse(Response.valueOf(c.getString(c.getColumnIndex(MatchMeta.Party.RESPONSE))));
-        matchParty.setUser(user);
-        return matchParty;
     }
 
     @Override
     protected Match doSave(Match match) {
         Long matchId = match.getId();
-        Cursor matchCursor = null;
-        try {
-            matchCursor = db.rawQuery(MATCH_QUERY + "WHERE m._id=?", args(matchId.toString()));
-            if (matchCursor.moveToNext()) {
-                // delete and save again
-                matchCursor.close();
 
-                db.delete(MatchMeta.Party.TABLE_NAME, "match_id=?", args(match.getId().toString()));
-                db.delete(MatchMeta.Match.TABLE_NAME, "_id=?", args(match.getId().toString()));
-                userRepository.delete(match.getOpponent().getUser());
-            }
-            userRepository.save(match.getOpponent().getUser());
-        } finally {
-            if (matchCursor != null && !matchCursor.isClosed()) {
-                matchCursor.close();
-            }
-        }
+        boolean matchExists = db.query(MatchMeta.Match.TABLE_NAME, new String[]{UserMeta.User._ID}, "_id=?", args(matchId.toString()), null, null, null).moveToNext();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put("_id", match.getId());
-        contentValues.put("distance", match.getDistance());
-        contentValues.put("create_time", DatabaseHelper.getDateTimeString(new Date()));
-        long rowId = db.insert("matches", null, contentValues);
+        contentValues.put(MatchMeta.Match._ID, match.getId());
+        contentValues.put(MatchMeta.Match.DISTANCE, match.getDistance());
+        contentValues.put(MatchMeta.Match.CREATE_TIME, DatabaseHelper.getDateTimeString(new Date()));
 
-        contentValues = new ContentValues();
-        contentValues.put("_id", match.getOpponent().getId());
-        contentValues.put("match_id", match.getId());
-        contentValues.put("user_id", match.getOpponent().getUser().getId());
-        contentValues.put("response", Response.UNDEFINED.name());
-        rowId = db.insert("match_parties", null, contentValues);
+        if (!matchExists) {
+            assertOperation(db.insert(MatchMeta.Match.TABLE_NAME, null, contentValues), "Unable to save match " + match);
+        } else {
+            db.update(MatchMeta.Match.TABLE_NAME, contentValues, "_id=?", args(matchId.toString()));
+        }
 
-        contentValues = new ContentValues();
-        contentValues.put("_id", match.getUser().getId());
-        contentValues.put("match_id", match.getId());
-        contentValues.put("user_id", match.getUser().getUser().getId());
-        contentValues.put("response", match.getUser().getResponse().name());
-        rowId = db.insert("match_parties", null, contentValues);
+        saveParty(match.getOpponent(), matchId);
+        saveParty(match.getUser(), matchId);
 
         return match;
+    }
+
+    private void saveParty(MatchParty party, Long matchId) {
+        db.delete(MatchMeta.Party.TABLE_NAME, "_id=?", args(party.getId().toString()));
+        userRepository.save(party.getUser());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MatchMeta.Party._ID, party.getId());
+        contentValues.put(MatchMeta.Party.MATCH_ID, matchId);
+        contentValues.put(MatchMeta.Party.USER_ID, party.getUser().getId());
+        contentValues.put(MatchMeta.Party.RESPONSE, Response.UNDEFINED.name());
+        assertOperation(db.insert(MatchMeta.Party.TABLE_NAME, null, contentValues), "Unable to save party " + party);
     }
 
     public void setResponse(Long partyId, Response response) {

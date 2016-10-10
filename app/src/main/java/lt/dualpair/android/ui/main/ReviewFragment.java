@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,13 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -28,15 +25,11 @@ import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.ErrorResponse;
-import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Response;
-import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.match.OpponentUserView;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -44,18 +37,11 @@ public class ReviewFragment extends BaseFragment {
 
     private static final String TAG = "ReviewFragment";
 
-    private Subscription nextMatchSubscription;
-    Match match;
-    ImageView[] dotImages;
+    private Match match;
+
+    private OpponentUserView opponentUserView;
 
     @Bind(R.id.review) LinearLayout reviewLayout;
-    @Bind(R.id.photo_pager) ViewPager photoPager;
-    @Bind(R.id.photo_dots) LinearLayout photoDots;
-    @Bind(R.id.name_surname) TextView name;
-    @Bind(R.id.age) TextView age;
-    @Bind(R.id.location) TextView location;
-    @Bind(R.id.sociotypes) TextView sociotypes;
-    @Bind(R.id.description) TextView description;
     @Bind(R.id.no_button) Button noButton;
     @Bind(R.id.yes_button) Button yesButton;
 
@@ -92,15 +78,6 @@ public class ReviewFragment extends BaseFragment {
                 loadReview();
             }
         });
-        photoPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                for (int i = 0; i < dotImages.length; i++) {
-                    dotImages[i].setImageDrawable(getResources().getDrawable(R.drawable.non_selected_item_dot));
-                }
-                dotImages[position].setImageDrawable(getResources().getDrawable(R.drawable.selected_item_dot));
-            }
-        });
         yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,6 +95,9 @@ public class ReviewFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (opponentUserView == null) {
+            opponentUserView = new OpponentUserView(this.getActivity(), getView());
+        }
         if (match == null) {
             loadReview();
         } else {
@@ -170,26 +150,8 @@ public class ReviewFragment extends BaseFragment {
     }
 
     public void renderReview(Match match) {
-        User user = match.getOpponent().getUser();
-        name.setText(user.getName());
-        age.setText(Integer.toString(user.getAge()));
-        Location firstLocation = user.getFirstLocation();
-        if (firstLocation != null) {
-            location.setText(firstLocation.getCity());
-        } else {
-            location.setText("Unknown");
-        }
-        StringBuilder sb = new StringBuilder();
-        String prefix = "";
-        for (Sociotype sociotype : user.getSociotypes()) {
-            sb.append(prefix);
-            prefix = ", ";
-            sb.append(sociotype.getCode1());
-        }
-        sociotypes.setText(sb);
-        description.setText(user.getDescription());
+        opponentUserView.render(match.getOpponent().getUser());
         progressLayout.setVisibility(View.GONE);
-        initPhotos(match.getOpponent().getUser().getPhotos());
         reviewLayout.setVisibility(View.VISIBLE);
     }
 
@@ -212,26 +174,6 @@ public class ReviewFragment extends BaseFragment {
         progressText.setText(getResources().getString(R.string.no_matches_found));
         progressBar.setVisibility(View.GONE);
         retryButton.setVisibility(View.VISIBLE);
-    }
-
-    private void initPhotos(List<Photo> photos) {
-        photoPager.setAdapter(new UserPhotosAdapter(this.getActivity(), photos));
-        photoDots.removeAllViews();
-        dotImages = new ImageView[photos.size()];
-        for (int i = 0; i < photos.size(); i++) {
-            dotImages[i] = new ImageView(this.getActivity());
-            if (i == 0) {
-                dotImages[i].setImageDrawable(getResources().getDrawable(R.drawable.selected_item_dot));
-            } else {
-                dotImages[i].setImageDrawable(getResources().getDrawable(R.drawable.non_selected_item_dot));
-            }
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.setMargins(7, 0, 7, 0);
-            photoDots.addView(dotImages[i], params);
-        }
     }
 
     private void setResponse(final Response response) {

@@ -1,6 +1,5 @@
 package lt.dualpair.android.data.repo;
 
-import android.accounts.Account;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -225,9 +224,5 @@ public class UserRepository extends Repository<User> {
         db.delete(UserMeta.Photo.TABLE_NAME, "user_id=?", args(userId));
         db.delete(UserMeta.Sociotype.TABLE_NAME, "user_id=?", args(userId));
         db.delete(UserMeta.User.TABLE_NAME, "_id=?", args(userId));
-    }
-
-    private void assertOperation(long rowId, String message) {
-        if (rowId == -1) throw new RepositoryException(message);
     }
 }

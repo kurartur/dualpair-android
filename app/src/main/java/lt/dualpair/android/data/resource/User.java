@@ -56,9 +56,11 @@ public class User extends BaseResource implements Serializable {
     }
 
     public UserAccount getFacebookAccount() {
-        for (UserAccount account : getAccounts()) {
-            if (account.getAccountType().equals("FACEBOOK")) {
-                return account;
+        if (getAccounts() != null) {
+            for (UserAccount account : getAccounts()) {
+                if (account.getAccountType().equals("FACEBOOK")) {
+                    return account;
+                }
             }
         }
         return null;

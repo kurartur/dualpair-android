@@ -3,8 +3,8 @@ package lt.dualpair.android.ui.match;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.AndroidException;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +29,10 @@ public class NewMatchActivity extends BaseActivity {
 
     @Bind(R.id.main_picture) protected ImageView mainPicture;
     @Bind(R.id.name) protected TextView name;
+    @Bind(R.id.close) protected ImageView close;
+    @Bind(R.id.forward) protected ImageView forward;
+
+    private Long matchId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +44,28 @@ public class NewMatchActivity extends BaseActivity {
         }
 
         ButterKnife.bind(this);
+
+        matchId = getIntent().getLongExtra(MATCH_ID, -1);
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(MatchActivity.createIntent(NewMatchActivity.this, matchId));
+                finish();
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Long matchId = getIntent().getLongExtra(MATCH_ID, -1);
         if (matchId == -1) {
             Log.w(TAG, "empty match id");
             finish();

@@ -23,6 +23,7 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.ui.match.MatchActivity;
 
 public class MatchListAdapter extends BaseAdapter {
 
@@ -71,6 +72,12 @@ public class MatchListAdapter extends BaseAdapter {
         final User opponent = match.getOpponent().getUser();
         name.setText(opponent.getName());
         setupFacebookButton(facebookButton, opponent);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.startActivity(MatchActivity.createIntent(activity, match.getId()));
+            }
+        });
         return view;
     }
 
