@@ -26,6 +26,7 @@ import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
 import lt.dualpair.android.data.task.match.GetMutualMatchTask;
 import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -37,13 +38,12 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
     private static final String TAG = "MatchListFragment";
 
     private Activity activity;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private ScrollSwipeRefreshLayout swipeRefreshLayout;
     private GridView gridView;
     private MatchListAdapter matchListAdapter;
 
     private List<Match> matches = new ArrayList<>();
     private ResourceCollectionLoader<Match> loader;
-    private Subscription subscription;
 
     private Subscription newMatchEventSubscription;
 
@@ -63,9 +63,10 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.match_list_layout, container, false);
-        swipeRefreshLayout = (SwipeRefreshLayout)view;
+        swipeRefreshLayout = (ScrollSwipeRefreshLayout)view;
         gridView = (GridView)swipeRefreshLayout.findViewById(R.id.mutual_matches_grid);
         gridView.setEmptyView(view.findViewById(android.R.id.empty));
+        swipeRefreshLayout.setView(gridView);
         return view;
     }
 
@@ -82,9 +83,9 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (visibleItemCount == totalItemCount) {
+                /*if (visibleItemCount == totalItemCount) {
                     loader.loadNext();
-                }
+                }*/
             }
         });
 
@@ -112,24 +113,12 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
     private void initializeList() {
         swipeRefreshLayout.setRefreshing(true);
 
-        subscription = loader.load().observeOn(AndroidSchedulers.mainThread())
+        matches.clear();
+        loader.observable().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .compose(this.<List<Match>>bindToLifecycle())
-                .subscribe(new EmptySubscriber<List<Match>>() {
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "Unable to load match list", e);
-                    }
-
-                    @Override
-                    public void onNext(List<Match> m) {
-                        if (!m.isEmpty()) {
-                            matches.addAll(m);
-                            matchListAdapter.notifyDataSetChanged();
-                        }
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                });
+                .subscribe(new MatchListSubscriber());
+        loader.load();
     }
 
     private void loadAndPrependMatch(Long matchId) {
@@ -147,7 +136,26 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        subscription.unsubscribe();
         initializeList();
+    }
+
+    private class MatchListSubscriber extends EmptySubscriber<List<Match>> {
+        @Override
+        public void onCompleted() {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(TAG, "Unable to load match list", e);
+        }
+
+        @Override
+        public void onNext(List<Match> m) {
+            if (!m.isEmpty()) {
+                matches.addAll(m);
+                matchListAdapter.notifyDataSetChanged();
+            }
+        }
     }
 }

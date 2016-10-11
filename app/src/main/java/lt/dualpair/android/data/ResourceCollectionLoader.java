@@ -9,11 +9,11 @@ import lt.dualpair.android.data.resource.ResourceCollection;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 public abstract class ResourceCollectionLoader<T> {
 
-    private BehaviorSubject<List<T>> subject = BehaviorSubject.create();
+    private PublishSubject<List<T>> subject = PublishSubject.create();
     private Context context;
     private String nextUrl;
 
@@ -39,9 +39,13 @@ public abstract class ResourceCollectionLoader<T> {
         }).subscribe(subject);
     }
 
-    public Observable<List<T>> load() {
+    public Observable<List<T>> observable() {
+        subject = PublishSubject.create();
+        return subject;
+    }
+
+    public void load() {
         load(null);
-        return subject.asObservable();
     }
 
     public void loadNext() {
@@ -49,7 +53,7 @@ public abstract class ResourceCollectionLoader<T> {
     }
 
     public void reload() {
-        load();
+        load(null);
     }
 
 }
