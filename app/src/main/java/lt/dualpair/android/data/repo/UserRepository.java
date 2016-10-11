@@ -44,6 +44,7 @@ public class UserRepository extends Repository<User> {
         ContentValues contentValues = new ContentValues();
         contentValues.put(UserMeta.User._ID, user.getId());
         contentValues.put(UserMeta.User.DESCRIPTION, user.getDescription());
+        contentValues.put(UserMeta.User.UPDATE_TIME, DatabaseHelper.getDateTimeString(user.getUpdateTime()));
         if (user.getDateOfBirth() != null) {
             contentValues.put(UserMeta.User.DATE_OF_BIRTH, DatabaseHelper.getDateTimeString(user.getDateOfBirth()));
         }
@@ -136,6 +137,8 @@ public class UserRepository extends Repository<User> {
         user.setPhotos(getPhotos(userId));
         user.setLocations(getLocations(userId));
         user.setAccounts(getAccounts(userId));
+
+        user.setUpdateTime(DatabaseHelper.getDateFromString(c.getString(c.getColumnIndex(UserMeta.User.UPDATE_TIME))));
 
         return user;
     }

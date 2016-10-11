@@ -100,6 +100,7 @@
             name VARCHAR(128) NULL,
             status SMALLINT NOT NULL DEFAULT 0,
             gender VARCHAR(1) NULL,
+            update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (_id));
 
         DROP TABLE IF EXISTS search_parameters;

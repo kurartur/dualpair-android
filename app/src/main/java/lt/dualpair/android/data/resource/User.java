@@ -19,6 +19,8 @@ public class User extends BaseResource implements Serializable {
     private List<Photo> photos;
     private List<UserAccount> accounts = new ArrayList<>();
 
+    private Date updateTime = new Date();
+
     public Long getId() {
         return id;
     }
@@ -107,5 +109,13 @@ public class User extends BaseResource implements Serializable {
 
     public void setAccounts(List<UserAccount> accounts) {
         this.accounts = accounts;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

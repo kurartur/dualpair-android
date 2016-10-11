@@ -19,6 +19,10 @@ public class ResourceCollection<T> extends BaseResource {
         return content.isEmpty();
     }
 
+    public PageMeta getPageMeta() {
+        return page;
+    }
+
     public static class PageMeta {
 
         private int size;
@@ -26,6 +30,21 @@ public class ResourceCollection<T> extends BaseResource {
         private int totalPages;
         private int number;
 
+        public int getSize() {
+            return size;
+        }
+
+        public int getTotalElements() {
+            return totalElements;
+        }
+
+        public int getTotalPages() {
+            return totalPages;
+        }
+
+        public int getNumber() {
+            return number;
+        }
     }
 
 }

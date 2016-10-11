@@ -20,7 +20,6 @@ public abstract class DataManager {
         this.context = context;
     }
 
-
     protected void enqueueTask(QueuedTask queuedTask) {
         tasks.add(queuedTask);
         Intent intent = new Intent(context, TaskProcessingService.class);

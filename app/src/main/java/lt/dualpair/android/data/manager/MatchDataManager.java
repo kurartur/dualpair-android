@@ -6,11 +6,13 @@ import android.database.sqlite.SQLiteDatabase;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.ResourceCollection;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.Task;
 import lt.dualpair.android.data.task.match.GetMutualMatchTask;
 import lt.dualpair.android.data.task.match.GetNextMatchTask;
+import lt.dualpair.android.data.task.match.GetUserMutualMatchListTask;
 import lt.dualpair.android.data.task.match.SetResponseTask;
 import rx.Observable;
 import rx.functions.Action1;
@@ -88,6 +90,17 @@ public class MatchDataManager extends DataManager {
             @Override
             public Task createTask(Context context) {
                 return new GetMutualMatchTask(context, matchId);
+            }
+        }, subject));
+        return subject.asObservable();
+    }
+
+    public Observable<ResourceCollection<Match>> mutualMatchList(final String url) {
+        final PublishSubject<ResourceCollection<Match>> subject = PublishSubject.create();
+        enqueueTask(new QueuedTask("mutualMatchList", new TaskCreator() {
+            @Override
+            public Task createTask(Context context) {
+                return new GetUserMutualMatchListTask(context, url);
             }
         }, subject));
         return subject.asObservable();

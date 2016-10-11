@@ -1,6 +1,6 @@
 package lt.dualpair.android.data.task.match;
 
-import android.app.Activity;
+import android.content.Context;
 import android.text.TextUtils;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
@@ -12,13 +12,9 @@ public class GetUserMutualMatchListTask extends AuthenticatedUserTask<ResourceCo
 
     private String url;
 
-    public GetUserMutualMatchListTask(Activity activity, String url) {
-        super(activity);
+    public GetUserMutualMatchListTask(Context context, String url) {
+        super(context);
         this.url = url;
-    }
-
-    public GetUserMutualMatchListTask(Activity activity) {
-        super(activity);
     }
 
     @Override

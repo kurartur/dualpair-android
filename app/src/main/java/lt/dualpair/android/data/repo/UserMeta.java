@@ -12,6 +12,7 @@ public class UserMeta {
         public static final String DESCRIPTION = "description";
         public static final String DATE_OF_BIRTH = "date_of_birth";
         public static final String AGE = "age";
+        public static final String UPDATE_TIME = "update_time";
 
     }
 
