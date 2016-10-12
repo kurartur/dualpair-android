@@ -6,9 +6,7 @@
     <lt.dualpair.android.ui.SquareImageView
         android:id="@+id/picture"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/lovely_me"
-        />
+        android:layout_height="match_parent"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

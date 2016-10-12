@@ -140,7 +140,6 @@ public class SearchParametersActivity extends BaseActivity {
                 return true;
             case MENU_ITEM_SAVE:
                 postSearchParameters();
-                finish();
                 return false;
         }
         return false;
