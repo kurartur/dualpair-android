@@ -8,38 +8,46 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import lt.dualpair.android.data.service.TaskProcessingService;
 import lt.dualpair.android.data.task.Task;
-import rx.Observer;
+import rx.Observable;
+import rx.Subscriber;
 
 public abstract class DataManager {
 
     protected Context context;
 
-    private static Queue<QueuedTask> tasks = new ConcurrentLinkedQueue<>();
+    private static Queue<LinkedRequest> requests = new ConcurrentLinkedQueue<>();
 
     public DataManager(Context context) {
         this.context = context;
     }
 
-    protected void enqueueTask(QueuedTask queuedTask) {
-        tasks.add(queuedTask);
-        Intent intent = new Intent(context, TaskProcessingService.class);
-        context.startService(intent);
+    public static <T> Observable<T> execute(final Context context, final DataRequest<T> dataRequest) {
+        return Observable.create(new Observable.OnSubscribe<T>() {
+            @Override
+            public void call(Subscriber<? super T> subscriber) {
+                requests.add(new LinkedRequest<>(dataRequest, subscriber));
+                Intent intent = new Intent(context, TaskProcessingService.class);
+                context.startService(intent);
+            }
+        });
     }
 
-    public static Queue<QueuedTask> getTasks() {
-        return tasks;
+    public static Queue<LinkedRequest> getRequests() {
+        return requests;
     }
 
-    public static class QueuedTask<T> {
+    public interface TaskCreator<T> {
+        Task<T> createTask(Context context);
+    }
+
+    public static class DataRequest<T> {
 
         private String key;
         private TaskCreator<T> creator;
-        private Observer<T> observer;
 
-        public QueuedTask(String key, TaskCreator<T> creator, Observer<T> subscriber) {
+        public DataRequest(String key, TaskCreator<T> creator) {
             this.key = key;
             this.creator = creator;
-            this.observer = subscriber;
         }
 
         public String getKey() {
@@ -49,13 +57,24 @@ public abstract class DataManager {
         public TaskCreator<T> getCreator() {
             return creator;
         }
-
-        public Observer<T> getObserver() {
-            return observer;
-        }
     }
 
-    public interface TaskCreator<T> {
-        Task<T> createTask(Context context);
+    public static class LinkedRequest<T> {
+
+        private DataRequest<T> dataRequest;
+        private Subscriber<? super T> link;
+
+        public LinkedRequest(DataRequest<T> dataRequest, Subscriber<? super T> link) {
+            this.dataRequest = dataRequest;
+            this.link = link;
+        }
+
+        public DataRequest<T> getDataRequest() {
+            return dataRequest;
+        }
+
+        public Subscriber<? super T> getLink() {
+            return link;
+        }
     }
 }

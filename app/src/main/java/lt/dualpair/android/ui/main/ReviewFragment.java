@@ -1,5 +1,7 @@
 package lt.dualpair.android.ui.main;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +31,7 @@ import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.match.OpponentUserView;
+import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -36,6 +39,7 @@ import rx.schedulers.Schedulers;
 public class ReviewFragment extends BaseFragment {
 
     private static final String TAG = "ReviewFragment";
+    private static final int SP_REQ_CODE = 1;
 
     private Match match;
 
@@ -205,9 +209,23 @@ public class ReviewFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search_parameters_menu_item:
-                startActivityForResult(SearchParametersActivity.createIntent(getActivity()), 1);
+                startActivityForResult(SearchParametersActivity.createIntent(getActivity()), SP_REQ_CODE);
+                break;
+            case R.id.history_menu_item:
+                startActivity(ReviewHistoryActivity.createIntent(getActivity()));
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case SP_REQ_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    loadReview();
+                }
+                break;
+        }
     }
 }

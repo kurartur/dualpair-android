@@ -15,14 +15,8 @@ import lt.dualpair.android.data.task.match.GetNextMatchTask;
 import lt.dualpair.android.data.task.match.GetUserMutualMatchListTask;
 import lt.dualpair.android.data.task.match.SetResponseTask;
 import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
 
 public class MatchDataManager extends DataManager {
-
-    private static Subject<Match, Match> matchesSubjects = PublishSubject.create();
 
     private SearchParametersRepository searchParametersRepository;
 
@@ -33,76 +27,39 @@ public class MatchDataManager extends DataManager {
     }
 
     public Observable<Match> next() {
-        final PublishSubject<Match> subject = PublishSubject.create();
-        subject.doOnNext(new Action1<Match>() {
-            @Override
-            public void call(Match match) {
-                matchesSubjects.filter(createFilter(match.getId()))
-                        .subscribe(subject);
-            }
-        });
         final SearchParameters sp = searchParametersRepository.getLastUsed();
-        enqueueTask(new QueuedTask<>("nextMatch", new TaskCreator<Match>() {
+        return execute(context, new DataRequest<>("nextMatch", new TaskCreator<Match>() {
             @Override
             public Task<Match> createTask(Context context) {
                 return new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale());
             }
-        }, subject));
-        return subject.asObservable();
-    }
-
-    private Func1<Match, Boolean> createFilter(final Long matchId) {
-        return new Func1<Match, Boolean>() {
-            @Override
-            public Boolean call(Match m) {
-                return m.getId().equals(matchId);
-            }
-        };
+        }));
     }
 
     public Observable<Match> setResponse(final Long matchId, final Response response) {
-        final PublishSubject<Match> subject = PublishSubject.create();
-        subject.doOnNext(new Action1<Match>() {
-            @Override
-            public void call(Match match) {
-                matchesSubjects.filter(createFilter(match.getId()))
-                        .subscribe(subject);
-            }
-        });
-        enqueueTask(new QueuedTask<>("setResponse", new TaskCreator<Match>() {
+        return execute(context, new DataRequest<>("setResponse", new TaskCreator<Match>() {
             @Override
             public Task<Match> createTask(Context context) {
                 return new SetResponseTask(context, matchId, response);
             }
-        }, subject));
-        return subject.asObservable();
+        }));
     }
 
     public Observable<Match> match(final Long matchId) {
-        final PublishSubject<Match> subject = PublishSubject.create();
-        matchesSubjects.filter(new Func1<Match, Boolean>() {
+        return execute(context, new DataRequest<>("match" + matchId, new TaskCreator<Match>() {
             @Override
-            public Boolean call(Match match) {
-                return match.getId().equals(matchId);
-            }
-        }).subscribe(subject);
-        enqueueTask(new QueuedTask("match" + matchId, new TaskCreator() {
-            @Override
-            public Task createTask(Context context) {
+            public Task<Match> createTask(Context context) {
                 return new GetMutualMatchTask(context, matchId);
             }
-        }, subject));
-        return subject.asObservable();
+        }));
     }
 
     public Observable<ResourceCollection<Match>> mutualMatchList(final String url) {
-        final PublishSubject<ResourceCollection<Match>> subject = PublishSubject.create();
-        enqueueTask(new QueuedTask("mutualMatchList", new TaskCreator() {
+        return execute(context, new DataRequest<>("mutualMatchList", new TaskCreator<ResourceCollection<Match>>() {
             @Override
-            public Task createTask(Context context) {
+            public Task<ResourceCollection<Match>> createTask(Context context) {
                 return new GetUserMutualMatchListTask(context, url);
             }
-        }, subject));
-        return subject.asObservable();
+        }));
     }
 }

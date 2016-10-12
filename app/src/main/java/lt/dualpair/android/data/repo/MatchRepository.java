@@ -127,7 +127,14 @@ public class MatchRepository extends Repository<Match> {
 
     @Override
     protected void doDelete(Match match) {
-        throw new UnsupportedOperationException("Not implemented");
+        db.delete(MatchMeta.Party.TABLE_NAME, "match_id=?", args(match.getId().toString()));
+        db.delete(MatchMeta.Match.TABLE_NAME, "_id=?", args(match.getId().toString()));
+        userRepository.delete(match.getOpponent().getUser());
     }
 
+    public void clearNotReviewedMatches(Long userId) {
+        for (Match match : next(userId)) {
+            delete(match);
+        }
+    }
 }

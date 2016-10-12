@@ -15,10 +15,10 @@ public class TaskProcessingService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        DataManager.QueuedTask queuedTask = DataManager.getTasks().poll();
-        if (queuedTask != null) {
-            Observable observable = Observable.fromCallable(queuedTask.getCreator().createTask(this));
-            observable.subscribe(queuedTask.getObserver());
+        DataManager.LinkedRequest linkedRequest = DataManager.getRequests().poll();
+        if (linkedRequest != null) {
+            Observable observable = Observable.fromCallable(linkedRequest.getDataRequest().getCreator().createTask(this));
+            observable.subscribe(linkedRequest.getLink());
         }
     }
 }

@@ -30,17 +30,10 @@ public class SearchParametersActivity extends BaseActivity {
     private static final Integer MIN_SEARCH_AGE = 13;
     private static final Integer MAX_SEARCH_AGE = 120;
 
-    @Bind(R.id.checkbox_search_for_male)
-    CheckBox searchMale;
-
-    @Bind(R.id.checkbox_search_for_female)
-    CheckBox searchFemale;
-
-    @Bind(R.id.min_age_spinner)
-    Spinner minAge;
-
-    @Bind(R.id.max_age_spinner)
-    Spinner maxAge;
+    @Bind(R.id.checkbox_search_for_male) CheckBox searchMale;
+    @Bind(R.id.checkbox_search_for_female) CheckBox searchFemale;
+    @Bind(R.id.min_age_spinner) Spinner minAge;
+    @Bind(R.id.max_age_spinner) Spinner maxAge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,10 +99,22 @@ public class SearchParametersActivity extends BaseActivity {
         searchParameters.setSearchFemale(searchFemale.isChecked());
         searchParameters.setMinAge((Integer)minAge.getSelectedItem());
         searchParameters.setMaxAge((Integer)maxAge.getSelectedItem());
-        new SearchParametersManager(this).setSearchParameters(searchParameters);
-        setResult(RESULT_OK);
-        finish();
+        new SearchParametersManager(this).setSearchParameters(searchParameters)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(this.<SearchParameters>bindToLifecycle())
+                .subscribe(new EmptySubscriber<SearchParameters>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Unable to save search parameters", e);
+                    }
 
+                    @Override
+                    public void onCompleted() {
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                });
     }
 
     private ArrayAdapter<Integer> createAgeSpinnerAdapter() {
