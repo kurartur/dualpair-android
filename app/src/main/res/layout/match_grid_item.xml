@@ -32,7 +32,8 @@
             android:src="@drawable/fb_f_logo__blue_50"
             android:layout_alignParentRight="true"
             android:scaleType="centerInside"
-            android:padding="7dp"/>
+            android:padding="7dp"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

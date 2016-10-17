@@ -2,6 +2,8 @@ package lt.dualpair.android.ui.match;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -11,6 +13,10 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.ui.BaseActivity;
 
 public class ReviewHistoryActivity extends BaseActivity {
+
+    private final static String MATCH_LIST_FRAGMENT = "MatchListFragment";
+
+    private MatchListFragment matchListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +32,15 @@ public class ReviewHistoryActivity extends BaseActivity {
                     new ColorDrawable(getResources().getColor(android.R.color.transparent)));
         }
 
+        FragmentManager fm = getFragmentManager();
+        matchListFragment = (MatchListFragment)fm.findFragmentByTag(MATCH_LIST_FRAGMENT);
+        if (matchListFragment == null) {
+            FragmentTransaction ft = fm.beginTransaction();
+            matchListFragment = new ReviewHistoryMatchListFragment();
+            ft.add(android.R.id.content, matchListFragment, MATCH_LIST_FRAGMENT);
+            ft.commit();
+        }
+
     }
 
     @Override
@@ -39,8 +54,7 @@ public class ReviewHistoryActivity extends BaseActivity {
     }
 
     public static Intent createIntent(Activity activity) {
-        Intent intent = new Intent(activity, ReviewHistoryActivity.class);
-        return intent;
+        return new Intent(activity, ReviewHistoryActivity.class);
     }
 
 }

@@ -1,7 +1,5 @@
-package lt.dualpair.android.ui.main;
+package lt.dualpair.android.ui.match;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,52 +9,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.GridView;
+import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.bus.NewMatchEvent;
-import lt.dualpair.android.bus.RxBus;
-import lt.dualpair.android.data.DefaultErrorHandlingSubscriber;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.ResourceCollectionLoader;
-import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.ResourceCollection;
-import lt.dualpair.android.data.task.match.GetMutualMatchTask;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
-import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class MatchListFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class MatchListFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "MatchListFragment";
 
-    private Activity activity;
     private ScrollSwipeRefreshLayout swipeRefreshLayout;
     private GridView gridView;
-    private MatchListAdapter matchListAdapter;
 
-    private List<Match> matches = new ArrayList<>();
+    protected MatchListAdapter matchListAdapter;
+
     private ResourceCollectionLoader<Match> loader;
-
-    private Subscription newMatchEventSubscription;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        loader = new ResourceCollectionLoader<Match>(this.getActivity()) {
-            @Override
-            protected Observable<ResourceCollection<Match>> resourceObservable(Context context, String url) {
-                return new MatchDataManager(context).mutualMatchList(url);
-            }
-        };
+        loader = createLoader();
     }
 
     @Nullable
@@ -65,7 +45,11 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
         View view = inflater.inflate(R.layout.match_list_layout, container, false);
         swipeRefreshLayout = (ScrollSwipeRefreshLayout)view;
         gridView = (GridView)swipeRefreshLayout.findViewById(R.id.mutual_matches_grid);
-        gridView.setEmptyView(view.findViewById(android.R.id.empty));
+
+        TextView emptyView = (TextView) view.findViewById(android.R.id.empty);
+        emptyView.setText(getEmptyViewText());
+        gridView.setEmptyView(emptyView);
+
         swipeRefreshLayout.setView(gridView);
         return view;
     }
@@ -73,8 +57,8 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        activity = this.getActivity();
-        matchListAdapter = new MatchListAdapter(matches, this.getActivity());
+
+        matchListAdapter = new MatchListAdapter(getActivity());
         gridView.setAdapter(matchListAdapter);
 
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -95,25 +79,12 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
     @Override
     public void onResume() {
         super.onResume();
-        newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Action1<NewMatchEvent>() {
-            @Override
-            public void call(NewMatchEvent newMatchEvent) {
-                loadAndPrependMatch(newMatchEvent.getMatchId());
-            }
-        });
         initializeList();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        newMatchEventSubscription.unsubscribe();
     }
 
     private void initializeList() {
         swipeRefreshLayout.setRefreshing(true);
-
-        matches.clear();
+        matchListAdapter.clear();
         loader.observable().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .compose(this.<List<Match>>bindToLifecycle())
@@ -121,23 +92,14 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
         loader.load();
     }
 
-    private void loadAndPrependMatch(Long matchId) {
-        new GetMutualMatchTask(activity, matchId).execute(new DefaultErrorHandlingSubscriber<Match>(activity) {
-            @Override
-            public void onNext(Match match) {
-                ArrayList<Match> tmpMatches = new ArrayList<>(matches);
-                matches.clear();
-                matches.add(match);
-                matches.addAll(tmpMatches);
-                matchListAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
     @Override
     public void onRefresh() {
         initializeList();
     }
+
+    protected abstract ResourceCollectionLoader<Match> createLoader();
+
+    protected abstract String getEmptyViewText();
 
     private class MatchListSubscriber extends EmptySubscriber<List<Match>> {
         @Override
@@ -153,7 +115,9 @@ public class MatchListFragment extends BaseFragment implements SwipeRefreshLayou
         @Override
         public void onNext(List<Match> m) {
             if (!m.isEmpty()) {
-                matches.addAll(m);
+                for (Match match : m) {
+                    matchListAdapter.append(match);
+                }
                 matchListAdapter.notifyDataSetChanged();
             }
         }

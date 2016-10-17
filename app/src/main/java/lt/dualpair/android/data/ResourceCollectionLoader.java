@@ -24,7 +24,7 @@ public abstract class ResourceCollectionLoader<T> {
     protected abstract Observable<ResourceCollection<T>> resourceObservable(Context context, String url);
 
     protected void load(String url) {
-        Observable<ResourceCollection<T>> observable = resourceObservable(context, null);
+        Observable<ResourceCollection<T>> observable = resourceObservable(context, url);
         observable.doOnNext(new Action1<ResourceCollection<T>>() {
             @Override
             public void call(ResourceCollection<T> resourceCollection) {

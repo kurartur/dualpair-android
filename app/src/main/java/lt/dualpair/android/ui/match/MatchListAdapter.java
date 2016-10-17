@@ -1,4 +1,4 @@
-package lt.dualpair.android.ui.main;
+package lt.dualpair.android.ui.match;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,24 +17,38 @@ import android.widget.TextView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
-import lt.dualpair.android.ui.match.MatchActivity;
 
 public class MatchListAdapter extends BaseAdapter {
 
     private static final String FACEBOOK_DOMAIN = "https://www.facebook.com";
 
-    final private List<Match> matchList;
+    final private List<Match> matchList = new ArrayList<>();
     final private Activity activity;
 
-    public MatchListAdapter(List<Match> matchList, Activity activity) {
-        this.matchList = matchList;
+    public MatchListAdapter(Activity activity) {
         this.activity = activity;
+    }
+
+    public void prepend(Match match) {
+        ArrayList<Match> tmpMatches = new ArrayList<>(matchList);
+        matchList.clear();
+        matchList.add(match);
+        matchList.addAll(tmpMatches);
+    }
+
+    public void append(Match match) {
+        matchList.add(match);
+    }
+
+    public void clear() {
+        matchList.clear();
     }
 
     @Override
@@ -56,7 +70,7 @@ public class MatchListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final Match match = (Match)getItem(position);
         LayoutInflater layoutInflater = activity.getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.match_list_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.match_grid_item, parent, false);
         final ImageView picture = (ImageView)view.findViewById(R.id.picture);
         TextView name = (TextView)view.findViewById(R.id.name);
         View facebookButton = view.findViewById(R.id.facebook_button);
@@ -86,6 +100,7 @@ public class MatchListAdapter extends BaseAdapter {
         if (account == null) {
             button.setVisibility(View.GONE);
         } else {
+            button.setVisibility(View.VISIBLE);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

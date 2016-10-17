@@ -13,6 +13,7 @@ import lt.dualpair.android.data.task.Task;
 import lt.dualpair.android.data.task.match.GetMutualMatchTask;
 import lt.dualpair.android.data.task.match.GetNextMatchTask;
 import lt.dualpair.android.data.task.match.GetUserMutualMatchListTask;
+import lt.dualpair.android.data.task.match.GetUserReviewedMatchListTask;
 import lt.dualpair.android.data.task.match.SetResponseTask;
 import rx.Observable;
 
@@ -59,6 +60,15 @@ public class MatchDataManager extends DataManager {
             @Override
             public Task<ResourceCollection<Match>> createTask(Context context) {
                 return new GetUserMutualMatchListTask(context, url);
+            }
+        }));
+    }
+
+    public Observable<ResourceCollection<Match>> reviewedMatchList(final String url) {
+        return execute(context, new DataRequest<>("reviewedMatchList", new TaskCreator<ResourceCollection<Match>>() {
+            @Override
+            public Task<ResourceCollection<Match>> createTask(Context context) {
+                return new GetUserReviewedMatchListTask(context, url);
             }
         }));
     }

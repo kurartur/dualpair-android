@@ -3,12 +3,7 @@ package lt.dualpair.android.ui.main;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ImageSpan;
 
 import lt.dualpair.android.R;
 
@@ -49,7 +44,7 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
         MATCH_LIST(1, null, R.string.tab_pairs, new FragmentCreator() {
             @Override
             public Fragment create() {
-                return new MatchListFragment();
+                return new MutualMatchListFragment();
             }
         }),
         PROFILE(2, R.drawable.profile_icon, R.string.profile, new FragmentCreator() {

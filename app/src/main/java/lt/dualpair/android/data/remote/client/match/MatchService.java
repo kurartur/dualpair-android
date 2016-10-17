@@ -30,4 +30,10 @@ public interface MatchService {
     @PUT("/api/party/{matchPartyId}/response")
     Observable<Void> setResponse(@Path("matchPartyId") Long matchPartyId, @Body String response);
 
+    @GET("/api/user/{userId}/reviewed-matches?sort=dateCreated&dateCreated.dir=desc")
+    Observable<ResourceCollection<Match>> getUserReviewedMatches(@Path("userId") Long userId, @Query("timestamp") Long timestamp);
+
+    @GET
+    Observable<ResourceCollection<Match>> getUserReviewedMatches(@Url String url);
+
 }
