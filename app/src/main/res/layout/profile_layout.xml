@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/windowBackground">
+    android:background="@color/windowBackground"
+    android:padding="5sp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,29 +43,12 @@
                     android:text="@string/sample_text"
                     android:textSize="17sp"/>
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/age"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginLeft="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="("/>
-
-                    <TextView
-                        android:id="@+id/age"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sample_text"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=")"/>
-
-                </LinearLayout>
+                    android:text="@string/sample_text"
+                    android:layout_marginLeft="15sp"/>
 
             </LinearLayout>
 
@@ -82,107 +67,98 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginTop="20sp"
-        android:background="@drawable/profile_section_background">
+        android:background="@drawable/profile_section_background"
+        android:paddingLeft="15sp"
+        android:paddingRight="5sp"
+        android:paddingTop="5sp"
+        android:paddingBottom="15sp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10sp"
+            android:paddingLeft="25sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sociotypes"
+                android:layout_alignParentLeft="true"
+                android:textColor="#dcdcdc"/>
+
+            <ImageView
+                android:layout_width="15sp"
+                android:layout_height="15sp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/edit" />
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="15sp"
-            android:paddingRight="5sp"
-            android:paddingTop="5sp"
-            android:paddingBottom="5sp">
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <ImageView
+                android:layout_width="15sp"
+                android:layout_height="15sp"
+                android:src="@drawable/info"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10sp"/>
+
+            <TextView
+                android:id="@+id/first_sociotype_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
+                android:text="@string/sample_text"
+                android:textSize="20sp"
+                android:layout_marginRight="10sp"/>
 
-                <TextView
-                    android:id="@+id/first_sociotype_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_text"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/first_sociotype_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_text" />
-
-            </LinearLayout>
-
-            <Button
-               android:id="@+id/edit_first_sociotype"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="@string/edit"/>
-
+            <TextView
+                android:id="@+id/first_sociotype_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sample_text"/>
 
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#e7e7e7"/>
+            android:background="#e7e7e7"
+            android:layout_marginTop="5sp"
+            android:layout_marginBottom="5sp"/>
 
         <LinearLayout
-            android:id="@+id/second_sociotype_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="15sp"
-            android:paddingRight="5sp"
-            android:paddingTop="5sp"
-            android:paddingBottom="5sp">
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <ImageView
+                android:layout_width="15sp"
+                android:layout_height="15sp"
+                android:src="@drawable/info"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10sp"/>
+
+            <TextView
+                android:id="@+id/second_sociotype_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1">
+                android:text="@string/sample_text"
+                android:textSize="20sp"
+                android:layout_marginRight="10sp"/>
 
-                <TextView
-                    android:id="@+id/second_sociotype_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_text"
-                    android:layout_weight="1"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/second_sociotype_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_text" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/add_second_sociotype"
+            <TextView
+                android:id="@+id/second_sociotype_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add"/>
-
-            <Button
-                android:id="@+id/edit_second_sociotype"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/edit"
-                android:visibility="gone"/>
-
-            <Button
-                android:id="@+id/remove_second_sociotype"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/remove"
-                android:visibility="gone"/>
+                android:text="@string/sample_text"/>
 
         </LinearLayout>
 
     </LinearLayout>
+
 
     <ListView
         android:id="@+id/accounts"

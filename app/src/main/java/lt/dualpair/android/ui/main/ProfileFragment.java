@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -32,16 +31,10 @@ import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.BaseFragment;
-import lt.dualpair.android.ui.user.AddSociotypeActivity;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ProfileFragment extends BaseFragment {
-
-    private static final int EDIT_FIRST_SOCIOTYPE_CODE = 1;
-
-    private Subscription userSubscription;
 
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
@@ -51,7 +44,6 @@ public class ProfileFragment extends BaseFragment {
     @Bind(R.id.first_sociotype_title) TextView firstSociotypeTitle;
     @Bind(R.id.second_sociotype_code) TextView secondSociotypeCode;
     @Bind(R.id.second_sociotype_title) TextView secondSociotypeTitle;
-    @Bind(R.id.edit_first_sociotype) Button editFirstSociotype;
     @Bind(R.id.accounts) ListView accountsListView;
 
     @Override
@@ -65,12 +57,6 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_layout, container, false);
         ButterKnife.bind(this, view);
-        editFirstSociotype.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), EDIT_FIRST_SOCIOTYPE_CODE);
-            }
-        });
         return view;
     }
 
@@ -113,7 +99,7 @@ public class ProfileFragment extends BaseFragment {
 
     private void render(User user) {
         name.setText(user.getName());
-        age.setText(Integer.toString(user.getAge()));
+        age.setText("(" + Integer.toString(user.getAge()) + ")");
         if (TextUtils.isEmpty(user.getDescription())) {
             description.setText(getResources().getString(R.string.add_description));
             description.setTextColor(getResources().getColor(android.R.color.darker_gray));
