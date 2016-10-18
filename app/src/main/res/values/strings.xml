@@ -161,6 +161,7 @@
           PRIMARY KEY (_id));
 
     ]]></string>
+    <string name="choose_sociotype">Choose sociotype</string>
     <string name="empty_history">You didn\'t review anything yet</string>
 
 </resources>

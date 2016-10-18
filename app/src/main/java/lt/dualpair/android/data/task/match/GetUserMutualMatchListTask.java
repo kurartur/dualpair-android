@@ -4,7 +4,9 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.client.match.GetUserMutualMatchListClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.SimpleGetUrlClient;
+import lt.dualpair.android.data.remote.client.match.GetUserMatchListClient;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
 
@@ -19,11 +21,11 @@ public class GetUserMutualMatchListTask extends AuthenticatedUserTask<ResourceCo
 
     @Override
     protected ResourceCollection<Match> run() throws Exception {
-        GetUserMutualMatchListClient client;
+        BaseClient<ResourceCollection<Match>> client;
         if (!TextUtils.isEmpty(url)) {
-            client = new GetUserMutualMatchListClient(url);
+            client = new SimpleGetUrlClient<>(url);
         } else {
-            client = new GetUserMutualMatchListClient(getUserId());
+            client = new GetUserMatchListClient(getUserId(), GetUserMatchListClient.MUTUAL);
         }
         return client.observable().toBlocking().first();
     }

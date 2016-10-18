@@ -5,7 +5,6 @@ import android.accounts.AccountManager;
 import android.accounts.AccountsException;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.trello.rxlifecycle.ActivityLifecycleProvider;
@@ -82,7 +81,6 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         try {
             manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
             Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
-            context.startActivity((Intent)result.get(AccountManager.KEY_INTENT));
             return false;
         } catch (OperationCanceledException oce) {
             return false;

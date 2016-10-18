@@ -17,6 +17,6 @@ public class GetMutualMatchClient extends BaseClient<Match> {
 
     @Override
     protected Observable<Match> getApiObserable(Retrofit retrofit) {
-        return retrofit.create(MatchService.class).getUserMutualMatch(userId, matchId);
+        return retrofit.create(MatchService.class).getUserMatch(userId, matchId);
     }
 }
