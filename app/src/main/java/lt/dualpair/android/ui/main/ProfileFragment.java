@@ -47,8 +47,8 @@ public class ProfileFragment extends BaseFragment {
     @Bind(R.id.description) TextView description;
     @Bind(R.id.first_sociotype_code) TextView firstSociotypeCode;
     @Bind(R.id.first_sociotype_title) TextView firstSociotypeTitle;
-    @Bind(R.id.second_sociotype_code) TextView secondSociotypeCode;
-    @Bind(R.id.second_sociotype_title) TextView secondSociotypeTitle;
+    //@Bind(R.id.second_sociotype_code) TextView secondSociotypeCode;
+    //@Bind(R.id.second_sociotype_title) TextView secondSociotypeTitle;
     @Bind(R.id.accounts) GridView accountsGridView;
     @Bind(R.id.edit_sociotypes) ImageView editSociotypes;
 
@@ -148,7 +148,7 @@ public class ProfileFragment extends BaseFragment {
         Sociotype firstSociotype = user.getSociotypes().iterator().next();
         firstSociotypeCode.setText(firstSociotype.getCode1() + " (" + firstSociotype.getCode2() + ")");
         firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
-        getActivity().findViewById(R.id.second_sociotype_container).setVisibility(View.GONE);
+        //getActivity().findViewById(R.id.second_sociotype_container).setVisibility(View.GONE);
 
         AccountGridAdapter accountGridAdapter = new AccountGridAdapter(this.getActivity());
         for (UserAccount userAccount : user.getAccounts()) {

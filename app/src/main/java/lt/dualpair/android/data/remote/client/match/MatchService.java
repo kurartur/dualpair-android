@@ -17,7 +17,7 @@ public interface MatchService {
                               @Query("sf") String searchFemale,
                               @Query("sm") String searchMale);
 
-    @GET("/api/user/{userId}/matches?sort=dateCreated&dateCreated.dir=desc")
+    @GET("/api/user/{userId}/matches?sort=dateCreated&dateCreated.dir=desc&mt=mu")
     Observable<ResourceCollection<Match>> getUserMutualMatches(@Path("userId") Long userId, @Query("timestamp") Long timestamp);
 
     @GET("/api/user/{userId}/matches/{matchId}")
@@ -26,7 +26,7 @@ public interface MatchService {
     @PUT("/api/party/{matchPartyId}/response")
     Observable<Void> setResponse(@Path("matchPartyId") Long matchPartyId, @Body String response);
 
-    @GET("/api/user/{userId}/matches?sort=dateCreated&dateCreated.dir=desc")
+    @GET("/api/user/{userId}/matches?sort=dateCreated&dateCreated.dir=desc&mt=re")
     Observable<ResourceCollection<Match>> getUserReviewedMatches(@Path("userId") Long userId, @Query("timestamp") Long timestamp);
 
 }
