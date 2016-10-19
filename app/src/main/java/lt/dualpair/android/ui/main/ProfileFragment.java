@@ -1,5 +1,6 @@
 package lt.dualpair.android.ui.main;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -29,12 +30,16 @@ import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.resource.UserAccount;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ProfileFragment extends BaseFragment {
+
+    private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
 
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
@@ -44,7 +49,8 @@ public class ProfileFragment extends BaseFragment {
     @Bind(R.id.first_sociotype_title) TextView firstSociotypeTitle;
     @Bind(R.id.second_sociotype_code) TextView secondSociotypeCode;
     @Bind(R.id.second_sociotype_title) TextView secondSociotypeTitle;
-    @Bind(R.id.accounts) ListView accountsListView;
+    @Bind(R.id.accounts) GridView accountsGridView;
+    @Bind(R.id.edit_sociotypes) ImageView editSociotypes;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,14 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_layout, container, false);
         ButterKnife.bind(this, view);
+
+        editSociotypes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQ_CODE);
+            }
+        });
+
         return view;
     }
 
@@ -82,6 +96,17 @@ public class ProfileFragment extends BaseFragment {
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case ADD_SOCIOTYPE_REQ_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    load();
+                }
+                break;
+        }
     }
 
     private void load() {
@@ -125,7 +150,11 @@ public class ProfileFragment extends BaseFragment {
         firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
         getActivity().findViewById(R.id.second_sociotype_container).setVisibility(View.GONE);
 
-        accountsListView.setAdapter(new AccountListAdapter(user.getAccounts(), this.getActivity()));
+        AccountGridAdapter accountGridAdapter = new AccountGridAdapter(this.getActivity());
+        for (UserAccount userAccount : user.getAccounts()) {
+            accountGridAdapter.append(userAccount);
+        }
+        accountsGridView.setAdapter(accountGridAdapter);
     }
 
     private void logout() {

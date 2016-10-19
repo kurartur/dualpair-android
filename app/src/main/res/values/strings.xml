@@ -162,5 +162,7 @@
 
     ]]></string>
     <string name="empty_history">You didn\'t review anything yet</string>
+    <string name="sociotype">Sociotype</string>
+    <string name="accounts_and_communication"><![CDATA[Accounts & Communication]]></string>
 
 </resources>
