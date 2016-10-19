@@ -46,8 +46,9 @@ public abstract class MatchListFragment extends BaseFragment implements SwipeRef
         swipeRefreshLayout = (ScrollSwipeRefreshLayout)view;
         gridView = (GridView)swipeRefreshLayout.findViewById(R.id.mutual_matches_grid);
 
-        TextView emptyView = (TextView) view.findViewById(android.R.id.empty);
-        emptyView.setText(getEmptyViewText());
+        View emptyView = view.findViewById(android.R.id.empty);
+        TextView emptyText = (TextView) view.findViewById(R.id.no_matches_text);
+        emptyText.setText(getEmptyViewText());
         gridView.setEmptyView(emptyView);
 
         swipeRefreshLayout.setView(gridView);

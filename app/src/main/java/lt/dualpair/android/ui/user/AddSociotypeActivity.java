@@ -1,9 +1,12 @@
 package lt.dualpair.android.ui.user;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
@@ -32,6 +35,16 @@ public class AddSociotypeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_add_sociotype);
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(getResources().getString(R.string.choose_sociotype));
+            actionBar.setIcon(
+                    new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+        }
+
         ButterKnife.bind(this);
         fillGrid();
         startTestButton.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +120,16 @@ public class AddSociotypeActivity extends Activity {
         sociotype.setCode1(code1);
         sociotype.setCode2(code2);
         return sociotype;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return false;
     }
 
     public static Intent createIntent(Activity activity) {

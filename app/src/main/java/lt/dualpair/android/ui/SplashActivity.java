@@ -24,10 +24,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
+import lt.dualpair.android.data.DefaultErrorHandlingSubscriber;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.SearchParametersManager;
 import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.user.SetLocationTask;
@@ -39,7 +39,6 @@ import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 import lt.dualpair.android.utils.LocationUtils;
 import lt.dualpair.android.utils.OnceOnlyLocationListener;
 import lt.dualpair.android.utils.ToastUtils;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -105,13 +104,10 @@ public class SplashActivity extends BaseActivity {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
             .compose(this.<User>bindToLifecycle())
-            .subscribe(new EmptySubscriber<User>() {
+            .subscribe(new DefaultErrorHandlingSubscriber<User>(this) {
                 @Override
                 public void onError(Throwable e) {
-                    if (e instanceof ServiceException && ((ServiceException)e).getResponse().code() != 401) {
-                        Log.e(TAG, "Unable to load user", e);
-                        ToastUtils.show(SplashActivity.this, "Unable to load user");
-                    }
+                    super.onError(e);
                     finish();
                 }
 

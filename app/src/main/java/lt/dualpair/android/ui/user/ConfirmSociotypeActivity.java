@@ -1,11 +1,13 @@
 package lt.dualpair.android.ui.user;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.HashSet;
@@ -27,12 +29,10 @@ public class ConfirmSociotypeActivity extends BaseActivity {
 
     private static final String TAG = "ConfirmSocActivity";
     public static final String PARAM_SOCIOTYPE = "sociotype";
+    private static final int MENU_ITEM_OK = 1;
 
     @Bind(R.id.header)
     TextView header;
-
-    @Bind(R.id.button_confirm)
-    Button confirmButton;
 
     private Sociotype sociotype;
 
@@ -40,17 +40,21 @@ public class ConfirmSociotypeActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_confirm_sociotype);
+
+        Sociotype sociotype = (Sociotype)getIntent().getSerializableExtra(PARAM_SOCIOTYPE);
+
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(sociotype.getCode1());
+            actionBar.setIcon(
+                    new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+        }
+
         ButterKnife.bind(this);
 
-        loadSociotype((Sociotype)getIntent().getSerializableExtra(PARAM_SOCIOTYPE));
-
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateUserSociotypes();
-            }
-        });
-
+        loadSociotype(sociotype);
     }
 
     private void updateUserSociotypes() {
@@ -109,6 +113,26 @@ public class ConfirmSociotypeActivity extends BaseActivity {
     private void loadSociotype(Sociotype sociotype) {
         this.sociotype = sociotype;
         header.setText(sociotype.getCode1());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, MENU_ITEM_OK, Menu.NONE, R.string.ok)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case MENU_ITEM_OK:
+                updateUserSociotypes();
+                break;
+        }
+        return false;
     }
 
     public static Intent createIntent(Activity activity, Sociotype sociotype) {

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.client.match.GetUserReviewedMatchListClient;
+import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.SimpleGetUrlClient;
+import lt.dualpair.android.data.remote.client.match.GetUserMatchListClient;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
 
@@ -19,11 +21,11 @@ public class GetUserReviewedMatchListTask extends AuthenticatedUserTask<Resource
 
     @Override
     protected ResourceCollection<Match> run() throws Exception {
-        GetUserReviewedMatchListClient client;
+        BaseClient<ResourceCollection<Match>> client;
         if (!TextUtils.isEmpty(url)) {
-            client = new GetUserReviewedMatchListClient(url);
+            client = new SimpleGetUrlClient<>(url);
         } else {
-            client = new GetUserReviewedMatchListClient(getUserId());
+            client = new GetUserMatchListClient(getUserId(), GetUserMatchListClient.REVIEWED);
         }
         return client.observable().toBlocking().first();
     }
