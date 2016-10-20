@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -41,9 +41,12 @@ public class AddUserAccountDialog extends DialogFragment {
     }
 
     private List<AccountType> getNotAddedAccountTypes(List<UserAccount> userAccounts) {
-        List<AccountType> accountTypes = Arrays.asList(AccountType.values());
+        List<AccountType> accountTypes = new ArrayList<>();
+        for (AccountType accountType : AccountType.values()) {
+            accountTypes.add(accountType);
+        }
         for (UserAccount userAccount : userAccounts) {
-            accountTypes.remove(AccountType.valueOf(userAccount.getAccountType()));
+            accountTypes.remove(accountTypes.indexOf(AccountType.valueOf(userAccount.getAccountType())));
         }
         return accountTypes;
     }

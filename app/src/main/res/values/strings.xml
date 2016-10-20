@@ -166,4 +166,7 @@
     <string name="sociotype">Sociotype</string>
     <string name="accounts_and_communication"><![CDATA[Accounts & Communication]]></string>
 
+    <string name="FB">Facebook</string>
+    <string name="VK">VK (Vkontakte)</string>
+
 </resources>

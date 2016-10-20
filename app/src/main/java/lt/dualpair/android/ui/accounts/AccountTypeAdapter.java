@@ -46,7 +46,7 @@ public class AccountTypeAdapter extends BaseAdapter {
         ImageView icon = (ImageView)view.findViewById(R.id.icon);
         TextView name = (TextView)view.findViewById(R.id.name);
         icon.setImageResource(accountType.getIcon());
-        name.setText(activity.getResources().getString(activity.getResources().getIdentifier(accountType.name(), null, null)));
+        name.setText(activity.getResources().getString(activity.getResources().getIdentifier(accountType.name(), "string", activity.getPackageName())));
         return view;
     }
 
