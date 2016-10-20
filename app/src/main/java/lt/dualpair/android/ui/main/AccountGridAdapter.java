@@ -1,6 +1,8 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +14,9 @@ import java.util.List;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.ui.accounts.AddUserAccountDialog;
 
-public class AccountGridAdapter extends BaseAdapter { // TODO replace with ArrayAdapter?
+public class AccountGridAdapter extends BaseAdapter {
 
     private List<UserAccount> userAccounts = new ArrayList<>();
     private Activity activity;
@@ -70,6 +73,15 @@ public class AccountGridAdapter extends BaseAdapter { // TODO replace with Array
         View view = layoutInflater.inflate(R.layout.account_grid_item, parent, false);
         ImageView icon = (ImageView)view.findViewById(R.id.account_icon);
         icon.setImageResource(R.drawable.square_add);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(AddUserAccountDialog.USER_ACCOUNTS_KEY, new ArrayList<>(userAccounts));
+                DialogFragment dialog = (DialogFragment)AddUserAccountDialog.instantiate(activity, "Add account", bundle);
+                dialog.show(activity.getFragmentManager(), "AddUserAccountDialog");
+            }
+        });
         return view;
     }
 }
