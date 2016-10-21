@@ -169,5 +169,7 @@
 
     <string name="FB">Facebook</string>
     <string name="VK">VK (Vkontakte)</string>
+    <string name="about_me">About me</string>
+    <string name="date_of_birth">Date of birth</string>
 
 </resources>

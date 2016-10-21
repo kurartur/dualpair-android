@@ -1,6 +1,7 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,6 +17,7 @@ import android.view.ViewTreeObserver;
 import android.webkit.CookieManager;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -36,6 +38,7 @@ import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
+import lt.dualpair.android.ui.user.EditUserDialog;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -45,6 +48,7 @@ public class ProfileFragment extends BaseFragment {
     private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
     private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
 
+    @Bind(R.id.user) LinearLayout user;
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
     @Bind(R.id.age) TextView age;
@@ -70,6 +74,14 @@ public class ProfileFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_layout, container, false);
         ButterKnife.bind(this, view);
+
+        user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment dialog = (DialogFragment) EditUserDialog.instantiate(getActivity(), "lt.dualpair.android.ui.user.EditUserDialog");
+                dialog.show(getActivity().getFragmentManager(), "EditUserDialog");
+            }
+        });
 
         editSociotypes.setOnClickListener(new View.OnClickListener() {
             @Override
