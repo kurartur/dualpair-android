@@ -73,12 +73,15 @@ public class AccountGridAdapter extends BaseAdapter {
         View view = layoutInflater.inflate(R.layout.account_grid_item, parent, false);
         ImageView icon = (ImageView)view.findViewById(R.id.account_icon);
         icon.setImageResource(R.drawable.square_add);
+        view.setPadding(20, 20, 20, 20);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putSerializable(AddUserAccountDialog.USER_ACCOUNTS_KEY, new ArrayList<>(userAccounts));
-                DialogFragment dialog = (DialogFragment)AddUserAccountDialog.instantiate(activity, "Add account", bundle);
+                ArrayList<UserAccount> accounts = new ArrayList<>(userAccounts);
+                accounts.remove(accounts.size()-1);
+                bundle.putSerializable(AddUserAccountDialog.USER_ACCOUNTS_KEY, accounts);
+                DialogFragment dialog = (DialogFragment)AddUserAccountDialog.instantiate(activity, "lt.dualpair.android.ui.accounts.AddUserAccountDialog", bundle);
                 dialog.show(activity.getFragmentManager(), "AddUserAccountDialog");
             }
         });
