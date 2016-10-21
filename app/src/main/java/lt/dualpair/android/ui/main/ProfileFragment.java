@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +36,7 @@ import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
+import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -51,6 +53,8 @@ public class ProfileFragment extends BaseFragment {
     @Bind(R.id.first_sociotype_title) TextView firstSociotypeTitle;
     //@Bind(R.id.second_sociotype_code) TextView secondSociotypeCode;
     //@Bind(R.id.second_sociotype_title) TextView secondSociotypeTitle;
+    @Bind(R.id.photos) RecyclerView photos;
+    @Bind(R.id.edit_photos) ImageView editPhotos;
     @Bind(R.id.accounts) GridView accountsGridView;
     @Bind(R.id.edit_sociotypes) ImageView editSociotypes;
     @Bind(R.id.edit_accounts) ImageView editAccounts;
@@ -71,6 +75,13 @@ public class ProfileFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQ_CODE);
+            }
+        });
+
+        editPhotos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastUtils.show(getActivity(), "Should open photos editing"); // TODO
             }
         });
 
@@ -161,7 +172,10 @@ public class ProfileFragment extends BaseFragment {
         firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
         //getActivity().findViewById(R.id.second_sociotype_container).setVisibility(View.GONE);
 
-        AccountGridAdapter accountGridAdapter = new AccountGridAdapter(this.getActivity());
+        UserPhotosRecyclerAdapter userPhotosRecyclerAdapter = new UserPhotosRecyclerAdapter(user.getPhotos());
+        photos.setAdapter(userPhotosRecyclerAdapter);
+
+        AccountGridAdapter accountGridAdapter = new AccountGridAdapter(getActivity());
         for (UserAccount userAccount : user.getAccounts()) {
             accountGridAdapter.append(userAccount);
         }

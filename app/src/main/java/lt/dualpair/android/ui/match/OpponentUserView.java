@@ -16,7 +16,7 @@ import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.ui.main.UserPhotosAdapter;
+import lt.dualpair.android.ui.main.UserPhotosPagerAdapter;
 
 public class OpponentUserView {
 
@@ -70,7 +70,7 @@ public class OpponentUserView {
     }
 
     private void initPhotos(List<Photo> photos) {
-        photoPager.setAdapter(new UserPhotosAdapter(context, photos));
+        photoPager.setAdapter(new UserPhotosPagerAdapter(context, photos));
         photoDots.removeAllViews();
         dotImages = new ImageView[photos.size()];
         for (int i = 0; i < photos.size(); i++) {
