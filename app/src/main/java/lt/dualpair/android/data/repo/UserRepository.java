@@ -87,6 +87,7 @@ public class UserRepository extends Repository<User> {
     private void insertPhotos(Long userId, List<Photo> photos) {
         for (Photo photo : photos) {
             ContentValues contentValues = new ContentValues();
+            contentValues.put(UserMeta.Photo._ID, photo.getId());
             contentValues.put(UserMeta.Photo.USER_ID, userId);
             contentValues.put(UserMeta.Photo.SOURCE_LINK, photo.getSourceUrl());
             assertOperation(db.insert(UserMeta.Photo.TABLE_NAME, null, contentValues), "Unable to insert photo " + photo);
@@ -169,6 +170,7 @@ public class UserRepository extends Repository<User> {
             photosCursor = db.query(UserMeta.Photo.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
             while (photosCursor.moveToNext()) {
                 Photo photo = new Photo();
+                photo.setId(photosCursor.getLong(photosCursor.getColumnIndex(UserMeta.Photo._ID)));
                 photo.setSourceUrl(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.SOURCE_LINK)));
                 photos.add(photo);
             }

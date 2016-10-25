@@ -6,6 +6,7 @@ import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.User;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -33,5 +34,8 @@ public interface UserService {
 
     @GET("api/user/{userId}/search-parameters")
     Observable<SearchParameters> getSearchParameters(@Path("userId") Long userId);
+
+    @DELETE("api/user/{userId}/photos/{photoId}")
+    Observable<Void> deletePhoto(@Path("userId") Long userId, @Path("photoId") Long photoId);
 
 }
