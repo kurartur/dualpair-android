@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
@@ -29,13 +28,7 @@ public class MatchActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.match_layout);
-
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
+        setupActionBar();
         matchId = getIntent().getLongExtra(MATCH_ID, -1);
     }
 
@@ -78,16 +71,6 @@ public class MatchActivity extends BaseActivity {
         if (actionBar != null) {
             actionBar.setTitle(opponentUser.getName());
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return false;
     }
 
     public static Intent createIntent(Activity activity, Long matchId) {

@@ -51,6 +51,7 @@ public class ConfirmSociotypeActivity extends BaseActivity {
             actionBar.setIcon(
                     new ColorDrawable(getResources().getColor(android.R.color.transparent)));
         }
+        setupActionBar(true, sociotype.getCode1());
 
         ButterKnife.bind(this);
 
@@ -124,13 +125,11 @@ public class ConfirmSociotypeActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item)) return true;
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case MENU_ITEM_OK:
                 updateUserSociotypes();
-                break;
+                return true;
         }
         return false;
     }

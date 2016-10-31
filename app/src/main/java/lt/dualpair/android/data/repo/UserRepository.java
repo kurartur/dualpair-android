@@ -14,6 +14,7 @@ import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.ui.accounts.AccountType;
 
 public class UserRepository extends Repository<User> {
 
@@ -89,6 +90,8 @@ public class UserRepository extends Repository<User> {
             ContentValues contentValues = new ContentValues();
             contentValues.put(UserMeta.Photo._ID, photo.getId());
             contentValues.put(UserMeta.Photo.USER_ID, userId);
+            contentValues.put(UserMeta.Photo.ACCOUNT_TYPE, photo.getAccountType().name());
+            contentValues.put(UserMeta.Photo.ID_ON_ACCOUNT, photo.getIdOnAccount());
             contentValues.put(UserMeta.Photo.SOURCE_LINK, photo.getSourceUrl());
             assertOperation(db.insert(UserMeta.Photo.TABLE_NAME, null, contentValues), "Unable to insert photo " + photo);
         }
@@ -113,7 +116,7 @@ public class UserRepository extends Repository<User> {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(UserMeta.UserAccount.USER_ID, userId);
                 contentValues.put(UserMeta.UserAccount.ACCOUNT_ID, userAccount.getAccountId());
-                contentValues.put(UserMeta.UserAccount.ACCOUNT_TYPE, userAccount.getAccountType());
+                contentValues.put(UserMeta.UserAccount.ACCOUNT_TYPE, userAccount.getAccountType().name());
                 assertOperation(db.insert(UserMeta.UserAccount.TABLE_NAME, null, contentValues), "Unable to insert account " + userAccount);
             }
         }
@@ -171,6 +174,8 @@ public class UserRepository extends Repository<User> {
             while (photosCursor.moveToNext()) {
                 Photo photo = new Photo();
                 photo.setId(photosCursor.getLong(photosCursor.getColumnIndex(UserMeta.Photo._ID)));
+                photo.setAccountType(AccountType.valueOf(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.ACCOUNT_TYPE))));
+                photo.setIdOnAccount(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.ID_ON_ACCOUNT)));
                 photo.setSourceUrl(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.SOURCE_LINK)));
                 photos.add(photo);
             }
@@ -211,7 +216,7 @@ public class UserRepository extends Repository<User> {
             while (accountsCursor.moveToNext()) {
                 UserAccount account = new UserAccount();
                 account.setAccountId(accountsCursor.getString(accountsCursor.getColumnIndex(UserMeta.UserAccount.ACCOUNT_ID)));
-                account.setAccountType(accountsCursor.getString(accountsCursor.getColumnIndex(UserMeta.UserAccount.ACCOUNT_TYPE)));
+                account.setAccountType(AccountType.valueOf(accountsCursor.getString(accountsCursor.getColumnIndex(UserMeta.UserAccount.ACCOUNT_TYPE))));
                 accounts.add(account);
             }
             return accounts;

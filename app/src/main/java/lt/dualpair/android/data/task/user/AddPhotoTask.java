@@ -3,21 +3,19 @@ package lt.dualpair.android.data.task.user;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.Iterator;
-
 import lt.dualpair.android.accounts.AuthenticatedUserTask;
-import lt.dualpair.android.data.remote.client.user.DeletePhotoClient;
+import lt.dualpair.android.data.remote.client.user.AddPhotoClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.User;
 
-public class DeletePhotoTask extends AuthenticatedUserTask<User> {
+public class AddPhotoTask extends AuthenticatedUserTask<User> {
 
     private Photo photo;
     private UserRepository userRepository;
 
-    public DeletePhotoTask(Context context, Photo photo) {
+    public AddPhotoTask(Context context, Photo photo) {
         super(context);
         this.photo = photo;
         SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
@@ -26,14 +24,9 @@ public class DeletePhotoTask extends AuthenticatedUserTask<User> {
 
     @Override
     protected User run() throws Exception {
+        Photo photo = new AddPhotoClient(getUserId(), this.photo).observable().toBlocking().first();
         User user = userRepository.get(getUserId());
-        new DeletePhotoClient(user, photo).observable().toBlocking().first();
-        Iterator<Photo> iter = user.getPhotos().iterator();
-        while (iter.hasNext()) {
-            if (iter.next().getId().equals(photo.getId())) {
-                iter.remove();
-            }
-        }
+        user.getPhotos().add(photo);
         userRepository.save(user);
         return user;
     }

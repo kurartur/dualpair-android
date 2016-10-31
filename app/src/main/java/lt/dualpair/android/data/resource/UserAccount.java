@@ -2,16 +2,18 @@ package lt.dualpair.android.data.resource;
 
 import java.io.Serializable;
 
+import lt.dualpair.android.ui.accounts.AccountType;
+
 public class UserAccount implements Serializable {
 
-    private String accountType;
+    private AccountType accountType;
     private String accountId;
 
-    public String getAccountType() {
+    public AccountType getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(String accountType) {
+    public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
     }
 

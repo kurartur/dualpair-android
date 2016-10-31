@@ -15,13 +15,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.utils.ToastUtils;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -29,9 +23,18 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     private static final int ADD_PHOTO_ITEM = 2;
 
     private List<Photo> photos;
+    private View.OnClickListener onAddClickListener;
+    private OnRemoveListener onRemoveListener;
 
-    public EditPhotosRecyclerAdapter(List<Photo> photos) {
+    public EditPhotosRecyclerAdapter(List<Photo> photos, View.OnClickListener onAddClickListener, OnRemoveListener onRemoveListener) {
         this.photos = photos;
+        this.onAddClickListener = onAddClickListener;
+        this.onRemoveListener = onRemoveListener;
+    }
+
+    public void addPhoto(Photo photo) {
+        photos.add(photo);
+        notifyItemInserted(photos.size() - 1);
     }
 
     @Override
@@ -57,7 +60,7 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case PHOTO_ITEM:
                 final PhotoHolder photoHolder = (PhotoHolder) holder;
@@ -71,27 +74,15 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 photoHolder.delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        new UserDataManager(context).deletePhoto(photo)
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeOn(Schedulers.io())
-                                .subscribe(new EmptySubscriber<User>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        photos.remove(photoHolder.getAdapterPosition());
-                                        notifyDataSetChanged();
-                                    }
-                                });
+                        photos.remove(holder.getAdapterPosition());
+                        notifyItemRemoved(holder.getAdapterPosition());
+                        onRemoveListener.onRemove(photo);
                     }
                 });
                 break;
             case ADD_PHOTO_ITEM:
                 final AddPhotoHolder addPhotoHolder = (AddPhotoHolder) holder;
-                addPhotoHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ToastUtils.show(addPhotoHolder.context, "Select photo dialog...");
-                    }
-                });
+                addPhotoHolder.itemView.setOnClickListener(onAddClickListener);
         }
 
     }
@@ -125,6 +116,10 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             ButterKnife.bind(this, itemView);
         }
 
+    }
+
+    public interface OnRemoveListener {
+        public void onRemove(Photo photo);
     }
 
 }

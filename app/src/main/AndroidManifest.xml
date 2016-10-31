@@ -27,7 +27,7 @@
 
         <activity
             android:name=".ui.SplashActivity"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +37,8 @@
         <activity
             android:name=".accounts.LoginActivity"
             android:launchMode="singleTop"/>
-        <activity android:name=".ui.main.MainActivity"/>
+        <activity android:name=".ui.main.MainActivity"
+            android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".ui.user.AddSociotypeActivity"/>
         <activity android:name=".ui.user.ConfirmSociotypeActivity"/>
         <activity android:name=".ui.user.SetDateOfBirthActivity"/>
@@ -47,6 +48,9 @@
         <activity android:name=".ui.match.MatchActivity"/>
         <activity android:name=".ui.match.NewMatchActivity"/>
         <activity android:name=".ui.match.ReviewHistoryActivity"/>
+        <activity android:name=".ui.user.EditPhotosActivity"/>
+        <activity android:name=".ui.accounts.EditAccountsActivity"/>
+        <activity android:name=".ui.accounts.LinkAccountActivity"/>
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>

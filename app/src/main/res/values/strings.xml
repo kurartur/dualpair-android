@@ -146,7 +146,7 @@
         CREATE TABLE IF NOT EXISTS user_photos (
           _id BIGINT PRIMARY KEY NOT NULL,
           user_id BIGINT NOT NULL,
-          account_type SMALLINT NULL,
+          account_type VARCHAR(2) NOT NULL,
           id_on_account VARCHAR(45) NULL,
           source_link TEXT NULL,
           position SMALLINT NOT NULL DEFAULT 0);
@@ -171,5 +171,6 @@
     <string name="VK">VK (Vkontakte)</string>
     <string name="about_me">About me</string>
     <string name="date_of_birth">Date of birth</string>
+    <string name="no_photos_found">No photos</string>
 
 </resources>
