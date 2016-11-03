@@ -31,13 +31,13 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
     }
 
     private enum Tab {
-        REVIEW(0, null, R.string.tab_review, new FragmentCreator() {
+        REVIEW(0, R.drawable.home_icon, R.string.tab_review, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new ReviewFragment();
             }
         }),
-        MATCH_LIST(1, null, R.string.tab_pairs, new FragmentCreator() {
+        MATCH_LIST(1, R.drawable.linked, R.string.tab_pairs, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new MutualMatchListFragment();
