@@ -39,8 +39,8 @@ public class NewMatchActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_match_layout);
 
-        if (getActionBar() != null) {
-            getActionBar().hide();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
         }
 
         ButterKnife.bind(this);
