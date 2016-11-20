@@ -28,7 +28,6 @@ public class EditPhotosActivity extends BaseActivity {
 
     @Bind(R.id.photos) RecyclerView photosView;
 
-    private List<Photo> photos;
     private User user;
     private EditPhotosRecyclerAdapter adapter;
 
@@ -58,8 +57,7 @@ public class EditPhotosActivity extends BaseActivity {
                     @Override
                     public void onNext(User u) {
                         user = u;
-                        photos = user.getPhotos();
-                        renderGrid(photos);
+                        renderGrid(user.getPhotos());
                     }
                 });
     }
@@ -109,6 +107,7 @@ public class EditPhotosActivity extends BaseActivity {
 
         @Override
         public void onPhotoSelected(Photo photo) {
+            photo.setPosition(adapter.getItemCount());
             adapter.addPhoto(photo);
             new UserDataManager(editPhotosActivity).addPhoto(photo)
                     .observeOn(AndroidSchedulers.mainThread())

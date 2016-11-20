@@ -10,6 +10,7 @@ public class Photo implements Serializable {
     private AccountType accountType;
     private String idOnAccount;
     private String sourceUrl;
+    private Integer position;
 
     public Long getId() {
         return id;
@@ -41,5 +42,13 @@ public class Photo implements Serializable {
 
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 }
