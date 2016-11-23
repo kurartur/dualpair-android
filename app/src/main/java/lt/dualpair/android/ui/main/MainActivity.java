@@ -13,7 +13,6 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
 import lt.dualpair.android.ui.BaseActivity;
-import lt.dualpair.android.ui.match.MatchActivity;
 import lt.dualpair.android.ui.match.NewMatchActivity;
 import rx.Subscription;
 import rx.functions.Action1;
@@ -39,7 +38,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.main_layout);
         ButterKnife.bind(this);
 
-        MainFragmentPageAdapter adapter = new MainFragmentPageAdapter(this, getFragmentManager());
+        MainFragmentPageAdapter adapter = new MainFragmentPageAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         for (int i = 0; i < tabLayout.getTabCount(); i++) {

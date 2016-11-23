@@ -1,8 +1,6 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,35 +12,32 @@ import java.util.List;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.UserAccount;
-import lt.dualpair.android.ui.accounts.AddUserAccountDialog;
+import lt.dualpair.android.ui.accounts.AccountType;
+import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
+import lt.dualpair.android.ui.accounts.AccountTypeListDialog;
 
 public class AccountGridAdapter extends BaseAdapter {
 
-    private List<UserAccount> userAccounts = new ArrayList<>();
+    private List<UserAccount> userAccounts;
+    private List<AccountType> linkableAccountTypes;
     private Activity activity;
+    private AccountTypeAdapter.OnAccountTypeClickListener onAccountTypeClickListener;
 
-    public AccountGridAdapter(Activity activity) {
+    public AccountGridAdapter(Activity activity, List<UserAccount> userAccounts, AccountTypeAdapter.OnAccountTypeClickListener onAccountTypeClickListener) {
         this.activity = activity;
-
-        userAccounts.add(new UserAccount()); // empty account for last element
-    }
-
-    public void append(UserAccount userAccount) {
-        userAccounts.add(userAccounts.size() - 1, userAccount);
-    }
-
-    public void clear() {
-        userAccounts.clear();
+        this.onAccountTypeClickListener = onAccountTypeClickListener;
+        this.userAccounts = userAccounts;
+        linkableAccountTypes = getNotLinkedAccountTypes(userAccounts);
     }
 
     @Override
     public int getCount() {
-        return userAccounts.size();
+        return linkableAccountTypes.size() == 0 ? userAccounts.size() : userAccounts.size() + 1;
     }
 
     @Override
     public Object getItem(int position) {
-        return userAccounts.get(position);
+        return position >= userAccounts.size() ? null : userAccounts.get(position);
     }
 
     @Override
@@ -52,7 +47,7 @@ public class AccountGridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position + 1 == userAccounts.size()) {
+        if (position == userAccounts.size()) {
             return getAddButtonView(position, convertView, parent);
         } else {
             return getNormalView(position, convertView, parent);
@@ -64,7 +59,7 @@ public class AccountGridAdapter extends BaseAdapter {
         LayoutInflater layoutInflater = activity.getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.account_grid_item, parent, false);
         ImageView icon = (ImageView)view.findViewById(R.id.account_icon);
-        icon.setImageResource(R.drawable.fb_f_logo__blue_50);
+        icon.setImageResource(account.getAccountType().getIcon());
         return view;
     }
 
@@ -77,14 +72,21 @@ public class AccountGridAdapter extends BaseAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                ArrayList<UserAccount> accounts = new ArrayList<>(userAccounts);
-                accounts.remove(accounts.size()-1);
-                bundle.putSerializable(AddUserAccountDialog.USER_ACCOUNTS_KEY, accounts);
-                DialogFragment dialog = (DialogFragment)AddUserAccountDialog.instantiate(activity, "lt.dualpair.android.ui.accounts.AddUserAccountDialog", bundle);
-                dialog.show(activity.getFragmentManager(), "AddUserAccountDialog");
+                AccountTypeListDialog dialog = AccountTypeListDialog.getInstance(onAccountTypeClickListener, linkableAccountTypes, true);
+                dialog.show(activity.getFragmentManager(), "AccountTypeListDialog");
             }
         });
         return view;
+    }
+
+    private List<AccountType> getNotLinkedAccountTypes(List<UserAccount> userAccounts) {
+        List<AccountType> accountTypes = new ArrayList<>();
+        for (AccountType accountType : AccountType.values()) {
+            accountTypes.add(accountType);
+        }
+        for (UserAccount userAccount : userAccounts) {
+            accountTypes.remove(accountTypes.indexOf(userAccount.getAccountType()));
+        }
+        return accountTypes;
     }
 }

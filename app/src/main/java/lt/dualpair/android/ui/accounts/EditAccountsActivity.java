@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import lt.dualpair.android.R;
+import lt.dualpair.android.ui.BaseActivity;
 
-public class EditAccountsActivity extends Activity {
+public class EditAccountsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupActionBar();
         setContentView(R.layout.edit_accounts);
     }
 

@@ -1,5 +1,6 @@
 package lt.dualpair.android.ui.main;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,7 +15,6 @@ import java.util.List;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.utils.ToastUtils;
 
 
 public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRecyclerAdapter.PhotoHolder> {
@@ -29,18 +29,24 @@ public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRe
     public PhotoHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ImageView v = (ImageView)LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.square_photo_layout, parent, false);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(250, 250);
         v.setLayoutParams(layoutParams);
         return new PhotoHolder(parent.getContext(), v);
     }
 
     @Override
-    public void onBindViewHolder(final PhotoHolder holder, int position) {
+    public void onBindViewHolder(final PhotoHolder holder, final int position) {
         ImageView imageView = (ImageView)holder.itemView;
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtils.show(holder.context, "Image should popup..."); // TODO
+                AlertDialog.Builder builder = new AlertDialog.Builder(holder.context);
+                ImageView iv = new ImageView(holder.context);
+                builder.setView(iv).create().show();
+                Picasso.with(holder.context)
+                        .load(photos.get(position).getSourceUrl())
+                        .error(R.drawable.image_not_found)
+                        .into(iv);
             }
         });
         Picasso.with(holder.context)

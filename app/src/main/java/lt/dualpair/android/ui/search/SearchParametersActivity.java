@@ -1,9 +1,7 @@
 package lt.dualpair.android.ui.search;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -40,14 +38,7 @@ public class SearchParametersActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_parameters_layout);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getResources().getString(R.string.search_parameters));
-            actionBar.setIcon(
-                    new ColorDrawable(getResources().getColor(android.R.color.transparent)));
-        }
+        setupActionBar(true, getResources().getString(R.string.search_parameters));
 
         ButterKnife.bind(this);
 
@@ -134,13 +125,11 @@ public class SearchParametersActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item)) return true;
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case MENU_ITEM_SAVE:
                 postSearchParameters();
-                return false;
+                return true;
         }
         return false;
     }

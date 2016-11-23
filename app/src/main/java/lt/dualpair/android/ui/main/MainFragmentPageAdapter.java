@@ -1,19 +1,15 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.Context;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import lt.dualpair.android.R;
 
 public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
 
-    private Context context;
-
-    public MainFragmentPageAdapter(Context context, FragmentManager fragmentManager) {
+    public MainFragmentPageAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
-        this.context = context;
     }
 
     @Override
@@ -35,13 +31,13 @@ public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
     }
 
     private enum Tab {
-        REVIEW(0, null, R.string.tab_review, new FragmentCreator() {
+        REVIEW(0, R.drawable.home_icon, R.string.tab_review, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new ReviewFragment();
             }
         }),
-        MATCH_LIST(1, null, R.string.tab_pairs, new FragmentCreator() {
+        MATCH_LIST(1, R.drawable.linked, R.string.tab_pairs, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new MutualMatchListFragment();

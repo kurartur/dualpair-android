@@ -16,6 +16,7 @@ public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
 
     private UserRepository userRepository;
     private static final int EXPIRATION_TIME_MS = 1000 * 60 * 5; // 5 minutes
+    boolean forceUpdate;
 
     public GetUserPrincipalTask(Context context) {
         super(context);
@@ -23,11 +24,19 @@ public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
         userRepository = new UserRepository(db);
     }
 
+    public GetUserPrincipalTask(Context context, boolean forceUpdate) {
+        super(context);
+        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+        userRepository = new UserRepository(db);
+        this.forceUpdate = forceUpdate;
+    }
+
     @Override
     protected User run() {
         User user = userRepository.get(AccountUtils.getUserId(context));
-        if (user == null || isExpired(user.getUpdateTime())) {
+        if (user == null || isExpired(user.getUpdateTime()) || forceUpdate) {
             user = new GetUserPrincipalClient().observable().toBlocking().first();
+            user.setUpdateTime(new Date());
             userRepository.save(user);
             return user;
         } else {

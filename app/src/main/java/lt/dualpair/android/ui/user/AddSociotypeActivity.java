@@ -1,12 +1,9 @@
 package lt.dualpair.android.ui.user;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
@@ -19,9 +16,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.socionics.SocionicsTestActivity;
 
-public class AddSociotypeActivity extends Activity {
+public class AddSociotypeActivity extends BaseActivity {
 
     private static final int CONFIRM_REQUEST_CODE = 1;
 
@@ -36,14 +34,7 @@ public class AddSociotypeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_add_sociotype);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(getResources().getString(R.string.choose_sociotype));
-            actionBar.setIcon(
-                    new ColorDrawable(getResources().getColor(android.R.color.transparent)));
-        }
+        setupActionBar(true, getResources().getString(R.string.choose_sociotype));
 
         ButterKnife.bind(this);
         fillGrid();
@@ -120,16 +111,6 @@ public class AddSociotypeActivity extends Activity {
         sociotype.setCode1(code1);
         sociotype.setCode2(code2);
         return sociotype;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return false;
     }
 
     public static Intent createIntent(Activity activity) {

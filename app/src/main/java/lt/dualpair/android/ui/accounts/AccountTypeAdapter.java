@@ -1,7 +1,8 @@
 package lt.dualpair.android.ui.accounts;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -15,12 +16,14 @@ import lt.dualpair.android.R;
 
 public class AccountTypeAdapter extends BaseAdapter {
 
-    private Activity activity;
+    private Context context;
     private List<AccountType> accountTypes;
+    private OnAccountTypeClickListener onAccountTypeClickListener;
 
-    public AccountTypeAdapter(Activity activity, List<AccountType> accountTypes) {
-        this.activity = activity;
+    public AccountTypeAdapter(Context context, List<AccountType> accountTypes, OnAccountTypeClickListener onAccountTypeClickListener) {
+        this.context = context;
         this.accountTypes = accountTypes;
+        this.onAccountTypeClickListener = onAccountTypeClickListener;
     }
 
     @Override
@@ -41,13 +44,25 @@ public class AccountTypeAdapter extends BaseAdapter {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        AccountType accountType = (AccountType)getItem(position);
-        View view = activity.getLayoutInflater().inflate(R.layout.add_user_account_item, null);
+        final AccountType accountType = (AccountType)getItem(position);
+        View view = LayoutInflater.from(context).inflate(R.layout.account_type_list_item, null);
         ImageView icon = (ImageView)view.findViewById(R.id.icon);
         TextView name = (TextView)view.findViewById(R.id.name);
         icon.setImageResource(accountType.getIcon());
-        name.setText(activity.getResources().getString(activity.getResources().getIdentifier(accountType.name(), "string", activity.getPackageName())));
+        name.setText(context.getResources().getString(context.getResources().getIdentifier(accountType.name(), "string", context.getPackageName())));
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onAccountTypeClickListener.onClick(accountType);
+            }
+        });
+
         return view;
+    }
+
+    public interface OnAccountTypeClickListener {
+        void onClick(AccountType accountType);
     }
 
 }
