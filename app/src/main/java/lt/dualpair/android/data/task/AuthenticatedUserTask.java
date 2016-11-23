@@ -13,7 +13,6 @@ import java.io.IOException;
 
 import lt.dualpair.android.accounts.AccountConstants;
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.accounts.LoginActivity;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import rx.Observable;
 import rx.Subscriber;
@@ -44,18 +43,16 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
     }
 
     protected Long getUserId() {
-        AccountManager accountManager = AccountManager.get(context);
-        Account account = AccountUtils.getAccount(accountManager, context);
-        if (account == null) {
+        Long userId = AccountUtils.getUserId(context);
+        if (userId == null) {
             throw new RuntimeException("Unauthorized");
         }
-        return Long.valueOf(accountManager.getUserData(account, LoginActivity.ARG_USER_ID));
+        return userId;
     }
 
     @Override
     public Result call() throws Exception {
-        AccountManager accountManager = AccountManager.get(context);
-        Account account = AccountUtils.getAccount(accountManager, context);
+        Account account = AccountUtils.getAccount(context);
 
         try {
             return run();

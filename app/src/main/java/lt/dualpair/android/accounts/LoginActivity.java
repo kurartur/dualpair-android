@@ -24,7 +24,6 @@ import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
 import lt.dualpair.android.data.resource.Token;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.AboutActivity;
-import lt.dualpair.android.ui.SplashActivity;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -134,8 +133,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                         result.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
 
                         TokenProvider.getInstance().storeToken(token.getAccessToken());
-
-                        AccountUtils.setAccount(account, LoginActivity.this);
 
                         setAccountAuthenticatorResult(result);
                         LoginActivity.this.setResult(Activity.RESULT_OK);

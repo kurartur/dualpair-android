@@ -6,52 +6,44 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import java.io.IOException;
 
 public class AccountUtils {
 
-    private static final String CURRENT_ACCOUNT_NAME = "CURRENT_ACCOUNT_NAME";
+    @Deprecated
+    public static Account getAccount(AccountManager am, Activity activity) {
+        return getAccount(activity);
+    }
 
     public static Account getAccount(final Context context) {
         AccountManager am = AccountManager.get(context);
-        return getAccount(am, context);
-    }
-
-    public static Account getAccount(final AccountManager accountManager, final Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String currentAccountName = preferences.getString(CURRENT_ACCOUNT_NAME, null);
-        if (currentAccountName == null) {
+        Account[] accounts = am.getAccountsByType(AccountConstants.ACCOUNT_TYPE);
+        if (accounts.length == 0) {
             return null;
         }
-        Account[] accounts = accountManager.getAccountsByType(AccountConstants.ACCOUNT_TYPE);
-        for (int i = 0; i < accounts.length; i++) {
-            if (accounts[i].name.equals(currentAccountName)) {
-                return accounts[i];
-            }
-        }
-        return null;
-    }
-
-    public static void setAccount(final Account account, final Context context) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(CURRENT_ACCOUNT_NAME, account.name);
-        editor.commit();
+        return accounts[0];
     }
 
     public static Long getUserId(final Context context) {
         AccountManager accountManager = AccountManager.get(context);
-        Account account = AccountUtils.getAccount(accountManager, context);
+        Account account = AccountUtils.getAccount(context);
+        if (account == null) {
+            return null;
+        }
         return Long.valueOf(accountManager.getUserData(account, LoginActivity.ARG_USER_ID));
     }
 
-    public static Bundle addAccount(final AccountManager accountManager, final Activity activity) {
+    @Deprecated
+    public static Bundle addAccount(AccountManager am, Activity activity) {
+        return addAccount(activity);
+    }
+
+    public static Bundle addAccount(final Activity activity) {
+        AccountManager am = AccountManager.get(activity);
         try {
-            return accountManager.addAccount(AccountConstants.ACCOUNT_TYPE, null, null, null, activity, null, null).getResult();
+            return am.addAccount(AccountConstants.ACCOUNT_TYPE, null, null, null, activity, null, null).getResult();
         } catch (AuthenticatorException ae) {
             throw new RuntimeException(ae);
         } catch (OperationCanceledException oce) {
