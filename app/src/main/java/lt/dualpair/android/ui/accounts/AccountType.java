@@ -5,7 +5,8 @@ import lt.dualpair.android.R;
 public enum AccountType {
 
     FB(R.drawable.fb_f_logo__blue_50),
-    VK(R.drawable.vkontakte_logo);
+    VK(R.drawable.vkontakte_logo),
+    FK(R.drawable.fb_f_logo__blue_50);
 
     private int icon;
 

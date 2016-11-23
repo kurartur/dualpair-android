@@ -172,5 +172,10 @@
     <string name="about_me">About me</string>
     <string name="date_of_birth">Date of birth</string>
     <string name="no_photos_found">No photos</string>
+    <string name="must_provide_sociotype"># Specify your <b><u>sociotype</u></b></string>
+    <string name="must_provide_date_of_birth"># Specify your <b><u>date of birth</u></b></string>
+    <string name="must_provide_search_parameters"># Specify <b><u>search parameters</u></b></string>
+    <string name="to_start_searching">To start searching you must:</string>
+    <string name="no_sociotypes">No sociotypes</string>
 
 </resources>

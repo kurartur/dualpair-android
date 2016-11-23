@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import lt.dualpair.android.BuildConfig;
 import lt.dualpair.android.TokenProvider;
@@ -23,7 +24,10 @@ public abstract class BaseClient<K> {
     private Retrofit getRetrofit() {
         OkHttpClient.Builder okHttpClientBuilder =
                 new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor(HttpLoggingInterceptor.Level.BODY))
-                .addInterceptor(authorizationInterceptor());
+                .addInterceptor(authorizationInterceptor())
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS);
 
         Retrofit.Builder retrofitBuilder =
                 new Retrofit.Builder().baseUrl(BuildConfig.SERVER_HOST)

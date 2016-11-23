@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountsException;
 import android.accounts.OperationCanceledException;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -52,19 +53,17 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
 
     @Override
     public Result call() throws Exception {
-        Account account = AccountUtils.getAccount(context);
-
         try {
             return run();
         } catch (ServiceException e) {
-            if (isUnauthorizedException(e) && handleUnauthorizedException(account, e))
+            if (isUnauthorizedException(e) && handleUnauthorizedException(e))
                 return run();
             else
                 throw e;
         } catch (RuntimeException e) {
             if (e.getCause() instanceof ServiceException
                     && isUnauthorizedException((ServiceException)e.getCause())
-                    && handleUnauthorizedException(account, (ServiceException) e.getCause()))
+                    && handleUnauthorizedException((ServiceException) e.getCause()))
                 return run();
             else
                 throw e;
@@ -75,12 +74,37 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         return e.getResponse() != null && e.getResponse().code() == 401;
     }
 
-    private boolean handleUnauthorizedException(Account account, ServiceException e) {
-        AccountManager manager = AccountManager.get(context);
+    private boolean handleUnauthorizedException(ServiceException e) {
+        boolean refreshSucceeded = attemptTokenRefresh();
+        if (!refreshSucceeded && context instanceof Activity) {
+            return attemptLogin();
+        }
+        return refreshSucceeded;
+    }
+
+    private boolean attemptTokenRefresh() {
         try {
+            Account account = AccountUtils.getAccount(context);
+            AccountManager manager = AccountManager.get(context);
             manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
             Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
             return false;
+        } catch (OperationCanceledException oce) {
+            return false;
+        } catch (AccountsException ae) {
+            return false;
+        } catch (IOException ioe) {
+            return false;
+        }
+    }
+
+    private boolean attemptLogin() {
+        try {
+            Account account = AccountUtils.getAccount(context);
+            AccountManager manager = AccountManager.get(context);
+            manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
+            Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, (Activity)context, null, null).getResult();
+            return true;
         } catch (OperationCanceledException oce) {
             return false;
         } catch (AccountsException ae) {

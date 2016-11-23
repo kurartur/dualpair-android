@@ -17,7 +17,7 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.TokenProvider;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -42,22 +42,25 @@ public class LinkVKAccountFragment extends Fragment {
         webView.setWebViewClient(new WebViewClient() {
 
             private boolean isInitial(String url) {
-                return url.contains("dualpair.lt:8080") && !url.contains("code=");
+                return url.contains("dualpair.lt:9000") && !url.contains("code=");
             }
 
             private boolean isCode(String url) {
-                return url.contains("dualpair.lt:8080/connect/vkontakte") && url.contains("code=");
+                return url.contains("dualpair.lt:9000/connect/vkontakte") && url.contains("code=");
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            public void onPageFinished(WebView view, String url) {
                 if (isInitial(url)) {
                     webView.loadUrl("file:///android_asset/loading.html");
                     OkHttpClient client = new OkHttpClient.Builder().followRedirects(false).build();
+                    RequestBody requestBody = new FormBody.Builder()
+                            .add("scope", "photos")
+                            .build();
                     Request okRequest = new Request.Builder()
                             .addHeader("Authorization", "Bearer " + TokenProvider.getInstance().getToken())
-                            .url("http://dualpair.lt:8080/connect/vkontakte")
-                            .method("POST", RequestBody.create(MediaType.parse("text/plain"), ""))
+                            .url("http://dualpair.lt:9000/connect/vkontakte")
+                            .post(requestBody)
                             .build();
                     client.newCall(okRequest).enqueue(new Callback() {
                         @Override
@@ -77,7 +80,7 @@ public class LinkVKAccountFragment extends Fragment {
                             });
                         }
                     });
-                    return true;
+                    //return true;
                 } else if (isCode(url)) {
                     webView.loadUrl("file:///android_asset/loading.html");
                     OkHttpClient client = new OkHttpClient();
@@ -99,12 +102,12 @@ public class LinkVKAccountFragment extends Fragment {
                             linkAccountCallback.onSuccess();
                         }
                     });
-                    return true;
+                    //return true;
                 }
-                return false;
+                //return false;
             }
         });
-        webView.loadUrl("http://dualpair.lt:8080/");
+        webView.loadUrl("http://dualpair.lt:9000");
         return webView;
     }
 

@@ -26,19 +26,15 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".ui.SplashActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".accounts.LoginActivity"
             android:launchMode="singleTop"/>
         <activity android:name=".ui.main.MainActivity"
-            android:windowSoftInputMode="adjustNothing"/>
+            android:windowSoftInputMode="adjustNothing">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ui.user.AddSociotypeActivity"/>
         <activity android:name=".ui.user.ConfirmSociotypeActivity"/>
         <activity android:name=".ui.user.SetDateOfBirthActivity"/>

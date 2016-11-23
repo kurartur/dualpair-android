@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,6 +34,8 @@ import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.match.OpponentUserView;
 import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
+import lt.dualpair.android.ui.user.AddSociotypeActivity;
+import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -40,6 +43,8 @@ public class ReviewFragment extends BaseFragment {
 
     private static final String TAG = "ReviewFragment";
     private static final int SP_REQ_CODE = 1;
+    private static final int ADD_SOCIOTYPE_REQUEST_CODE = 2;
+    private static final int SET_BIRTHDAY_REQUEST_CODE = 3;
 
     private Match match;
 
@@ -53,6 +58,11 @@ public class ReviewFragment extends BaseFragment {
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.progress_text) TextView progressText;
     @Bind(R.id.retry_button) Button retryButton;
+
+    @Bind(R.id.validation_layout) View validationLayout;
+    @Bind(R.id.provide_sociotype) View provideSociotype;
+    @Bind(R.id.provide_date_of_birth) View provideDateOfBirth;
+    @Bind(R.id.provide_search_parameters) View provideSearchParameters;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,7 +89,7 @@ public class ReviewFragment extends BaseFragment {
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadReview();
+                validateAndLoadReview();
             }
         });
         yesButton.setOnClickListener(new View.OnClickListener() {
@@ -94,6 +104,24 @@ public class ReviewFragment extends BaseFragment {
                 setResponse(Response.NO);
             }
         });
+        provideSociotype.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQUEST_CODE);
+            }
+        });
+        provideDateOfBirth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(SetDateOfBirthActivity.createIntent(getActivity()), SET_BIRTHDAY_REQUEST_CODE);
+            }
+        });
+        provideSearchParameters.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(SearchParametersActivity.createIntent(getActivity()), SP_REQ_CODE);
+            }
+        });
     }
 
     @Override
@@ -103,7 +131,7 @@ public class ReviewFragment extends BaseFragment {
             opponentUserView = new OpponentUserView(this.getActivity(), getView());
         }
         if (match == null) {
-            loadReview();
+            validateAndLoadReview();
         } else {
             renderReview(match);
         }
@@ -113,8 +141,33 @@ public class ReviewFragment extends BaseFragment {
         showLoading();
     }
 
-    private void loadReview() {
+    private void validateAndLoadReview() {
         showViewLoading();
+        final List<NextMatchRequestValidator.Error> errors = new ArrayList<>();
+        new NextMatchRequestValidator(getActivity()).validate()
+                .subscribe(new EmptySubscriber<NextMatchRequestValidator.Error>() {
+                    @Override
+                    public void onCompleted() {
+                        if (errors.isEmpty()) {
+                            loadReview();
+                        } else {
+                            showValidationErrors(errors);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Unable to validate", e);
+                    }
+
+                    @Override
+                    public void onNext(NextMatchRequestValidator.Error error) {
+                        errors.add(error);
+                    }
+                });
+    }
+
+    private void loadReview() {
         new MatchDataManager(getActivity()).next()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -124,10 +177,10 @@ public class ReviewFragment extends BaseFragment {
                     public void onError(Throwable e) {
                         if (e instanceof ServiceException) {
                             ServiceException se = (ServiceException)e;
-                            if (se.getResponse().code() == 404) {final Handler handler = new Handler();
+                            if (se.getResponse().code() == 404) {
                                 showNoMatches();
-
-                            } else {showNoMatches();
+                            } else {
+                                showNoMatches();
                                 try {
                                     showLoadingError(se.getErrorBodyAs(ErrorResponse.class).getMessage());
                                 } catch (IOException ioe) {
@@ -153,31 +206,59 @@ public class ReviewFragment extends BaseFragment {
                 });
     }
 
-    public void renderReview(Match match) {
+    private void renderReview(Match match) {
         opponentUserView.render(match.getOpponent().getUser());
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
     }
 
-    public void showLoading() {
+    private void showLoading() {
         progressText.setText(getResources().getString(R.string.loading) + "...");
         retryButton.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         reviewLayout.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.GONE);
+        validationLayout.setVisibility(View.GONE);
     }
 
-    public void showLoadingError(String text) {
+    private void showLoadingError(String text) {
+        progressLayout.setVisibility(View.VISIBLE);
+        validationLayout.setVisibility(View.GONE);
         progressText.setText(text);
         progressText.setTextColor(Color.RED);
         progressBar.setVisibility(View.GONE);
         retryButton.setVisibility(View.VISIBLE);
     }
 
-    public void showNoMatches() {
+    private void showNoMatches() {
+        progressLayout.setVisibility(View.VISIBLE);
+        validationLayout.setVisibility(View.GONE);
         progressText.setText(getResources().getString(R.string.no_matches_found));
         progressBar.setVisibility(View.GONE);
         retryButton.setVisibility(View.VISIBLE);
+    }
+
+    public void showValidationErrors(List<NextMatchRequestValidator.Error> errors) {
+        validationLayout.setVisibility(View.VISIBLE);
+        reviewLayout.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.GONE);
+        provideSociotype.setVisibility(View.GONE);
+        provideDateOfBirth.setVisibility(View.GONE);
+        provideSearchParameters.setVisibility(View.GONE);
+        for (NextMatchRequestValidator.Error error : errors) {
+            switch (error) {
+                case NO_SOCIOTYPE:
+                    provideSociotype.setVisibility(View.VISIBLE);
+                    break;
+                case NO_DATE_OF_BIRTH:
+                    provideDateOfBirth.setVisibility(View.VISIBLE);
+                    break;
+                case NO_SEARCH_PARAMETERS:
+                    provideSearchParameters.setVisibility(View.VISIBLE);
+                    break;
+            }
+        }
     }
 
     private void setResponse(final Response response) {
@@ -189,7 +270,7 @@ public class ReviewFragment extends BaseFragment {
                     @Override
                     public void onNext(Match m) {
                         match = null;
-                        loadReview();
+                        validateAndLoadReview();
                     }
                 });
     }
@@ -222,10 +303,13 @@ public class ReviewFragment extends BaseFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case SP_REQ_CODE:
+            case ADD_SOCIOTYPE_REQUEST_CODE:
+            case SET_BIRTHDAY_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    loadReview();
+                    validateAndLoadReview();
                 }
                 break;
         }
     }
+
 }

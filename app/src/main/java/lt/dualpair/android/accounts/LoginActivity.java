@@ -39,7 +39,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     public static final String OAUTH_SCOPE = "trust";
     public static final String GRANT_TYPE = "authorization_code";
     public static final String OAUTH_URL = "/oauth/authorize";
-    public static final String REDIRECT_URI = "http://localhost";
+    public static final String REDIRECT_URI = "http://dualpair.lt/android";
 
     @Bind(R.id.login_webview)
     WebView webView;
@@ -56,8 +56,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     }
 
     private void prepareWebView() {
-        webView.clearCache(true);
-        webView.clearHistory();
+        //webView.clearCache(true);
+        //webView.clearHistory();
         webView.setWebChromeClient(new WebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
@@ -65,11 +65,11 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         webView.setWebViewClient(new WebViewClient() {
 
             private boolean isCodePage(String url) {
-                return url.contains("?code=") && url.contains("localhost");
+                return url.contains("?code=") && url.contains(REDIRECT_URI);
             }
 
             private boolean isErrorPage(String url) {
-                return url.contains("error") && url.contains("localhost");
+                return url.contains("error") && url.contains(REDIRECT_URI);
             }
 
             @Override

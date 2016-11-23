@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -214,21 +215,29 @@ public class ProfileFragment extends BaseFragment {
         photosView.setAdapter(userPhotosRecyclerAdapter);
     }
 
+    private void renderSociotypes(Set<Sociotype> sociotypes) {
+        if (sociotypes.isEmpty()) {
+            firstSociotypeInfo.setVisibility(View.INVISIBLE);
+            firstSociotypeCode.setText(":(");
+            firstSociotypeTitle.setText(getResources().getString(R.string.no_sociotypes));
+        } else {
+            firstSociotypeInfo.setVisibility(View.VISIBLE);
+            Sociotype firstSociotype = sociotypes.iterator().next();
+            firstSociotypeInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ToastUtils.show(getActivity(), "Info activity...");
+                }
+            });
+            firstSociotypeCode.setText(firstSociotype.getCode1() + " (" + firstSociotype.getCode2() + ")");
+            firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
+        }
+    }
+
     private void render(User user) {
         renderUser(user);
-
-        Sociotype firstSociotype = user.getSociotypes().iterator().next();
-        firstSociotypeInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ToastUtils.show(getActivity(), "Info activity...");
-            }
-        });
-        firstSociotypeCode.setText(firstSociotype.getCode1() + " (" + firstSociotype.getCode2() + ")");
-        firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
-
+        renderSociotypes(user.getSociotypes());
         renderPhotos(user.getPhotos());
-
         renderAccounts(user.getAccounts());
     }
 

@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.ui.BaseActivity;
 
 public class LinkAccountActivity extends BaseActivity implements LinkAccountCallback {
+
+    private static final String TAG = "LinkAccountActivity";
 
     private static final String ACCOUNT_TYPE_KEY = "AccountType";
 
@@ -39,7 +42,7 @@ public class LinkAccountActivity extends BaseActivity implements LinkAccountCall
 
     @Override
     public void onFailure() {
-
+        Log.e(TAG, "Error while linking account");
     }
 
     public static Intent createIntent(Activity activity, AccountType accountType) {

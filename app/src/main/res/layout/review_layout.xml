@@ -49,6 +49,53 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/validation_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/to_start_searching"
+            android:layout_marginBottom="20dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/provide_sociotype"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/must_provide_sociotype"
+                android:layout_marginTop="20dp"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/provide_date_of_birth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/must_provide_date_of_birth"
+                android:layout_marginTop="20dp"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/provide_search_parameters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/must_provide_search_parameters"
+                android:layout_marginTop="20dp"
+                android:textSize="18dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/progress_layout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
