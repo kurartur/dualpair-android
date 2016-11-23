@@ -7,32 +7,28 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.accounts.AccountUtils;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME_PREFIX = "DualPair_";
+    private static final String DB_NAME = "DualPair";
     private static final int VERSION = 4;
 
     private Context context;
-    private static Map<Long, DatabaseHelper> instances = new HashMap<>();
+    private static DatabaseHelper instance;
 
-    private DatabaseHelper(Context context, String userId) {
-        super(context, DB_NAME_PREFIX + userId, null, VERSION);
+    private DatabaseHelper(Context context) {
+        super(context, DB_NAME, null, VERSION);
         this.context = context;
     }
 
     public static DatabaseHelper getInstance(Context context) {
-        Long userId = AccountUtils.getUserId(context);
-        if (!instances.containsKey(userId)) {
-            instances.put(userId, new DatabaseHelper(context.getApplicationContext(), userId.toString()));
+        if (instance == null) {
+            instance = new DatabaseHelper(context.getApplicationContext());
         }
-        return instances.get(userId);
+        return instance;
     }
 
     @Override

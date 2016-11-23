@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.user.SetDateOfBirthClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.task.AuthenticatedUserTask;
 
 public class SetDateOfBirthTask extends AuthenticatedUserTask<User> {
 

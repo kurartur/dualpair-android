@@ -5,10 +5,10 @@ import android.app.Activity;
 import java.util.HashMap;
 import java.util.Map;
 
-import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.socionics.EvaluateTestClient;
 import lt.dualpair.android.data.resource.Choice;
 import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.task.AuthenticatedUserTask;
 
 public class EvaluateTestTask extends AuthenticatedUserTask<Sociotype> {
 

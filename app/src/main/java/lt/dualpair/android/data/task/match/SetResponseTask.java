@@ -3,13 +3,13 @@ package lt.dualpair.android.data.task.match;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.match.SetResponseClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
+import lt.dualpair.android.data.task.AuthenticatedUserTask;
 
 public class SetResponseTask extends AuthenticatedUserTask<Match> {
 

@@ -1,4 +1,4 @@
-package lt.dualpair.android.accounts;
+package lt.dualpair.android.data.task;
 
 import android.app.Activity;
 

@@ -1,4 +1,4 @@
-package lt.dualpair.android.accounts;
+package lt.dualpair.android.data.task;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -11,8 +11,10 @@ import com.trello.rxlifecycle.ActivityLifecycleProvider;
 
 import java.io.IOException;
 
+import lt.dualpair.android.accounts.AccountConstants;
+import lt.dualpair.android.accounts.AccountUtils;
+import lt.dualpair.android.accounts.LoginActivity;
 import lt.dualpair.android.data.remote.client.ServiceException;
-import lt.dualpair.android.data.task.Task;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;

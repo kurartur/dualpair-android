@@ -7,12 +7,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.user.SetUserSociotypesClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.task.AuthenticatedUserTask;
 
 public class SetUserSociotypesTask extends AuthenticatedUserTask<User> {
 

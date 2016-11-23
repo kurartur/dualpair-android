@@ -3,12 +3,12 @@ package lt.dualpair.android.data.task.match;
 import android.content.Context;
 import android.text.TextUtils;
 
-import lt.dualpair.android.accounts.AuthenticatedUserTask;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.remote.client.SimpleGetUrlClient;
 import lt.dualpair.android.data.remote.client.match.GetUserMatchListClient;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
+import lt.dualpair.android.data.task.AuthenticatedUserTask;
 
 public class GetUserMutualMatchListTask extends AuthenticatedUserTask<ResourceCollection<Match>> {
 
