@@ -3,6 +3,8 @@ package lt.dualpair.android.data.task.user;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.Iterator;
+
 import lt.dualpair.android.data.remote.client.user.DeletePhotoClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
