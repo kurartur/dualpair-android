@@ -2,17 +2,11 @@ package lt.dualpair.android.data.task;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountsException;
-import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
 
 import com.trello.rxlifecycle.ActivityLifecycleProvider;
 
-import java.io.IOException;
-
-import lt.dualpair.android.accounts.AccountConstants;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import rx.Observable;
@@ -51,22 +45,36 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         return userId;
     }
 
+    protected String getAuthToken() {
+        AccountManager am = AccountManager.get(context);
+        Account account = AccountUtils.getAccount(am);
+        if (context instanceof Activity) {
+            return AccountUtils.getAuthToken(am, account, (Activity)context);
+        } else {
+            return AccountUtils.getAuthToken(am, account);
+        }
+    }
+
     @Override
     public Result call() throws Exception {
+        getAuthToken(); // TODO this is temporarily here to ensure token is set
         try {
             return run();
         } catch (ServiceException e) {
-            if (isUnauthorizedException(e) && handleUnauthorizedException(e))
+            if (isUnauthorizedException(e)) {
+                invalidateToken();
                 return run();
-            else
+            } else {
                 throw e;
+            }
         } catch (RuntimeException e) {
             if (e.getCause() instanceof ServiceException
-                    && isUnauthorizedException((ServiceException)e.getCause())
-                    && handleUnauthorizedException((ServiceException) e.getCause()))
+                    && isUnauthorizedException((ServiceException)e.getCause())) {
+                invalidateToken();
                 return run();
-            else
+            } else {
                 throw e;
+            }
         }
     }
 
@@ -74,44 +82,10 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         return e.getResponse() != null && e.getResponse().code() == 401;
     }
 
-    private boolean handleUnauthorizedException(ServiceException e) {
-        boolean refreshSucceeded = attemptTokenRefresh();
-        if (!refreshSucceeded && context instanceof Activity) {
-            return attemptLogin();
-        }
-        return refreshSucceeded;
-    }
-
-    private boolean attemptTokenRefresh() {
-        try {
-            Account account = AccountUtils.getAccount(context);
-            AccountManager manager = AccountManager.get(context);
-            manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
-            Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
-            return false;
-        } catch (OperationCanceledException oce) {
-            return false;
-        } catch (AccountsException ae) {
-            return false;
-        } catch (IOException ioe) {
-            return false;
-        }
-    }
-
-    private boolean attemptLogin() {
-        try {
-            Account account = AccountUtils.getAccount(context);
-            AccountManager manager = AccountManager.get(context);
-            manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
-            Bundle result = manager.updateCredentials(account, AccountConstants.ACCOUNT_TYPE, null, (Activity)context, null, null).getResult();
-            return true;
-        } catch (OperationCanceledException oce) {
-            return false;
-        } catch (AccountsException ae) {
-            return false;
-        } catch (IOException ioe) {
-            return false;
-        }
+    private void invalidateToken() {
+        AccountManager manager = AccountManager.get(context);
+        Account account = AccountUtils.getAccount(manager);
+        manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
     }
 
     protected abstract Result run() throws Exception;

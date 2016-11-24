@@ -7,18 +7,15 @@ import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.io.IOException;
 
 public class AccountUtils {
 
-    @Deprecated
-    public static Account getAccount(AccountManager am, Activity activity) {
-        return getAccount(activity);
-    }
+    private static final String TAG = "AccountUtils";
 
-    public static Account getAccount(final Context context) {
-        AccountManager am = AccountManager.get(context);
+    public static Account getAccount(final AccountManager am) {
         Account[] accounts = am.getAccountsByType(AccountConstants.ACCOUNT_TYPE);
         if (accounts.length == 0) {
             return null;
@@ -28,20 +25,14 @@ public class AccountUtils {
 
     public static Long getUserId(final Context context) {
         AccountManager accountManager = AccountManager.get(context);
-        Account account = AccountUtils.getAccount(context);
+        Account account = AccountUtils.getAccount(accountManager);
         if (account == null) {
             return null;
         }
         return Long.valueOf(accountManager.getUserData(account, LoginActivity.ARG_USER_ID));
     }
 
-    @Deprecated
-    public static Bundle addAccount(AccountManager am, Activity activity) {
-        return addAccount(activity);
-    }
-
-    public static Bundle addAccount(final Activity activity) {
-        AccountManager am = AccountManager.get(activity);
+    public static Bundle addAccount(final AccountManager am, final Activity activity) {
         try {
             return am.addAccount(AccountConstants.ACCOUNT_TYPE, null, null, null, activity, null, null).getResult();
         } catch (AuthenticatorException ae) {
@@ -54,19 +45,37 @@ public class AccountUtils {
         }
     }
 
-    public static String getAuthToken(final Context context) {
-        AccountManager am = AccountManager.get(context);
+    /**
+     * Get authentication token.
+     * To be called from service.
+     * @param am - Account manager
+     * @param account - Account
+     * @return Authentication token
+     */
+    public static String getAuthToken(final AccountManager am, final Account account) {
         try {
-            Bundle result = am.getAuthToken(getAccount(context), AccountConstants.ACCOUNT_TYPE, null, null, null, null).getResult();
+            Bundle result = am.getAuthToken(account, AccountConstants.ACCOUNT_TYPE, null, true, null, null).getResult();
             return (String)result.get(AccountManager.KEY_AUTHTOKEN);
-        } catch (OperationCanceledException e) {
-            e.printStackTrace();
+        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
+            Log.e(TAG, "Unable to get token in service", e);
             throw new RuntimeException(e);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (AuthenticatorException e) {
-            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get authentication token.
+     * To be called from foreground.
+     * @param am- Account manager
+     * @param account - Account
+     * @param activity - Activity from which login activity should be called
+     * @return
+     */
+    public static String getAuthToken(final AccountManager am, final Account account, final Activity activity) {
+        try {
+            Bundle result = am.getAuthToken(account, AccountConstants.ACCOUNT_TYPE, null, activity, null, null).getResult();
+            return (String)result.get(AccountManager.KEY_AUTHTOKEN);
+        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
+            Log.e(TAG, "Unable to get token", e);
             throw new RuntimeException(e);
         }
     }

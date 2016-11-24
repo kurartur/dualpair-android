@@ -57,13 +57,13 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.main_layout);
         ButterKnife.bind(this);
 
-        final AccountManager accountManager = AccountManager.get(this);
-        Account account = AccountUtils.getAccount(accountManager, this);
+        final AccountManager am = AccountManager.get(this);
+        Account account = AccountUtils.getAccount(am);
         if (account == null) {
             new AsyncTask<Void, Void, Bundle>() {
                 @Override
                 protected Bundle doInBackground(Void... params) {
-                    return AccountUtils.addAccount(accountManager, MainActivity.this);
+                    return AccountUtils.addAccount(am, MainActivity.this);
                 }
 
                 @Override

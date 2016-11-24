@@ -14,23 +14,40 @@ import rx.Observable;
 
 public class RequestTokenClient extends BaseClient<Token> {
 
+    private static final String AUTH_CODE_GRANT_TYPE = "authorization_code";
+    private static final String REFRESH_TOKEN_GRANT_TYPE = "refresh_token";
+
     private String code;
     private String clientId;
     private String clientSecret;
     private String redirectUri;
     private String grantType;
+    private String refreshToken;
 
-    public RequestTokenClient(String code, String clientId, String clientSecret, String redirectUri, String grantType) {
+    public RequestTokenClient(String code, String clientId, String clientSecret, String redirectUri) {
         this.code = code;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
-        this.grantType = grantType;
+        this.grantType = AUTH_CODE_GRANT_TYPE;
+    }
+
+    public RequestTokenClient(String refreshToken, String clientId, String clientSecret) {
+        this.refreshToken = refreshToken;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.grantType = REFRESH_TOKEN_GRANT_TYPE;
     }
 
     @Override
     protected Observable<Token> getApiObserable(Retrofit retrofit) {
-        return retrofit.create(OAuthService.class).getToken(code, redirectUri, grantType);
+        OAuthService oAuthService = retrofit.create(OAuthService.class);
+        if (AUTH_CODE_GRANT_TYPE.equals(grantType)) {
+            return oAuthService.getToken(code, redirectUri, grantType);
+        } else if (REFRESH_TOKEN_GRANT_TYPE.equals(grantType)) {
+            return oAuthService.getToken(refreshToken, grantType);
+        }
+        throw new UnsupportedOperationException("Unknown grant type");
     }
 
     @Override

@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
+import lt.dualpair.android.data.resource.Token;
+
 import static android.accounts.AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE;
 
 public class AccountAuthenticator extends AbstractAccountAuthenticator {
@@ -23,10 +26,8 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-        final Intent intent = new Intent(context, LoginActivity.class);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         final Bundle bundle = new Bundle();
-        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+        bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
         return bundle;
     }
 
@@ -49,14 +50,19 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             return bundle;
         }
 
-        AccountManager accountManager = AccountManager.get(context);
-        String password = accountManager.getPassword(account);
+        AccountManager am = AccountManager.get(context);
+        String refreshToken = am.getPassword(account);
 
-        if (TextUtils.isEmpty(password)) {
+        if (TextUtils.isEmpty(refreshToken)) {
             bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
             return bundle;
         } else {
-            // refresh token
+            Token token = new RequestTokenClient(refreshToken, LoginActivity.CLIENT_ID, LoginActivity.CLIENT_SERCET).observable().toBlocking().first();
+            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+            bundle.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
+            am.setPassword(account, token.getRefreshToken());
+            // bundle.putString(KEY_CUSTOM_TOKEN_EXPIRY, somevalue); // TODO set token expiration date;
             return bundle;
         }
     }
@@ -71,11 +77,8 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
-        // TODO try refreshing token
-        final Intent intent = new Intent(context, LoginActivity.class);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         final Bundle bundle = new Bundle();
-        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+        bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
         return bundle;
     }
 

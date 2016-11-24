@@ -37,7 +37,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     public static final String CLIENT_ID = "dualpairandroid";
     public static final String CLIENT_SERCET = "secret";
     public static final String OAUTH_SCOPE = "trust";
-    public static final String GRANT_TYPE = "authorization_code";
     public static final String OAUTH_URL = "/oauth/authorize";
     public static final String REDIRECT_URI = "http://dualpair.lt/android";
 
@@ -91,7 +90,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     }
 
     private void getToken(String code) {
-        new RequestTokenClient(code, CLIENT_ID, CLIENT_SERCET, REDIRECT_URI, GRANT_TYPE).observable()
+        new RequestTokenClient(code, CLIENT_ID, CLIENT_SERCET, REDIRECT_URI).observable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new EmptySubscriber<Token>() {
@@ -131,6 +130,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                         result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
                         result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
                         result.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
+
+                        accountManager.setPassword(account, token.getRefreshToken());
 
                         TokenProvider.getInstance().storeToken(token.getAccessToken());
 

@@ -5,7 +5,7 @@ import android.content.Context;
 import lt.dualpair.android.R;
 import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
-import lt.dualpair.android.data.DefaultErrorHandlingSubscriber;
+import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.ResourceCollectionLoader;
 import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.resource.Match;
@@ -38,7 +38,7 @@ public class MutualMatchListFragment extends MatchListFragment {
     }
 
     private void loadAndPrependMatch(Long matchId) {
-        new GetMutualMatchTask(getActivity(), matchId).execute(new DefaultErrorHandlingSubscriber<Match>(getActivity()) {
+        new GetMutualMatchTask(getActivity(), matchId).execute(new EmptySubscriber<Match>() {
             @Override
             public void onNext(Match match) {
                 matchListAdapter.prepend(match);
