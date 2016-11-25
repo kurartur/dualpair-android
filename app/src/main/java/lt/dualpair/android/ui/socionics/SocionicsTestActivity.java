@@ -27,6 +27,8 @@ import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.task.socionics.EvaluateTestTask;
 import lt.dualpair.android.ui.user.ConfirmSociotypeActivity;
 import lt.dualpair.android.utils.ToastUtils;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class SocionicsTestActivity extends ListActivity {
 
@@ -74,25 +76,28 @@ public class SocionicsTestActivity extends ListActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new EvaluateTestTask(SocionicsTestActivity.this, adapter.getResults()).execute(new EmptySubscriber<Sociotype>() {
-                    @Override
-                    public void onError(Throwable e) {
-                        ServiceException se = (ServiceException)e;
-                        String message;
-                        try {
-                            message = "Couldn't evaluate test: " + se.getErrorBodyAs(ErrorResponse.class).getMessage();
-                        } catch (IOException ioe) {
-                            message = se.getMessage();
-                        }
-                        Log.e(TAG, message, e);
-                        ToastUtils.show(SocionicsTestActivity.this, message);
-                    }
+                new EvaluateTestTask(null, adapter.getResults()).execute(SocionicsTestActivity.this) // TODO null token
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new EmptySubscriber<Sociotype>() {
+                            @Override
+                            public void onError(Throwable e) {
+                                ServiceException se = (ServiceException)e;
+                                String message;
+                                try {
+                                    message = "Couldn't evaluate test: " + se.getErrorBodyAs(ErrorResponse.class).getMessage();
+                                } catch (IOException ioe) {
+                                    message = se.getMessage();
+                                }
+                                Log.e(TAG, message, e);
+                                ToastUtils.show(SocionicsTestActivity.this, message);
+                            }
 
-                    @Override
-                    public void onNext(Sociotype sociotype) {
-                        showResults(sociotype);
-                    }
-                });
+                            @Override
+                            public void onNext(Sociotype sociotype) {
+                                showResults(sociotype);
+                            }
+                        });
             }
         });
         return button;

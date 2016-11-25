@@ -33,7 +33,9 @@ import lt.dualpair.android.utils.LocationUtils;
 import lt.dualpair.android.utils.OnceOnlyLocationListener;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity {
 
@@ -169,7 +171,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void saveLocation(Location location) {
-        new SetLocationTask(this, lt.dualpair.android.data.resource.Location.fromAndroidLocation(location)).execute(new EmptySubscriber<Void>() {
+        new SetLocationTask(null, lt.dualpair.android.data.resource.Location.fromAndroidLocation(location)).execute(this) // TODO token null
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EmptySubscriber<Void>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to set location", e);

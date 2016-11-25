@@ -28,55 +28,55 @@ public class UserDataManager extends DataManager {
     }
 
     public Observable<User> getUser(final boolean forceUpdate) {
-        return execute(context, new DataRequest<>("getUser", new TaskCreator<User>() {
+        return execute(context, new DataRequest<>("getUser", new AuthenticatedTaskCreator<User>() {
             @Override
-            public Task<User> createTask(Context context) {
-                return new GetUserPrincipalTask(context, forceUpdate);
+            protected Task<User> doCreateTask(String authToken) {
+                return new GetUserPrincipalTask(authToken, forceUpdate);
             }
         }));
     }
 
     public Observable<User> setSociotypes(final Set<Sociotype> sociotypes) {
-        return execute(context, new DataRequest<>("setSociotypes", new TaskCreator<User>() {
+        return execute(context, new DataRequest<>("setSociotypes", new AuthenticatedTaskCreator<User>() {
             @Override
-            public Task<User> createTask(Context context) {
-                return new SetUserSociotypesTask(context, sociotypes);
+            protected Task<User> doCreateTask(String authToken) {
+                return new SetUserSociotypesTask(authToken, sociotypes);
             }
         }));
     }
 
     public Observable<User> setDateOfBirth(final Date dateOfBirth) {
-        return execute(context, new DataRequest<>("setDateOfBirth", new TaskCreator<User>() {
+        return execute(context, new DataRequest<>("setDateOfBirth", new AuthenticatedTaskCreator<User>() {
             @Override
-            public Task<User> createTask(Context context) {
-                return new SetDateOfBirthTask(context, dateOfBirth);
+            protected Task<User> doCreateTask(String authToken) {
+                return new SetDateOfBirthTask(authToken, dateOfBirth);
             }
         }));
     }
 
     public Observable<User> deletePhoto(final Photo photo) {
-        return execute(context, new DataRequest<>("deletePhoto" + photo, new TaskCreator<User>() {
+        return execute(context, new DataRequest<>("deletePhoto" + photo, new AuthenticatedTaskCreator<User>() {
             @Override
-            public Task<User> createTask(Context context) {
-                return new DeletePhotoTask(context, photo);
+            protected Task<User> doCreateTask(String authToken) {
+                return new DeletePhotoTask(authToken, photo);
             }
         }));
     }
 
     public Observable<User> updateUser(final User user) {
-        return execute(context, new DataRequest<>("updateUser", new TaskCreator<User>() {
+        return execute(context, new DataRequest<>("updateUser", new AuthenticatedTaskCreator<User>() {
             @Override
-            public Task<User> createTask(Context context) {
-                return new UpdateUserTask(context, user);
+            protected Task<User> doCreateTask(String authToken) {
+                return new UpdateUserTask(authToken, user);
             }
         }));
     }
 
     public Observable<User> addPhoto(final Photo photo) {
-        return execute(context, new DataRequest<>("addPhoto", new TaskCreator<User>() {
+        return execute(context, new DataRequest<>("addPhoto", new AuthenticatedTaskCreator<User>() {
             @Override
-            public Task<User> createTask(Context context) {
-                return new AddPhotoTask(context, photo);
+            protected Task<User> doCreateTask(String authToken) {
+                return new AddPhotoTask(authToken, photo);
             }
         }));
     }

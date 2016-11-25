@@ -1,17 +1,19 @@
 package lt.dualpair.android.data.task;
 
-import android.app.Activity;
+import android.content.Context;
 
 import lt.dualpair.android.data.remote.client.authentication.LogoutClient;
+import rx.Observable;
 
 public class LogoutTask extends AuthenticatedUserTask<Void> {
 
-    public LogoutTask(Activity activity) {
-        super(activity);
+    public LogoutTask(String authToken) {
+        super(authToken);
     }
 
     @Override
-    protected Void run() throws Exception {
-        return new LogoutClient().observable().toBlocking().first();
+    protected Observable<Void> run(Context context) {
+        return new LogoutClient().observable();
     }
+
 }

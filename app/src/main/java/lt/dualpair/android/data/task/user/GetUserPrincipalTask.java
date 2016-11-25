@@ -11,37 +11,42 @@ import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
 
-    private UserRepository userRepository;
     private static final int EXPIRATION_TIME_MS = 1000 * 60 * 5; // 5 minutes
     boolean forceUpdate;
 
-    public GetUserPrincipalTask(Context context) {
-        super(context);
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        userRepository = new UserRepository(db);
+    public GetUserPrincipalTask(String authToken) {
+        super(authToken);
     }
 
-    public GetUserPrincipalTask(Context context, boolean forceUpdate) {
-        super(context);
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        userRepository = new UserRepository(db);
+    public GetUserPrincipalTask(String authToken, boolean forceUpdate) {
+        super(authToken);
         this.forceUpdate = forceUpdate;
     }
 
     @Override
-    protected User run() {
-        User user = userRepository.get(AccountUtils.getUserId(context));
-        if (user == null || isExpired(user.getUpdateTime()) || forceUpdate) {
-            user = new GetUserPrincipalClient().observable().toBlocking().first();
-            user.setUpdateTime(new Date());
-            userRepository.save(user);
-            return user;
-        } else {
-            return user;
-        }
+    protected Observable<User> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<User>() {
+            @Override
+            public void call(Subscriber<? super User> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                UserRepository userRepository = new UserRepository(db);
+                User user = userRepository.get(AccountUtils.getUserId(context));
+                if (user == null || isExpired(user.getUpdateTime()) || forceUpdate) {
+                    user = new GetUserPrincipalClient().observable().toBlocking().first();
+                    user.setUpdateTime(new Date());
+                    userRepository.save(user);
+                    subscriber.onNext(user);
+                } else {
+                    subscriber.onNext(user);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
     private boolean isExpired(Date updateTime) {

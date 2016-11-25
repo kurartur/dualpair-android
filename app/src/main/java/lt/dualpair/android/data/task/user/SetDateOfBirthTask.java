@@ -13,32 +13,40 @@ import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class SetDateOfBirthTask extends AuthenticatedUserTask<User> {
 
     private Date date;
-    private UserRepository userRepository;
 
-    public SetDateOfBirthTask(Context context, Date date) {
-        super(context);
+    public SetDateOfBirthTask(String authToken, Date date) {
+        super(authToken);
         this.date = date;
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        userRepository = new UserRepository(db);
     }
 
     @Override
-    protected User run() throws Exception {
-        new SetDateOfBirthClient(getUserId(), date).observable().toBlocking().first();
-        User user = userRepository.get(AccountUtils.getUserId(context));
-        user.setDateOfBirth(date);
+    protected Observable<User> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<User>() {
+            @Override
+            public void call(Subscriber<? super User> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                UserRepository userRepository = new UserRepository(db);
+                new SetDateOfBirthClient(getUserId(context), date).observable().toBlocking().first();
+                User user = userRepository.get(AccountUtils.getUserId(context));
+                user.setDateOfBirth(date);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        user.setAge(getAge(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                user.setAge(getAge(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
 
-        userRepository.save(user);
-        return user;
+                userRepository.save(user);
+                subscriber.onNext(user);
+                subscriber.onCompleted();
+            }
+        });
     }
+
 
     private int getAge(int _year, int _month, int _day) {
 

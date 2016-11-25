@@ -10,30 +10,37 @@ import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.MatchParty;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class SetResponseTask extends AuthenticatedUserTask<Match> {
 
     private Long matchId;
     private Response response;
 
-    private MatchRepository matchRepository;
-
-    public SetResponseTask(Context context, Long matchId, Response response) {
-        super(context);
+    public SetResponseTask(String authToken, Long matchId, Response response) {
+        super(authToken);
         this.matchId = matchId;
         this.response = response;
 
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        matchRepository = new MatchRepository(db);
     }
 
     @Override
-    protected Match run() throws Exception {
-        Match match = matchRepository.findOne(matchId, getUserId());
-        MatchParty matchParty = match.getUser();
-        new SetResponseClient(matchParty.getId(), response).observable().toBlocking().first();
-        match.getUser().setResponse(response);
-        matchRepository.setResponse(matchParty.getId(), response);
-        return match;
+    protected Observable<Match> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<Match>() {
+            @Override
+            public void call(Subscriber<? super Match> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                MatchRepository matchRepository = new MatchRepository(db);
+                Match match = matchRepository.findOne(matchId, getUserId(context));
+                MatchParty matchParty = match.getUser();
+                new SetResponseClient(matchParty.getId(), response).observable().toBlocking().first();
+                match.getUser().setResponse(response);
+                matchRepository.setResponse(matchParty.getId(), response);
+                subscriber.onNext(match);
+                subscriber.onCompleted();
+            }
+        });
     }
+
 }

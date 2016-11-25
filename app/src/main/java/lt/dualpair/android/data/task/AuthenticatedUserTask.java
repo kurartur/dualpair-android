@@ -5,39 +5,46 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 
-import com.trello.rxlifecycle.ActivityLifecycleProvider;
-
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
 
-    protected Context context;
+    private String token;
 
-    public AuthenticatedUserTask(Context context) {
-        this.context = context;
+    public AuthenticatedUserTask(String token) {
+        this.token = token;
     }
 
-    public void execute(Subscriber<Result> subscriber) {
-        Observable.fromCallable(this)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(subscriber);
+    @Override
+    public Observable<Result> execute(Context context) {
+        getAuthToken(context); // TODO this is temporarily here to ensure token is set
+        try {
+            return run(context); // TODO doesn't throw these exception, instead attach doOnException or something
+        } catch (ServiceException e) {
+            if (isUnauthorizedException(e)) {
+                invalidateToken(context);
+                return run(context);
+            } else {
+                throw e;
+            }
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof ServiceException
+                    && isUnauthorizedException((ServiceException)e.getCause())) {
+                invalidateToken(context);
+                return run(context);
+            } else {
+                throw e;
+            }
+        }
     }
 
-    public void execute(Subscriber<Result> subscriber, ActivityLifecycleProvider lifecycleProvider) {
-        Observable.fromCallable(this)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .compose(lifecycleProvider.<Result>bindToLifecycle())
-                .subscribe(subscriber);
+    protected String getToken() {
+        return token;
     }
 
-    protected Long getUserId() {
+    protected Long getUserId(Context context) {
         Long userId = AccountUtils.getUserId(context);
         if (userId == null) {
             throw new RuntimeException("Unauthorized");
@@ -45,7 +52,7 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         return userId;
     }
 
-    protected String getAuthToken() {
+    protected String getAuthToken(Context context) {
         AccountManager am = AccountManager.get(context);
         Account account = AccountUtils.getAccount(am);
         if (context instanceof Activity) {
@@ -55,38 +62,15 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         }
     }
 
-    @Override
-    public Result call() throws Exception {
-        getAuthToken(); // TODO this is temporarily here to ensure token is set
-        try {
-            return run();
-        } catch (ServiceException e) {
-            if (isUnauthorizedException(e)) {
-                invalidateToken();
-                return run();
-            } else {
-                throw e;
-            }
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof ServiceException
-                    && isUnauthorizedException((ServiceException)e.getCause())) {
-                invalidateToken();
-                return run();
-            } else {
-                throw e;
-            }
-        }
-    }
-
     private boolean isUnauthorizedException(ServiceException e) {
         return e.getResponse() != null && e.getResponse().code() == 401;
     }
 
-    private void invalidateToken() {
+    private void invalidateToken(Context context) {
         AccountManager manager = AccountManager.get(context);
         Account account = AccountUtils.getAccount(manager);
         manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
     }
 
-    protected abstract Result run() throws Exception;
+    protected abstract Observable<Result> run(Context context);
 }

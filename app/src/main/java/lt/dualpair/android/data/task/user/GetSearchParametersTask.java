@@ -8,26 +8,32 @@ import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class GetSearchParametersTask extends AuthenticatedUserTask<SearchParameters> {
 
-    private SearchParametersRepository searchParametersRepository;
-
-    public GetSearchParametersTask(Context context) {
-        super(context);
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        searchParametersRepository = new SearchParametersRepository(db);
+    public GetSearchParametersTask(String authToken) {
+        super(authToken);
     }
 
     @Override
-    protected SearchParameters run() throws Exception {
-        SearchParameters sp = searchParametersRepository.getLastUsed();
-        if (sp != null) {
-            return sp;
-        } else {
-            sp = new GetSearchParametersClient(getUserId()).observable().toBlocking().first();
-            searchParametersRepository.save(sp);
-            return sp;
-        }
+    protected Observable<SearchParameters> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<SearchParameters>() {
+            @Override
+            public void call(Subscriber<? super SearchParameters> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                SearchParametersRepository searchParametersRepository = new SearchParametersRepository(db);
+                SearchParameters sp = searchParametersRepository.getLastUsed();
+                if (sp != null) {
+                    subscriber.onNext(sp);
+                } else {
+                    sp = new GetSearchParametersClient(getUserId(context)).observable().toBlocking().first();
+                    searchParametersRepository.save(sp);
+                    subscriber.onNext(sp);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 }

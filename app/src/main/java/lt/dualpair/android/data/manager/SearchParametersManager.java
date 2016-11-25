@@ -15,19 +15,19 @@ public class SearchParametersManager extends DataManager {
     }
 
     public Observable<SearchParameters> getSearchParameters() {
-        return execute(context, new DataRequest<>("getSearchParameters", new TaskCreator<SearchParameters>() {
+        return execute(context, new DataRequest<>("getSearchParameters", new AuthenticatedTaskCreator<SearchParameters>() {
             @Override
-            public Task<SearchParameters> createTask(Context context) {
-                return new GetSearchParametersTask(context);
+            protected Task<SearchParameters> doCreateTask(String authToken) {
+                return new GetSearchParametersTask(authToken);
             }
         }));
     }
 
     public Observable<SearchParameters> setSearchParameters(final SearchParameters sp) {
-        return execute(context, new DataRequest<>("setSearchParameters", new TaskCreator<SearchParameters>() {
+        return execute(context, new DataRequest<>("setSearchParameters", new AuthenticatedTaskCreator<SearchParameters>() {
             @Override
-            public Task<SearchParameters> createTask(Context context) {
-                return new SetSearchParametersTask(context, sp);
+            protected Task<SearchParameters> doCreateTask(String authToken) {
+                return new SetSearchParametersTask(authToken, sp);
             }
         }));
     }

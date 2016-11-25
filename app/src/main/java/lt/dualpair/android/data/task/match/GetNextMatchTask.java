@@ -11,6 +11,8 @@ import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
 
@@ -19,31 +21,34 @@ public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
     private Boolean searchFemale;
     private Boolean searchMale;
 
-    private MatchRepository matchRepository;
-    private UserRepository userRepository;
-
-    public GetNextMatchTask(Context context, Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
-        super(context);
+    public GetNextMatchTask(String authToken, Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
+        super(authToken);
         this.minAge = minAge;
         this.maxAge = maxAge;
         this.searchFemale = searchFemale;
         this.searchMale = searchMale;
-
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        matchRepository = new MatchRepository(db);
-        userRepository = new UserRepository(db);
     }
 
     @Override
-    protected Match run() throws Exception {
-        List<Match> matchList = matchRepository.next(getUserId());
-        if (!matchList.isEmpty()) {
-            return matchList.get(0);
-        } else {
-            Match match = new GetNextMatchClient(minAge, maxAge, searchFemale, searchMale).observable().toBlocking().first();
-            match.getUser().setUser(userRepository.get(getUserId()));
-            matchRepository.save(match);
-            return match;
-        }
+    protected Observable<Match> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<Match>() {
+            @Override
+            public void call(Subscriber<? super Match> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                MatchRepository matchRepository = new MatchRepository(db);
+                UserRepository userRepository = new UserRepository(db);
+                List<Match> matchList = matchRepository.next(getUserId(context));
+                if (!matchList.isEmpty()) {
+                    subscriber.onNext(matchList.get(0));
+                } else {
+                    Match match = new GetNextMatchClient(minAge, maxAge, searchFemale, searchMale).observable().toBlocking().first();
+                    match.getUser().setUser(userRepository.get(getUserId(context)));
+                    matchRepository.save(match);
+                    subscriber.onNext(match);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
+
 }

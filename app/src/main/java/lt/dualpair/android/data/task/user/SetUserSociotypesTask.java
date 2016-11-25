@@ -13,29 +13,36 @@ import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class SetUserSociotypesTask extends AuthenticatedUserTask<User> {
 
     private Set<Sociotype> sociotypes;
-    private UserRepository userRepository;
 
-    public SetUserSociotypesTask(Context context, Set<Sociotype> sociotypes) {
-        super(context);
+    public SetUserSociotypesTask(String authToken, Set<Sociotype> sociotypes) {
+        super(authToken);
         this.sociotypes = sociotypes;
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        userRepository = new UserRepository(db);
     }
 
     @Override
-    protected User run() throws Exception {
-        Set<String> codes = new HashSet<>();
-        for (Sociotype sociotype : sociotypes) {
-            codes.add(sociotype.getCode1());
-        }
-        new SetUserSociotypesClient(codes, getUserId()).observable().toBlocking().first();
-        User user = userRepository.get(AccountUtils.getUserId(context));
-        user.setSociotypes(sociotypes);
-        userRepository.save(user);
-        return user;
+    protected Observable<User> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<User>() {
+            @Override
+            public void call(Subscriber<? super User> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                UserRepository userRepository = new UserRepository(db);
+                Set<String> codes = new HashSet<>();
+                for (Sociotype sociotype : sociotypes) {
+                    codes.add(sociotype.getCode1());
+                }
+                new SetUserSociotypesClient(codes, getUserId(context)).observable().toBlocking().first();
+                User user = userRepository.get(AccountUtils.getUserId(context));
+                user.setSociotypes(sociotypes);
+                userRepository.save(user);
+                subscriber.onNext(user);
+                subscriber.onCompleted();
+            }
+        });
     }
 }

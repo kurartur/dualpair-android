@@ -14,7 +14,9 @@ import lt.dualpair.android.data.task.match.GetMutualMatchTask;
 import lt.dualpair.android.ui.match.MatchListFragment;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class MutualMatchListFragment extends MatchListFragment {
 
@@ -38,13 +40,16 @@ public class MutualMatchListFragment extends MatchListFragment {
     }
 
     private void loadAndPrependMatch(Long matchId) {
-        new GetMutualMatchTask(getActivity(), matchId).execute(new EmptySubscriber<Match>() {
-            @Override
-            public void onNext(Match match) {
-                matchListAdapter.prepend(match);
-                matchListAdapter.notifyDataSetChanged();
-            }
-        });
+        new GetMutualMatchTask(null, matchId).execute(getActivity()) // TODO null token
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EmptySubscriber<Match>() {
+                    @Override
+                    public void onNext(Match match) {
+                        matchListAdapter.prepend(match);
+                        matchListAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override

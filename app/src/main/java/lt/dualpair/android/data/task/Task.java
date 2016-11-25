@@ -1,6 +1,11 @@
 package lt.dualpair.android.data.task;
 
-import java.util.concurrent.Callable;
+import android.content.Context;
 
-public abstract class Task<Result> implements Callable<Result> {
+import rx.Observable;
+
+public abstract class Task<Result> {
+
+    public abstract Observable<Result> execute(Context context);
+
 }

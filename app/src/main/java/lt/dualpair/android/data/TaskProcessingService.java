@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.service;
+package lt.dualpair.android.data;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -15,10 +15,10 @@ public class TaskProcessingService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        DataManager.LinkedRequest linkedRequest = DataManager.getRequests().poll();
-        if (linkedRequest != null) {
-            Observable observable = Observable.fromCallable(linkedRequest.getDataRequest().getCreator().createTask(this));
-            observable.subscribe(linkedRequest.getLink());
+        DataManager.LinkedTask linkedTask = DataManager.getRequests().poll();
+        if (linkedTask != null) {
+            Observable observable = linkedTask.getTask().execute(this);
+            observable.subscribe(linkedTask.getLink());
         }
     }
 }

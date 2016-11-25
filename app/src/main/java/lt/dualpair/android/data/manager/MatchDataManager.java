@@ -29,46 +29,46 @@ public class MatchDataManager extends DataManager {
 
     public Observable<Match> next() {
         final SearchParameters sp = searchParametersRepository.getLastUsed();
-        return execute(context, new DataRequest<>("nextMatch", new TaskCreator<Match>() {
+        return execute(context, new DataRequest<>("nextMatch", new AuthenticatedTaskCreator<Match>() {
             @Override
-            public Task<Match> createTask(Context context) {
-                return new GetNextMatchTask(context, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale());
+            protected Task<Match> doCreateTask(String authToken) {
+                return new GetNextMatchTask(authToken, sp.getMinAge(), sp.getMaxAge(), sp.getSearchFemale(), sp.getSearchMale());
             }
         }));
     }
 
     public Observable<Match> setResponse(final Long matchId, final Response response) {
-        return execute(context, new DataRequest<>("setResponse", new TaskCreator<Match>() {
+        return execute(context, new DataRequest<>("setResponse", new AuthenticatedTaskCreator<Match>() {
             @Override
-            public Task<Match> createTask(Context context) {
-                return new SetResponseTask(context, matchId, response);
+            protected Task<Match> doCreateTask(String authToken) {
+                return new SetResponseTask(authToken, matchId, response);
             }
         }));
     }
 
     public Observable<Match> match(final Long matchId) {
-        return execute(context, new DataRequest<>("match" + matchId, new TaskCreator<Match>() {
+        return execute(context, new DataRequest<>("match" + matchId, new AuthenticatedTaskCreator<Match>() {
             @Override
-            public Task<Match> createTask(Context context) {
-                return new GetMutualMatchTask(context, matchId);
+            protected Task<Match> doCreateTask(String authToken) {
+                return new GetMutualMatchTask(authToken, matchId);
             }
         }));
     }
 
     public Observable<ResourceCollection<Match>> mutualMatchList(final String url) {
-        return execute(context, new DataRequest<>("mutualMatchList", new TaskCreator<ResourceCollection<Match>>() {
+        return execute(context, new DataRequest<>("mutualMatchList", new AuthenticatedTaskCreator<ResourceCollection<Match>>() {
             @Override
-            public Task<ResourceCollection<Match>> createTask(Context context) {
-                return new GetUserMutualMatchListTask(context, url);
+            protected Task<ResourceCollection<Match>> doCreateTask(String authToken) {
+                return new GetUserMutualMatchListTask(authToken, url);
             }
         }));
     }
 
     public Observable<ResourceCollection<Match>> reviewedMatchList(final String url) {
-        return execute(context, new DataRequest<>("reviewedMatchList", new TaskCreator<ResourceCollection<Match>>() {
+        return execute(context, new DataRequest<>("reviewedMatchList", new AuthenticatedTaskCreator<ResourceCollection<Match>>() {
             @Override
-            public Task<ResourceCollection<Match>> createTask(Context context) {
-                return new GetUserReviewedMatchListTask(context, url);
+            protected Task<ResourceCollection<Match>> doCreateTask(String authToken) {
+                return new GetUserReviewedMatchListTask(authToken, url);
             }
         }));
     }

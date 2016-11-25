@@ -19,6 +19,8 @@ import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.task.user.GetAvailablePhotosTask;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.AccountType;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class AvailableProviderPhotosFragment extends BaseFragment {
 
@@ -43,7 +45,10 @@ public class AvailableProviderPhotosFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.available_provider_photos_layout, null);
         ButterKnife.bind(this, view);
-        new GetAvailablePhotosTask(getActivity(), accountType).execute(new EmptySubscriber<List<Photo>>() {
+        new GetAvailablePhotosTask(null, accountType).execute(getActivity()) // TODO auth token shouldn't be null
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EmptySubscriber<List<Photo>>() {
             @Override
             public void onError(Throwable e) {
                 Log.e(TAG, "Unable to load available photos", e);

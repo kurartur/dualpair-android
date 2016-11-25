@@ -242,16 +242,19 @@ public class ProfileFragment extends BaseFragment {
     }
 
     private void logout() {
-        new LogoutTask(getActivity()).execute(new EmptySubscriber<Void>() {
-            @Override
-            public void onNext(Void v) {
-                CookieManager.getInstance().removeAllCookie();
-                TokenProvider.getInstance().storeToken(null);
-                Intent newIntent = new Intent(getActivity(), LoginActivity.class);
-                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(newIntent);
-            }
-        });
+        new LogoutTask(null).execute(getActivity()) // TODO null token
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EmptySubscriber<Void>() {
+                    @Override
+                    public void onNext(Void v) {
+                        CookieManager.getInstance().removeAllCookie();
+                        TokenProvider.getInstance().storeToken(null);
+                        Intent newIntent = new Intent(getActivity(), LoginActivity.class);
+                        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(newIntent);
+                    }
+                });
     }
 }

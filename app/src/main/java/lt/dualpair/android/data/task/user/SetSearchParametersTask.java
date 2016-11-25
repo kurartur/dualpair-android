@@ -9,6 +9,8 @@ import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
+import rx.Observable;
+import rx.Subscriber;
 
 public class SetSearchParametersTask extends AuthenticatedUserTask<SearchParameters> {
 
@@ -16,19 +18,26 @@ public class SetSearchParametersTask extends AuthenticatedUserTask<SearchParamet
     private SearchParametersRepository searchParametersRepository;
     private MatchRepository matchRepository;
 
-    public SetSearchParametersTask(Context context, SearchParameters searchParameters) {
-        super(context);
+    public SetSearchParametersTask(String authToken, SearchParameters searchParameters) {
+        super(authToken);
         this.searchParameters = searchParameters;
-        SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
-        searchParametersRepository = new SearchParametersRepository(db);
-        matchRepository = new MatchRepository(db);
     }
 
     @Override
-    protected SearchParameters run() throws Exception {
-        new SetSearchParametersClient(getUserId(), searchParameters).observable().toBlocking().first();
-        searchParametersRepository.save(searchParameters);
-        matchRepository.clearNotReviewedMatches(getUserId());
-        return searchParameters;
+    protected Observable<SearchParameters> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<SearchParameters>() {
+            @Override
+            public void call(Subscriber<? super SearchParameters> subscriber) {
+                SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+                searchParametersRepository = new SearchParametersRepository(db);
+                matchRepository = new MatchRepository(db);
+                new SetSearchParametersClient(getUserId(context), searchParameters).observable().toBlocking().first();
+                searchParametersRepository.save(searchParameters);
+                matchRepository.clearNotReviewedMatches(getUserId(context));
+                subscriber.onNext(searchParameters);
+                subscriber.onCompleted();
+            }
+        });
     }
+
 }
