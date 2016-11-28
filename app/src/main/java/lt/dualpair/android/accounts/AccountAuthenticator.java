@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import lt.dualpair.android.TokenProvider;
+import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
 import lt.dualpair.android.data.resource.Token;
 
@@ -55,16 +57,20 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
         if (TextUtils.isEmpty(refreshToken)) {
             bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
-            return bundle;
         } else {
-            Token token = new RequestTokenClient(refreshToken, LoginActivity.CLIENT_ID, LoginActivity.CLIENT_SERCET).observable().toBlocking().first();
-            bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            bundle.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
-            am.setPassword(account, token.getRefreshToken());
-            // bundle.putString(KEY_CUSTOM_TOKEN_EXPIRY, somevalue); // TODO set token expiration date;
-            return bundle;
+            try {
+                Token token = new RequestTokenClient(refreshToken, LoginActivity.CLIENT_ID, LoginActivity.CLIENT_SERCET).observable().toBlocking().first();
+                bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+                bundle.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
+                am.setPassword(account, token.getRefreshToken());
+                TokenProvider.getInstance().storeToken(token.getAccessToken());
+                // bundle.putString(KEY_CUSTOM_TOKEN_EXPIRY, somevalue); // TODO set token expiration date;
+            } catch (ServiceException se) {
+                bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
+            }
         }
+        return bundle;
     }
 
     @Override

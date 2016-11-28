@@ -23,6 +23,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static lt.dualpair.android.BuildConfig.SERVER_HOST;
+
 public class LinkVKAccountFragment extends Fragment {
 
     private static final String TAG = "LinkVKAccFrag";
@@ -42,11 +44,11 @@ public class LinkVKAccountFragment extends Fragment {
         webView.setWebViewClient(new WebViewClient() {
 
             private boolean isInitial(String url) {
-                return url.contains("dualpair.lt:9000") && !url.contains("code=");
+                return url.contains(SERVER_HOST.replace("http://", "")) && !url.contains("code=");
             }
 
             private boolean isCode(String url) {
-                return url.contains("dualpair.lt:9000/connect/vkontakte") && url.contains("code=");
+                return url.contains(SERVER_HOST.replace("http://", "")) && url.contains("code=");
             }
 
             @Override
@@ -59,7 +61,7 @@ public class LinkVKAccountFragment extends Fragment {
                             .build();
                     Request okRequest = new Request.Builder()
                             .addHeader("Authorization", "Bearer " + TokenProvider.getInstance().getToken())
-                            .url("http://dualpair.lt:9000/connect/vkontakte")
+                            .url(SERVER_HOST + "/connect/vkontakte")
                             .post(requestBody)
                             .build();
                     client.newCall(okRequest).enqueue(new Callback() {
@@ -107,7 +109,7 @@ public class LinkVKAccountFragment extends Fragment {
                 //return false;
             }
         });
-        webView.loadUrl("http://dualpair.lt:9000");
+        webView.loadUrl(SERVER_HOST);
         return webView;
     }
 

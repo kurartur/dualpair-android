@@ -8,6 +8,7 @@ import android.content.Context;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import rx.Observable;
+import rx.functions.Func1;
 
 public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
 
@@ -18,26 +19,19 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
     }
 
     @Override
-    public Observable<Result> execute(Context context) {
-        getAuthToken(context); // TODO this is temporarily here to ensure token is set
-        try {
-            return run(context); // TODO doesn't throw these exception, instead attach doOnException or something
-        } catch (ServiceException e) {
-            if (isUnauthorizedException(e)) {
-                invalidateToken(context);
-                return run(context);
-            } else {
-                throw e;
-            }
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof ServiceException
-                    && isUnauthorizedException((ServiceException)e.getCause())) {
-                invalidateToken(context);
-                return run(context);
-            } else {
-                throw e;
-            }
-        }
+    public Observable<Result> execute(final Context context) {
+        return run(context)
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends Result>>() {
+                    @Override
+                    public Observable<? extends Result> call(Throwable throwable) {
+                        if (isUnauthorizedException(throwable)) {
+                            invalidateToken(context);
+                            getAuthToken(context);
+                            return run(context);
+                        }
+                        return Observable.error(throwable);
+                    }
+                });
     }
 
     protected String getToken() {
@@ -62,14 +56,23 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
         }
     }
 
-    private boolean isUnauthorizedException(ServiceException e) {
-        return e.getResponse() != null && e.getResponse().code() == 401;
+    private boolean isUnauthorizedException(Throwable throwable) {
+        ServiceException se = null;
+        if (throwable instanceof ServiceException) {
+            se = (ServiceException) throwable;
+        } else if (throwable.getCause() instanceof ServiceException) {
+            se = (ServiceException) throwable.getCause();
+        }
+        if (se != null) {
+            return se.getResponse() != null && se.getResponse().code() == 401;
+        }
+        return false;
     }
 
     private void invalidateToken(Context context) {
         AccountManager manager = AccountManager.get(context);
         Account account = AccountUtils.getAccount(manager);
-        manager.invalidateAuthToken(account.type, manager.getUserData(account, AccountManager.KEY_AUTHTOKEN));
+        manager.invalidateAuthToken(account.type, getAuthToken(context));
     }
 
     protected abstract Observable<Result> run(Context context);

@@ -15,8 +15,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
+import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.task.user.GetAvailablePhotosTask;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.AccountType;
 import rx.android.schedulers.AndroidSchedulers;
@@ -45,7 +45,7 @@ public class AvailableProviderPhotosFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.available_provider_photos_layout, null);
         ButterKnife.bind(this, view);
-        new GetAvailablePhotosTask(null, accountType).execute(getActivity()) // TODO auth token shouldn't be null
+        new UserDataManager(getActivity()).getAvailablePhotos(accountType)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new EmptySubscriber<List<Photo>>() {

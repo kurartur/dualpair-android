@@ -210,6 +210,7 @@ public class ReviewFragment extends BaseFragment {
         opponentUserView.render(match.getOpponent().getUser());
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
+        validationLayout.setVisibility(View.GONE);
     }
 
     private void showLoading() {

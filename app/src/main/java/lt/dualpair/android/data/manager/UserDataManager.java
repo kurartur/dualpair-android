@@ -3,6 +3,7 @@ package lt.dualpair.android.data.manager;
 import android.content.Context;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import lt.dualpair.android.data.resource.Photo;
@@ -11,10 +12,12 @@ import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.Task;
 import lt.dualpair.android.data.task.user.AddPhotoTask;
 import lt.dualpair.android.data.task.user.DeletePhotoTask;
+import lt.dualpair.android.data.task.user.GetAvailablePhotosTask;
 import lt.dualpair.android.data.task.user.GetUserPrincipalTask;
 import lt.dualpair.android.data.task.user.SetDateOfBirthTask;
 import lt.dualpair.android.data.task.user.SetUserSociotypesTask;
 import lt.dualpair.android.data.task.user.UpdateUserTask;
+import lt.dualpair.android.ui.accounts.AccountType;
 import rx.Observable;
 
 public class UserDataManager extends DataManager {
@@ -77,6 +80,15 @@ public class UserDataManager extends DataManager {
             @Override
             protected Task<User> doCreateTask(String authToken) {
                 return new AddPhotoTask(authToken, photo);
+            }
+        }));
+    }
+
+    public Observable<List<Photo>> getAvailablePhotos(final AccountType accountType) {
+        return execute(context, new DataRequest<List<Photo>>("getAvailablePhotos" + accountType.name(), new AuthenticatedTaskCreator<List<Photo>>() {
+            @Override
+            protected Task<List<Photo>> doCreateTask(String authToken) {
+                return new GetAvailablePhotosTask(authToken, accountType);
             }
         }));
     }

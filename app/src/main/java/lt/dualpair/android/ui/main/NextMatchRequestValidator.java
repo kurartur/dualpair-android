@@ -52,12 +52,11 @@ public class NextMatchRequestValidator {
     private void validateUser(User user, Subscriber<? super Error> subscriber) {
         if (user.getSociotypes().isEmpty()) {
             subscriber.onNext(Error.NO_SOCIOTYPE);
-        } else if (user.getDateOfBirth() == null) {
-            subscriber.onNext(Error.NO_DATE_OF_BIRTH);
-        } else {
-            validateSearchParameters(subscriber);
         }
-
+        if (user.getDateOfBirth() == null) {
+            subscriber.onNext(Error.NO_DATE_OF_BIRTH);
+        }
+        validateSearchParameters(subscriber);
     }
 
     private void validateSearchParameters(final Subscriber<? super Error> subscriber) {
