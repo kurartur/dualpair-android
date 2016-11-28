@@ -26,7 +26,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".accounts.LoginActivity"
+            android:name=".ui.accounts.LoginActivity"
             android:launchMode="singleTop"/>
         <activity android:name=".ui.main.MainActivity"
             android:windowSoftInputMode="adjustNothing">

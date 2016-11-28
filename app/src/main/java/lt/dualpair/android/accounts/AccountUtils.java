@@ -11,6 +11,8 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import lt.dualpair.android.ui.accounts.LoginActivity;
+
 public class AccountUtils {
 
     private static final String TAG = "AccountUtils";

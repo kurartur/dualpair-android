@@ -1,4 +1,4 @@
-package lt.dualpair.android.accounts;
+package lt.dualpair.android.ui.accounts;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
@@ -18,6 +18,7 @@ import butterknife.ButterKnife;
 import lt.dualpair.android.BuildConfig;
 import lt.dualpair.android.R;
 import lt.dualpair.android.TokenProvider;
+import lt.dualpair.android.accounts.AccountConstants;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
@@ -60,6 +61,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         webView.setWebChromeClient(new WebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setAllowFileAccess(true);
         webView.loadUrl(buildOAuthUrl());
         webView.setWebViewClient(new WebViewClient() {
 
