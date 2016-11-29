@@ -20,6 +20,8 @@ import static android.accounts.AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE
 
 public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
+
+
     private Context context;
 
     public AccountAuthenticator(Context ctx) {
@@ -60,7 +62,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
         } else {
             try {
-                Token token = new RequestTokenClient(refreshToken, LoginActivity.CLIENT_ID, LoginActivity.CLIENT_SERCET).observable().toBlocking().first();
+                Token token = new RequestTokenClient(refreshToken, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET).observable().toBlocking().first();
                 bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
                 bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
                 bundle.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());

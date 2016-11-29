@@ -1,7 +1,6 @@
 package lt.dualpair.android.ui.accounts;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,17 +20,8 @@ public class LinkAccountActivity extends BaseActivity implements LinkAccountCall
         setContentView(R.layout.link_user_account_layout);
 
         AccountType accountType = (AccountType)getIntent().getSerializableExtra(ACCOUNT_TYPE_KEY);
-        Fragment fragment;
-        switch (accountType) {
-            case FB:
-                throw new UnsupportedOperationException("Not implemented");
-            case VK:
-                fragment = LinkVKAccountFragment.getInstance(this);
-                break;
-            default:
-                throw new UnsupportedOperationException("Unknown account type");
-        }
-        getFragmentManager().beginTransaction().add(R.id.link_account_frame, fragment).commit();
+        android.support.v4.app.Fragment fragment = LinkAccountFragment.getInstance(accountType, this);
+        getSupportFragmentManager().beginTransaction().add(R.id.link_account_frame, fragment).commit();
     }
 
     @Override

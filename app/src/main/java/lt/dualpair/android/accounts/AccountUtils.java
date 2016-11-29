@@ -11,8 +11,6 @@ import android.util.Log;
 
 import java.io.IOException;
 
-import lt.dualpair.android.ui.accounts.LoginActivity;
-
 public class AccountUtils {
 
     private static final String TAG = "AccountUtils";
@@ -31,7 +29,7 @@ public class AccountUtils {
         if (account == null) {
             return null;
         }
-        return Long.valueOf(accountManager.getUserData(account, LoginActivity.ARG_USER_ID));
+        return Long.valueOf(accountManager.getUserData(account, AccountConstants.ARG_USER_ID));
     }
 
     public static Bundle addAccount(final AccountManager am, final Activity activity) {
