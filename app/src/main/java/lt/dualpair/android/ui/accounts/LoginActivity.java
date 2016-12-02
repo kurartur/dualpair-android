@@ -1,13 +1,18 @@
 package lt.dualpair.android.ui.accounts;
 
 import android.accounts.AccountAuthenticatorActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+
+import com.facebook.CallbackManager;
+import com.facebook.login.widget.LoginButton;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKCallback;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKError;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,48 +24,22 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
     private static final String TAG = "LoginActivity";
 
-    @Bind(R.id.login_webview) WebView login_webview;
-    @Bind(R.id.login_progress) ProgressBar login_progress;
-    @Bind(R.id.error_layout) View error_layout;
-    @Bind(R.id.error_text) TextView error_text;
+    @Bind(R.id.fb_login_button) LoginButton facebookLoginButton;
 
     private LoginPresenter loginPresenter;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
         ButterKnife.bind(this);
-        loginPresenter = new LoginPresenter(this);
-        loginPresenter.prepareWebView(login_webview);
+        callbackManager = CallbackManager.Factory.create();
+        loginPresenter = new LoginPresenter(this, callbackManager, facebookLoginButton);
     }
 
-    public void showLoading() {
-        login_webview.setVisibility(View.GONE);
-        error_layout.setVisibility(View.GONE);
-        login_progress.setVisibility(View.VISIBLE);
-    }
-
-    public void showWebView() {
-        login_webview.setVisibility(View.VISIBLE);
-        error_layout.setVisibility(View.GONE);
-        login_progress.setVisibility(View.GONE);
-    }
-
-    public void showConnectionTimeoutError(String description) {
-        showError(description);
-    }
-
-    public void showError(String description) {
-        login_webview.setVisibility(View.GONE);
-        error_layout.setVisibility(View.VISIBLE);
-        login_progress.setVisibility(View.GONE);
-        error_text.setText(description);
-    }
-
-    @OnClick(R.id.retry_button)
-    public void onRetryClick(View v) {
-        loginPresenter.retry(login_webview);
+    @OnClick(R.id.vk_login_button) void onVkLoginClick(View v) {
+        VKSdk.login(this, "photos");
     }
 
     @Override
@@ -77,5 +56,21 @@ public class LoginActivity extends AccountAuthenticatorActivity {
                 break;
         }
         return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+            @Override
+            public void onResult(VKAccessToken res) {
+                // TODO get token and create account.
+            }
+            @Override
+            public void onError(VKError error) {
+                // TODO show error;
+            }
+        });
     }
 }
