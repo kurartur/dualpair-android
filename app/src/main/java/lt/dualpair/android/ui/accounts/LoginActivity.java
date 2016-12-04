@@ -9,10 +9,7 @@ import android.view.View;
 
 import com.facebook.CallbackManager;
 import com.facebook.login.widget.LoginButton;
-import com.vk.sdk.VKAccessToken;
-import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKError;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -61,16 +58,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
-
-        VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
-            @Override
-            public void onResult(VKAccessToken res) {
-                // TODO get token and create account.
-            }
-            @Override
-            public void onError(VKError error) {
-                // TODO show error;
-            }
-        });
+        VKSdk.onActivityResult(requestCode, resultCode, data, new VKLoginCallback(this));
     }
 }

@@ -11,9 +11,11 @@ public interface OAuthService {
     @FormUrlEncoded
     @POST("/oauth/token")
     Observable<Token> getToken(
-            @Field("code") String code,
-            @Field("redirect_uri") String redirectUri,
-            @Field("grant_type") String grantType);
+            @Field("grant_type") String grantType,
+            @Field("provider") String providerId,
+            @Field("access_token") String accessToken,
+            @Field("expires_in") Long expiresIn,
+            @Field("scope") String scope);
 
     @FormUrlEncoded
     @POST("/oauth/token")

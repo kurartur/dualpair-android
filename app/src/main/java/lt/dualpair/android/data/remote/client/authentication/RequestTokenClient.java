@@ -14,22 +14,29 @@ import rx.Observable;
 
 public class RequestTokenClient extends BaseClient<Token> {
 
-    private static final String AUTH_CODE_GRANT_TYPE = "authorization_code";
+    private static final String SOCIAL_GRANT_TYPE = "social";
     private static final String REFRESH_TOKEN_GRANT_TYPE = "refresh_token";
 
-    private String code;
     private String clientId;
     private String clientSecret;
-    private String redirectUri;
+
     private String grantType;
+
     private String refreshToken;
 
-    public RequestTokenClient(String code, String clientId, String clientSecret, String redirectUri) {
-        this.code = code;
+    private String providerId;
+    private String accessToken;
+    private Long expiresIn;
+    private String scope;
+
+    public RequestTokenClient(String providerId, String accessToken, Long expiresIn, String scope, String clientId, String clientSecret) {
+        this.providerId = providerId;
+        this.accessToken = accessToken;
+        this.expiresIn = expiresIn;
+        this.scope = scope;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
-        this.grantType = AUTH_CODE_GRANT_TYPE;
+        this.grantType = SOCIAL_GRANT_TYPE;
     }
 
     public RequestTokenClient(String refreshToken, String clientId, String clientSecret) {
@@ -42,8 +49,8 @@ public class RequestTokenClient extends BaseClient<Token> {
     @Override
     protected Observable<Token> getApiObserable(Retrofit retrofit) {
         OAuthService oAuthService = retrofit.create(OAuthService.class);
-        if (AUTH_CODE_GRANT_TYPE.equals(grantType)) {
-            return oAuthService.getToken(code, redirectUri, grantType);
+        if (SOCIAL_GRANT_TYPE.equals(grantType)) {
+            return oAuthService.getToken(grantType, providerId, accessToken, expiresIn, scope);
         } else if (REFRESH_TOKEN_GRANT_TYPE.equals(grantType)) {
             return oAuthService.getToken(refreshToken, grantType);
         }
