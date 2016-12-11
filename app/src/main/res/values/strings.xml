@@ -183,5 +183,8 @@
     <string name="must_provide_search_parameters"># Specify <b><u>search parameters</u></b></string>
     <string name="to_start_searching">To start searching you must:</string>
     <string name="no_sociotypes">No sociotypes</string>
+    <string name="connect_to">Connect to %1$s</string>
+    <string name="login_with_facebook">Log in with Facebook</string>
+    <string name="login_with_vkontakte">Log in with VKontakte</string>
 
 </resources>

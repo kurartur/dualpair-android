@@ -13,7 +13,7 @@ import lt.dualpair.android.R;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "DualPair";
+    public static final String DB_NAME = "DualPair";
     private static final int VERSION = 4;
 
     private Context context;
@@ -40,10 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {        String schema = context.getResources().getString(R.string.create_db);
-        for (String statement : schema.split(";")) {
-            db.execSQL(statement);
-        }
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
     public static String getDateTimeString(Date date) {
@@ -60,5 +57,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (ParseException pe) {
             throw new RuntimeException(pe);
         }
+    }
+
+    public static void reset(Context context) {
+        context.deleteDatabase(DB_NAME);
+        instance = null;
     }
 }

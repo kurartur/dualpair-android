@@ -80,4 +80,11 @@ public class AccountUtils {
         }
     }
 
+    public static void removeAccount(AccountManager am) {
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
+            am.removeAccount(getAccount(am), null, null);
+        } else {
+            am.removeAccount(getAccount(am), null, null, null);
+        }
+    }
 }

@@ -87,7 +87,6 @@ public class AccountGridAdapter extends BaseAdapter {
         for (UserAccount userAccount : userAccounts) {
             accountTypes.remove(accountTypes.indexOf(userAccount.getAccountType()));
         }
-        accountTypes.remove(AccountType.FK);
         return accountTypes;
     }
 }

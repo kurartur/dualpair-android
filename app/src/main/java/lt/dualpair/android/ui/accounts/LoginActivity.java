@@ -8,20 +8,17 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.CallbackManager;
-import com.facebook.login.widget.LoginButton;
 import com.vk.sdk.VKSdk;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
+import lt.dualpair.android.SocialConstants;
 import lt.dualpair.android.ui.AboutActivity;
 
 public class LoginActivity extends AccountAuthenticatorActivity {
 
     private static final String TAG = "LoginActivity";
-
-    @Bind(R.id.fb_login_button) LoginButton facebookLoginButton;
 
     private LoginPresenter loginPresenter;
     private CallbackManager callbackManager;
@@ -32,11 +29,15 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         setContentView(R.layout.login_layout);
         ButterKnife.bind(this);
         callbackManager = CallbackManager.Factory.create();
-        loginPresenter = new LoginPresenter(this, callbackManager, facebookLoginButton);
+        loginPresenter = new LoginPresenter(this, callbackManager);
     }
 
     @OnClick(R.id.vk_login_button) void onVkLoginClick(View v) {
-        VKSdk.login(this, "photos");
+        VKSdk.login(this, SocialConstants.VKONTAKTE_SCOPE);
+    }
+
+    @OnClick(R.id.fb_login_button) void onFbLoginClick(View v) {
+        loginPresenter.loginWithFacebook();
     }
 
     @Override

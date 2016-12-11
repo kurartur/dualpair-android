@@ -1,5 +1,6 @@
 package lt.dualpair.android.ui.main;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.webkit.CookieManager;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -28,20 +28,19 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.TokenProvider;
+import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.UserDataManager;
+import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
-import lt.dualpair.android.data.task.LogoutTask;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
-import lt.dualpair.android.ui.accounts.LinkAccountActivity;
-import lt.dualpair.android.ui.accounts.LoginActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
 import lt.dualpair.android.ui.user.EditUserDialog;
@@ -54,7 +53,6 @@ public class ProfileFragment extends BaseFragment {
     private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
     private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
     private static final int EDIT_PHOTOS_REQ_CODE = 3;
-    private static final int LINK_ACCOUNT_REQ_CODE = 4;
 
     @Bind(R.id.user) LinearLayout user;
     @Bind(R.id.main_picture) ImageView mainPicture;
@@ -152,7 +150,6 @@ public class ProfileFragment extends BaseFragment {
         switch (requestCode) {
             case ADD_SOCIOTYPE_REQ_CODE:
             case EDIT_ACCOUNTS_REQ_CODE:
-            case LINK_ACCOUNT_REQ_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     load(true);
                 }
@@ -204,7 +201,7 @@ public class ProfileFragment extends BaseFragment {
         AccountGridAdapter accountGridAdapter = new AccountGridAdapter(getActivity(), userAccounts, new AccountTypeAdapter.OnAccountTypeClickListener() {
             @Override
             public void onClick(AccountType accountType) {
-                startActivityForResult(LinkAccountActivity.createIntent(getActivity(), accountType), LINK_ACCOUNT_REQ_CODE);
+                startActivityForResult(EditAccountsActivity.createIntent(getActivity(), accountType), EDIT_ACCOUNTS_REQ_CODE);
             }
         });
         accountsGridView.setAdapter(accountGridAdapter);
@@ -242,15 +239,16 @@ public class ProfileFragment extends BaseFragment {
     }
 
     private void logout() {
-        new LogoutTask(null).execute(getActivity()) // TODO null token
+        new UserDataManager(getActivity()).logout()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new EmptySubscriber<Void>() {
                     @Override
                     public void onNext(Void v) {
-                        CookieManager.getInstance().removeAllCookie();
                         TokenProvider.getInstance().storeToken(null);
-                        Intent newIntent = new Intent(getActivity(), LoginActivity.class);
+                        DatabaseHelper.reset(getActivity());
+                        AccountUtils.removeAccount(AccountManager.get(getActivity()));
+                        Intent newIntent = MainActivity.createIntent(getActivity());
                         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(newIntent);

@@ -9,6 +9,7 @@ import java.util.Set;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.task.LogoutTask;
 import lt.dualpair.android.data.task.Task;
 import lt.dualpair.android.data.task.user.AddPhotoTask;
 import lt.dualpair.android.data.task.user.DeletePhotoTask;
@@ -89,6 +90,15 @@ public class UserDataManager extends DataManager {
             @Override
             protected Task<List<Photo>> doCreateTask(String authToken) {
                 return new GetAvailablePhotosTask(authToken, accountType);
+            }
+        }));
+    }
+
+    public Observable<Void> logout() {
+        return execute(context, new DataRequest<>("logout", new AuthenticatedTaskCreator<Void>() {
+            @Override
+            protected Task<Void> doCreateTask(String authToken) {
+                return new LogoutTask(authToken);
             }
         }));
     }

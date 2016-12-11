@@ -1,27 +1,29 @@
 package lt.dualpair.android.ui.accounts;
 
-import android.accounts.AccountManager;
-
 import com.facebook.CallbackManager;
-import com.facebook.login.widget.LoginButton;
+import com.facebook.login.LoginManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import lt.dualpair.android.SocialConstants;
 
 public class LoginPresenter {
 
     private static final String TAG = "LoginPresenter";
 
     private LoginActivity loginActivity;
-    private AccountManager accountManager;
 
     private CallbackManager callbackManager;
 
-    private boolean isError = false;
-
-    public LoginPresenter(LoginActivity loginActivity, CallbackManager callbackManager, LoginButton facebookLoginButton) {
+    public LoginPresenter(LoginActivity loginActivity, CallbackManager callbackManager) {
         this.loginActivity = loginActivity;
-        this.accountManager = AccountManager.get(loginActivity);
-
-        facebookLoginButton.setReadPermissions("public_profile,email,user_hometown,user_location,user_birthday,user_photos");
-        facebookLoginButton.registerCallback(callbackManager, new FacebookLoginCallback(loginActivity));
+        this.callbackManager = callbackManager;
     }
 
+    public void loginWithFacebook() {
+        LoginManager loginManager = LoginManager.getInstance();
+        loginManager.registerCallback(callbackManager, new FacebookLoginCallback(loginActivity));
+        loginManager.logInWithReadPermissions(loginActivity, new ArrayList<>(Arrays.asList(SocialConstants.FACEBOOK_SCOPE.split(","))));
+    }
 }
