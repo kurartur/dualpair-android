@@ -3,17 +3,19 @@ package lt.dualpair.android.ui.accounts;
 import android.accounts.AccountAuthenticatorActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.facebook.CallbackManager;
 import com.vk.sdk.VKSdk;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
-import lt.dualpair.android.SocialConstants;
 import lt.dualpair.android.ui.AboutActivity;
 
 public class LoginActivity extends AccountAuthenticatorActivity {
@@ -23,17 +25,21 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     private LoginPresenter loginPresenter;
     private CallbackManager callbackManager;
 
+    @Bind(R.id.terms_and_conditions_disclaimer_text)
+    TextView termAndConditionsDisclaimerText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
         ButterKnife.bind(this);
+        termAndConditionsDisclaimerText.setMovementMethod(LinkMovementMethod.getInstance());
         callbackManager = CallbackManager.Factory.create();
         loginPresenter = new LoginPresenter(this, callbackManager);
     }
 
     @OnClick(R.id.vk_login_button) void onVkLoginClick(View v) {
-        VKSdk.login(this, SocialConstants.VKONTAKTE_SCOPE);
+        loginPresenter.loginWithVkontakte();
     }
 
     @OnClick(R.id.fb_login_button) void onFbLoginClick(View v) {

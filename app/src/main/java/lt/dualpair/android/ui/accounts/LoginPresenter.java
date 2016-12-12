@@ -2,6 +2,7 @@ package lt.dualpair.android.ui.accounts;
 
 import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
+import com.vk.sdk.VKSdk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,5 +26,9 @@ public class LoginPresenter {
         LoginManager loginManager = LoginManager.getInstance();
         loginManager.registerCallback(callbackManager, new FacebookLoginCallback(loginActivity));
         loginManager.logInWithReadPermissions(loginActivity, new ArrayList<>(Arrays.asList(SocialConstants.FACEBOOK_SCOPE.split(","))));
+    }
+
+    public void loginWithVkontakte() {
+        VKSdk.login(loginActivity, SocialConstants.VKONTAKTE_SCOPE);
     }
 }
