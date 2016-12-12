@@ -21,7 +21,7 @@ public interface OAuthService {
     @POST("/oauth/token")
     Observable<Token> getToken(@Field("refresh_token") String refreshToken, @Field("grant_type") String grantType);
 
-    @POST("/logout")
+    @POST("/api/logout")
     Observable<Void> logout();
 
 }
