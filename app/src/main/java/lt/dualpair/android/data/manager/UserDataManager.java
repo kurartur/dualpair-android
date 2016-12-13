@@ -76,6 +76,15 @@ public class UserDataManager extends DataManager {
         }));
     }
 
+    public Observable<User> updateUser(final String name, final Date dateOfBirth, final String description) {
+        return execute(context, new DataRequest<>("updateUser", new AuthenticatedTaskCreator<User>() {
+            @Override
+            protected Task<User> doCreateTask(String authToken) {
+                return new UpdateUserTask(authToken, name, dateOfBirth, description);
+            }
+        }));
+    }
+
     public Observable<User> addPhoto(final Photo photo) {
         return execute(context, new DataRequest<>("addPhoto", new AuthenticatedTaskCreator<User>() {
             @Override

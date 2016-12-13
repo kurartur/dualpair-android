@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -26,6 +25,7 @@ import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import lt.dualpair.android.R;
 import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.accounts.AccountUtils;
@@ -43,7 +43,7 @@ import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
-import lt.dualpair.android.ui.user.EditUserDialog;
+import lt.dualpair.android.ui.user.EditUserActivity;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -53,8 +53,8 @@ public class ProfileFragment extends BaseFragment {
     private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
     private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
     private static final int EDIT_PHOTOS_REQ_CODE = 3;
+    private static final int EDIT_USER_REQ_CODE = 4;
 
-    @Bind(R.id.user) LinearLayout user;
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
     @Bind(R.id.age) TextView age;
@@ -79,23 +79,15 @@ public class ProfileFragment extends BaseFragment {
         setHasOptionsMenu(true);
     }
 
+    @OnClick(R.id.user_layout) void onUserLayoutClick(View v) {
+        startActivityForResult(EditUserActivity.createIntent(getActivity()), EDIT_USER_REQ_CODE);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_layout, container, false);
         ButterKnife.bind(this, view);
-
-        user.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditUserDialog.getInstance(getActivity(), new EditUserDialog.OnUserSavedCallback() {
-                    @Override
-                    public void onUserSaved(User user) {
-                         renderUser(user);
-                    }
-                }).show(getActivity().getFragmentManager(), "EditUserDialog");
-            }
-        });
 
         editSociotypes.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +147,7 @@ public class ProfileFragment extends BaseFragment {
                 }
                 break;
             case EDIT_PHOTOS_REQ_CODE:
+            case EDIT_USER_REQ_CODE:
                 load(false);
                 break;
         }

@@ -19,6 +19,7 @@ public class UpdateUserClient extends BaseClient<Void> {
     @Override
     protected Observable<Void> getApiObserable(Retrofit retrofit) {
         Map<String, Object> data = new HashMap<>();
+        data.put("name", user.getName());
         data.put("dateOfBirth", user.getDateOfBirth());
         data.put("description", user.getDescription());
         return retrofit.create(UserService.class).updateUser(user.getId(), data);

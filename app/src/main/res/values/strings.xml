@@ -187,5 +187,9 @@
     <string name="login_with_facebook">Log in with Facebook</string>
     <string name="login_with_vkontakte">Log in with VKontakte</string>
     <string name="terms_and_conditions_disclaimer">By logging in you agree with <a href="http://dualpair.lt/terms"><u>terms and conditions</u></a> and <a href="http://dualpair.lt/privacy"><u>privacy policy</u></a></string>
+    <string name="name">Name</string>
+    <string name="you">You</string>
+    <string name="date_of_birth_warning">Date of birth will be used to calculate your age. It will not be disclosed to other users.</string>
+    <string name="about_you">About you</string>
 
 </resources>
