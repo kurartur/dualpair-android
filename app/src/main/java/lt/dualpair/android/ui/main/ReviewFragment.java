@@ -1,6 +1,7 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,18 +23,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.Response;
+import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.match.OpponentUserView;
 import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class ReviewFragment extends BaseFragment {
 
@@ -41,8 +38,6 @@ public class ReviewFragment extends BaseFragment {
     private static final int SP_REQ_CODE = 1;
     private static final int ADD_SOCIOTYPE_REQUEST_CODE = 2;
     private static final int SET_BIRTHDAY_REQUEST_CODE = 3;
-
-    private Match match;
 
     private OpponentUserView opponentUserView;
 
@@ -67,15 +62,6 @@ public class ReviewFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
-
-        if (presenter == null) {
-            presenter = new ReviewPresenter();
-        }
-        presenter.onTakeView(this);
-
-        if (savedInstanceState != null) {
-            match = (Match)savedInstanceState.getSerializable("MATCH");
-        }
     }
 
     @Nullable
@@ -83,7 +69,39 @@ public class ReviewFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.review_layout, container, false);
         ButterKnife.bind(this, view);
+        showLoading();
+        opponentUserView = new OpponentUserView(getActivity(), view);
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (presenter == null) {
+            presenter = new ReviewPresenter(getActivity());
+        }
+        presenter.onTakeView(this);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (presenter != null) {
+            presenter.onTakeView(null);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        presenter.onSave(outState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.onTakeView(null);
+        presenter = null;
     }
 
     @OnClick(R.id.retry_button) void onRetryClick() {
@@ -110,33 +128,14 @@ public class ReviewFragment extends BaseFragment {
         startActivityForResult(SearchParametersActivity.createIntent(getActivity()), SP_REQ_CODE);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (opponentUserView == null) {
-            opponentUserView = new OpponentUserView(this.getActivity(), getView());
-        }
-        if (match == null) {
-            validateAndLoadReview();
-        } else {
-            renderReview(match);
-        }
-    }
-
-    private void showViewLoading() {
-        showLoading();
-    }
-
-
-
-    private void renderReview(Match match) {
+    public void renderReview(Match match) {
         opponentUserView.render(match.getOpponent().getUser());
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
         validationLayout.setVisibility(View.GONE);
     }
 
-    private void showLoading() {
+    public void showLoading() {
         progressText.setText(getResources().getString(R.string.loading) + "...");
         retryButton.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);
@@ -146,7 +145,7 @@ public class ReviewFragment extends BaseFragment {
         validationLayout.setVisibility(View.GONE);
     }
 
-    private void showLoadingError(String text) {
+    public void showLoadingError(String text) {
         progressLayout.setVisibility(View.VISIBLE);
         validationLayout.setVisibility(View.GONE);
         progressText.setText(text);
@@ -155,7 +154,7 @@ public class ReviewFragment extends BaseFragment {
         retryButton.setVisibility(View.VISIBLE);
     }
 
-    private void showNoMatches() {
+    public void showNoMatches() {
         progressLayout.setVisibility(View.VISIBLE);
         validationLayout.setVisibility(View.GONE);
         progressText.setText(getResources().getString(R.string.no_matches_found));
@@ -185,26 +184,6 @@ public class ReviewFragment extends BaseFragment {
         }
     }
 
-    private void setResponse(final Response response) {
-        new MatchDataManager(getActivity()).setResponse(match.getId(), response)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .compose(this.<Match>bindToLifecycle())
-                .subscribe(new EmptySubscriber<Match>() {
-                    @Override
-                    public void onNext(Match m) {
-                        match = null;
-                        validateAndLoadReview();
-                    }
-                });
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("MATCH", match);
-        super.onSaveInstanceState(outState);
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.review_fragment_menu, menu);
@@ -222,25 +201,20 @@ public class ReviewFragment extends BaseFragment {
         }
         return false;
     }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case SP_REQ_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    presenter.updateSearchParameters(
-                            data.getBooleanExtra("SEARCH_MALE", false),
-                            data.getBooleanExtra("SEARCH_FEMALE", false),
-                            data.getIntExtra("MIN_AGE", 0),
-                            data.getIntExtra("MAX_AGE", 0)
+                    presenter.updateSearchParameters((SearchParameters)data.getBundleExtra(SearchParametersActivity.RESULT_BUNDLE_KEY)
+                            .getSerializable(SearchParametersActivity.SEARCH_PARAMETERS_KEY)
                     );
-                    // TODO
                 }
                 break;
             case ADD_SOCIOTYPE_REQUEST_CODE:
             case SET_BIRTHDAY_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    validateAndLoadReview();
+                    presenter.retry();
                 }
                 break;
         }

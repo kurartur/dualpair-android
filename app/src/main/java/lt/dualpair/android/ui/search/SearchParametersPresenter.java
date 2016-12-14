@@ -13,22 +13,15 @@ public class SearchParametersPresenter {
 
     private static final String TAG = "SPPresenter";
 
+    private static final String SEARCH_PARAMETERS_KEY = "SEARCH_PARAMETERS";
     public static final Integer MIN_SEARCH_AGE = 18;
     public static final Integer MAX_SEARCH_AGE = 110;
-
-    private static final String SEARCH_MALE_KEY = "SEARCH_MALE";
-    private static final String SEARCH_FEMALE_KEY = "SEARCH_FEMALE";
-    private static final String MIN_AGE_KEY = "MIN_AGE";
-    private static final String MAX_AGE_KEY = "MAX_AGE";
 
     private SearchParametersActivity view;
 
     private String error;
 
-    private boolean searchMale;
-    private boolean searchFemale;
-    private int minAge;
-    private int maxAge;
+    SearchParameters searchParameters;
 
     public SearchParametersPresenter(SearchParametersActivity view) {
         new SearchParametersManager(view).getSearchParameters().observeOn(AndroidSchedulers.mainThread())
@@ -42,12 +35,9 @@ public class SearchParametersPresenter {
                     }
 
                     @Override
-                    public void onNext(SearchParameters searchParameters) {
-                        if (searchParameters != null) {
-                            searchMale = searchParameters.getSearchMale();
-                            searchFemale = searchParameters.getSearchFemale();
-                            minAge = searchParameters.getMinAge();
-                            maxAge = searchParameters.getMaxAge();
+                    public void onNext(SearchParameters sp) {
+                        if (sp != null) {
+                            searchParameters = sp;
                             publish();
                         }
                     }
@@ -55,10 +45,7 @@ public class SearchParametersPresenter {
     }
 
     public SearchParametersPresenter(Bundle savedInstanceState) {
-        searchMale = savedInstanceState.getBoolean(SEARCH_MALE_KEY);
-        searchFemale = savedInstanceState.getBoolean(SEARCH_FEMALE_KEY);
-        minAge = savedInstanceState.getInt(MIN_AGE_KEY);
-        maxAge = savedInstanceState.getInt(MAX_AGE_KEY);
+        searchParameters = (SearchParameters)savedInstanceState.getSerializable(SEARCH_PARAMETERS_KEY);
         publish();
     }
 
@@ -69,20 +56,15 @@ public class SearchParametersPresenter {
 
     private void publish() {
         if (view != null) {
-            if (error == null) {
-                view.render(searchMale, searchFemale, minAge, maxAge);
-            } else {
+            if (error != null) {
                 view.render(error);
+            } else if (searchParameters != null) {
+                view.render(searchParameters);
             }
         }
     }
 
-    public void save(boolean searchMale, boolean searchFemale, int minAge, int maxAge) {
-        SearchParameters searchParameters = new SearchParameters();
-        searchParameters.setSearchMale(searchMale);
-        searchParameters.setSearchFemale(searchFemale);
-        searchParameters.setMinAge(minAge);
-        searchParameters.setMaxAge(maxAge);
+    public void save(SearchParameters searchParameters) {
         new SearchParametersManager(view).setSearchParameters(searchParameters)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -103,9 +85,6 @@ public class SearchParametersPresenter {
     }
 
     public void onSave(Bundle outState) {
-        outState.putBoolean(SEARCH_MALE_KEY, searchMale);
-        outState.putBoolean(SEARCH_FEMALE_KEY, searchFemale);
-        outState.putInt(MIN_AGE_KEY, minAge);
-        outState.putInt(MAX_AGE_KEY, maxAge);
+        outState.putSerializable(SEARCH_PARAMETERS_KEY, searchParameters);
     }
 }

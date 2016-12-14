@@ -1,5 +1,8 @@
 package lt.dualpair.android.ui.main;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -8,34 +11,57 @@ import java.util.List;
 
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.MatchDataManager;
+import lt.dualpair.android.data.manager.SearchParametersManager;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.ErrorResponse;
 import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.resource.Response;
+import lt.dualpair.android.data.resource.SearchParameters;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ReviewPresenter {
 
-    private boolean searchMale;
-    private boolean searchFemale;
-    private int minAge;
-    private int maxAge;
+    private static final String TAG = "ReviewPresenter";
+
+    private Match match;
+
+    SearchParameters searchParameters;
+
+    private List<NextMatchRequestValidator.Error> errors = new ArrayList<>();
+    private String loadingError;
+    private boolean noMatches;
 
     private ReviewFragment view;
 
+    public ReviewPresenter(final Context context) {
+        new SearchParametersManager(context).getSearchParameters()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new EmptySubscriber<SearchParameters>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Unable to load search parameters");
+                        // TODO open search param activity?
+                    }
 
+                    @Override
+                    public void onNext(SearchParameters sp) {
+                        searchParameters = sp;
+                        validateAndFetchNext(context);
+                    }
+                });
+    }
 
-    private void validateAndLoadReview() {
-        showViewLoading();
-        final List<NextMatchRequestValidator.Error> errors = new ArrayList<>();
-        new NextMatchRequestValidator(getActivity()).validate()
+    private void validateAndFetchNext(Context context) {
+        new NextMatchRequestValidator(context).validate()
                 .subscribe(new EmptySubscriber<NextMatchRequestValidator.Error>() {
                     @Override
                     public void onCompleted() {
                         if (errors.isEmpty()) {
-                            loadReview();
+                            fetchNextMatch();
                         } else {
-                            showValidationErrors(errors);
+                            publish();
                         }
                     }
 
@@ -51,7 +77,7 @@ public class ReviewPresenter {
                 });
     }
 
-    private void loadReview() {
+    private void fetchNextMatch() {
         new MatchDataManager(view.getActivity()).next()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -61,30 +87,31 @@ public class ReviewPresenter {
                         if (e instanceof ServiceException) {
                             ServiceException se = (ServiceException)e;
                             if (se.getResponse().code() == 404) {
-                                showNoMatches();
+                                view.showNoMatches();
                             } else {
-                                showNoMatches();
+                                view.showNoMatches();
                                 try {
-                                    showLoadingError(se.getErrorBodyAs(ErrorResponse.class).getMessage());
+                                    loadingError = se.getErrorBodyAs(ErrorResponse.class).getMessage();
                                 } catch (IOException ioe) {
                                     Log.e(TAG, "Error", ioe);
-                                    showLoadingError(ioe.getMessage());
+                                    loadingError = ioe.getMessage();
                                 }
                             }
                         } else {
                             Log.e(TAG, "Error", e);
-                            showLoadingError(e.getMessage());
+                            loadingError = e.getMessage();
                         }
+                        publish();
                     }
 
                     @Override
-                    public void onNext(Match match) {
-                        if (match != null) {
-                            ReviewFragment.this.match = match;
-                            renderReview(match);
+                    public void onNext(Match m) {
+                        if (m != null) {
+                            match = m;
                         } else {
-                            showNoMatches();
+                            noMatches = true;
                         }
+                        publish();
                     }
                 });
     }
@@ -96,19 +123,52 @@ public class ReviewPresenter {
 
     private void publish() {
         if (view != null) {
-            if (error == null) {
-                view.render(searchMale, searchFemale, minAge, maxAge);
-            } else {
-                view.render(error);
+            if (!errors.isEmpty()) {
+                view.showValidationErrors(errors);
+            } else if (!TextUtils.isEmpty(loadingError)) {
+                view.showLoadingError(loadingError);
+            } else if (noMatches) {
+                view.showNoMatches();
+            } else if (match != null) {
+                view.renderReview(match);
             }
         }
     }
 
-    public void updateSearchParameters(boolean searchMale, boolean searchFemale, int minAge, int maxAge) {
-        this.searchMale = searchMale;
-        this.searchFemale = searchFemale;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
+    public void updateSearchParameters(SearchParameters sp) {
+        searchParameters = sp;
+        match = null;
+        if (view != null) {
+            validateAndFetchNext(view.getActivity());
+        }
     }
 
+    public void yes() {
+        setResponse(Response.YES);
+    }
+
+    public void no() {
+        setResponse(Response.NO);
+    }
+
+    private void setResponse(final Response response) {
+        new MatchDataManager(view.getActivity()).setResponse(match.getId(), response)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new EmptySubscriber<Match>() {
+                    @Override
+                    public void onNext(Match m) {
+                        match = null;
+                        validateAndFetchNext(view.getActivity());
+                    }
+                });
+    }
+
+    public void retry() {
+        validateAndFetchNext(view.getActivity());
+    }
+
+    public void onSave(Bundle outState) {
+
+    }
 }

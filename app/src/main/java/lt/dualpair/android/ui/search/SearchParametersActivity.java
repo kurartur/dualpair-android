@@ -7,22 +7,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.edmodo.rangebar.RangeBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class SearchParametersActivity extends BaseActivity {
 
     private static final String TAG = "SearchParamActivity";
+    public static final String RESULT_BUNDLE_KEY = "RESULT_BUNDLE";
+    public static final String SEARCH_PARAMETERS_KEY = "SEARCH_PARAMETERS";
 
     @Bind(R.id.checkbox_search_for_male) CheckBox searchMale;
     @Bind(R.id.checkbox_search_for_female) CheckBox searchFemale;
     @Bind(R.id.age_range_bar) RangeBar ageRangeBar;
+    @Bind(R.id.min_age_text) TextView minAgeText;
+    @Bind(R.id.max_age_text) TextView maxAgeText;
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.main_layout) View mainLayout;
 
@@ -47,22 +53,32 @@ public class SearchParametersActivity extends BaseActivity {
 
         ageRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onIndexChangeListener(RangeBar rangeBar, int i, int i1) {
-
+            public void onIndexChangeListener(RangeBar rangeBar, int start, int end) {
+                minAgeText.setText(calculateAge(start) + "");
+                maxAgeText.setText(calculateAge(end) + "");
             }
         });
+    }
+
+    private int calculateAge(int rangePos) {
+        return rangePos - 1 + SearchParametersPresenter.MIN_SEARCH_AGE;
+    }
+
+    private int calculatePos(int age) {
+        return age - SearchParametersPresenter.MIN_SEARCH_AGE + 1;
     }
 
     public void render(String error) {
         ToastUtils.show(this, error);
     }
 
-    public void render(boolean searchMale, boolean searchFemale, int minAge, int maxAge) {
+    public void render(SearchParameters searchParameters) {
+        this.searchMale.setChecked(searchParameters.getSearchMale());
+        this.searchFemale.setChecked(searchParameters.getSearchFemale());
+        ageRangeBar.setThumbIndices(calculatePos(searchParameters.getMinAge()),
+                                    calculatePos(searchParameters.getMaxAge()));
         progressBar.setVisibility(View.GONE);
         mainLayout.setVisibility(View.VISIBLE);
-        this.searchMale.setChecked(searchMale);
-        this.searchFemale.setChecked(searchFemale);
-        ageRangeBar.setThumbIndices(minAge - SearchParametersPresenter.MIN_SEARCH_AGE, maxAge - SearchParametersPresenter.MIN_SEARCH_AGE);
     }
 
     public void onSaveError(String error) {
@@ -85,16 +101,18 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     private void save() {
-        boolean searchMale = this.searchMale.isChecked();
-        boolean searchFemale = this.searchFemale.isChecked();
-        int minAge = ageRangeBar.getLeftIndex() + SearchParametersPresenter.MIN_SEARCH_AGE;
-        int maxAge = ageRangeBar.getRightIndex() + SearchParametersPresenter.MIN_SEARCH_AGE;
-        presenter.save(searchMale, searchFemale, minAge, maxAge);
+        SearchParameters searchParameters = new SearchParameters();
+        searchParameters.setSearchMale(searchMale.isChecked());
+        searchParameters.setSearchFemale(searchFemale.isChecked());
+        int minAge = calculateAge(ageRangeBar.getLeftIndex());
+        int maxAge = calculateAge(ageRangeBar.getRightIndex());
+        searchParameters.setMinAge(minAge);
+        searchParameters.setMaxAge(maxAge);
+        presenter.save(searchParameters);
         Intent resultData = new Intent();
-        resultData.putExtra("SEARCH_MALE", searchMale);
-        resultData.putExtra("SEARCH_FEMALE", searchFemale);
-        resultData.putExtra("MIN_AGE", minAge);
-        resultData.putExtra("SEARCH_FEMALE", maxAge);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(SEARCH_PARAMETERS_KEY, searchParameters);
+        resultData.putExtra(RESULT_BUNDLE_KEY, bundle);
         setResult(Activity.RESULT_OK, resultData);
     }
 
@@ -103,6 +121,7 @@ public class SearchParametersActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 save();
+                finish();
                 return true;
         }
         return false;
@@ -110,8 +129,8 @@ public class SearchParametersActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         save();
+        super.onBackPressed();
     }
 
     public static Intent createIntent(Activity activity) {
