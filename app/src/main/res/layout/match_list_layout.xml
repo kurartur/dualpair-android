@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<lt.dualpair.android.ui.ScrollSwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<lt.dualpair.android.ui.ScrollSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/refresh_layout"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
@@ -11,14 +11,12 @@
         android:layout_height="match_parent"
         android:measureAllChildren="true">
 
-        <GridView
-            android:id="@+id/mutual_matches_grid"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/mutual_matches"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:numColumns="2"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="1dp"
-            android:horizontalSpacing="1dp"/>
+            app:spanCount="3"
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"/>
 
         <ScrollView
             android:id="@android:id/empty"

@@ -1,34 +1,46 @@
 package lt.dualpair.android.data.task.match;
 
 import android.content.Context;
-import android.text.TextUtils;
 
-import lt.dualpair.android.data.remote.client.BaseClient;
-import lt.dualpair.android.data.remote.client.SimpleGetUrlClient;
+import java.util.ArrayList;
+import java.util.List;
+
 import lt.dualpair.android.data.remote.client.match.GetUserMatchListClient;
+import lt.dualpair.android.data.repo.DatabaseHelper;
+import lt.dualpair.android.data.repo.MatchRepository;
 import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.ResourceCollection;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
 import rx.Observable;
+import rx.Subscriber;
 
-public class GetUserReviewedMatchListTask extends AuthenticatedUserTask<ResourceCollection<Match>> {
+public class GetUserReviewedMatchListTask extends AuthenticatedUserTask<Match> {
 
-    private String url;
+    private int start;
+    private int count;
 
-    public GetUserReviewedMatchListTask(String authToken, String url) {
+    public GetUserReviewedMatchListTask(String authToken, int start, int count) {
         super(authToken);
-        this.url = url;
+        this.start = start;
+        this.count = count;
     }
 
     @Override
-    protected Observable<ResourceCollection<Match>> run(Context context) {
-        BaseClient<ResourceCollection<Match>> client;
-        if (!TextUtils.isEmpty(url)) {
-            client = new SimpleGetUrlClient<>(url);
-        } else {
-            client = new GetUserMatchListClient(getUserId(context), GetUserMatchListClient.REVIEWED);
-        }
-        return client.observable();
+    protected Observable<Match> run(final Context context) {
+        return Observable.create(new Observable.OnSubscribe<Match>() {
+            @Override
+            public void call(Subscriber<? super Match> subscriber) {
+                MatchRepository matchRepository = new MatchRepository(DatabaseHelper.getInstance(context).getWritableDatabase());
+                List<Match> matches = new ArrayList<>(); // TODO find matches
+                for (Match match : matches) {
+                    subscriber.onNext(match);
+                }
+                if (matches.size() < count) {
+                    // TODO ask from service
+                    new GetUserMatchListClient(getUserId(context), GetUserMatchListClient.REVIEWED);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
 }

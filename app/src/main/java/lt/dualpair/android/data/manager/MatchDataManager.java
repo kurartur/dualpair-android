@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.SearchParametersRepository;
 import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.ResourceCollection;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.task.Task;
@@ -55,20 +54,20 @@ public class MatchDataManager extends DataManager {
         }));
     }
 
-    public Observable<ResourceCollection<Match>> mutualMatchList(final String url) {
-        return execute(context, new DataRequest<>("mutualMatchList", new AuthenticatedTaskCreator<ResourceCollection<Match>>() {
+    public Observable<Match> mutualMatches(final Integer start, final Integer count) {
+        return execute(context, new DataRequest<>("mutualMatchList", new AuthenticatedTaskCreator<Match>() {
             @Override
-            protected Task<ResourceCollection<Match>> doCreateTask(String authToken) {
-                return new GetUserMutualMatchListTask(authToken, url);
+            protected Task<Match> doCreateTask(String authToken) {
+                return new GetUserMutualMatchListTask(authToken, start, count);
             }
         }));
     }
 
-    public Observable<ResourceCollection<Match>> reviewedMatchList(final String url) {
-        return execute(context, new DataRequest<>("reviewedMatchList", new AuthenticatedTaskCreator<ResourceCollection<Match>>() {
+    public Observable<Match> historyMatches(final Integer start, final Integer count) {
+        return execute(context, new DataRequest<>("reviewedMatchList", new AuthenticatedTaskCreator<Match>() {
             @Override
-            protected Task<ResourceCollection<Match>> doCreateTask(String authToken) {
-                return new GetUserReviewedMatchListTask(authToken, url);
+            protected Task<Match> doCreateTask(String authToken) {
+                return new GetUserReviewedMatchListTask(authToken, start, count);
             }
         }));
     }

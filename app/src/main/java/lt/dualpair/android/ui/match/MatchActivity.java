@@ -1,7 +1,7 @@
 package lt.dualpair.android.ui.match;
 
 import android.app.ActionBar;
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -73,8 +73,8 @@ public class MatchActivity extends BaseActivity {
         }
     }
 
-    public static Intent createIntent(Activity activity, Long matchId) {
-        Intent intent = new Intent(activity, MatchActivity.class);
+    public static Intent createIntent(Context ctx, Long matchId) {
+        Intent intent = new Intent(ctx, MatchActivity.class);
         intent.putExtra(MATCH_ID, matchId);
         return intent;
     }

@@ -26,7 +26,7 @@ public class ReviewHistoryActivity extends BaseActivity {
         matchListFragment = (MatchListFragment)fm.findFragmentByTag(MATCH_LIST_FRAGMENT);
         if (matchListFragment == null) {
             FragmentTransaction ft = fm.beginTransaction();
-            matchListFragment = new ReviewHistoryMatchListFragment();
+            matchListFragment = new HistoryMatchListFragment();
             ft.add(android.R.id.content, matchListFragment, MATCH_LIST_FRAGMENT);
             ft.commit();
         }
