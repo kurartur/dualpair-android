@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import com.edmodo.rangebar.RangeBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -26,11 +24,10 @@ public class SearchParametersActivity extends BaseActivity {
 
     @Bind(R.id.checkbox_search_for_male) CheckBox searchMale;
     @Bind(R.id.checkbox_search_for_female) CheckBox searchFemale;
-    @Bind(R.id.age_range_bar) RangeBar ageRangeBar;
-    @Bind(R.id.min_age_text) TextView minAgeText;
-    @Bind(R.id.max_age_text) TextView maxAgeText;
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.main_layout) View mainLayout;
+    @Bind(R.id.min_age_picker) NumberPicker minAgePicker;
+    @Bind(R.id.max_age_picker) NumberPicker maxAgePicker;
 
     private static SearchParametersPresenter presenter;
 
@@ -51,21 +48,24 @@ public class SearchParametersActivity extends BaseActivity {
         }
         presenter.onTakeView(this);
 
-        ageRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
+        minAgePicker.setMinValue(SearchParametersPresenter.MIN_SEARCH_AGE);
+        minAgePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onIndexChangeListener(RangeBar rangeBar, int start, int end) {
-                minAgeText.setText(calculateAge(start) + "");
-                maxAgeText.setText(calculateAge(end) + "");
+            public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
+                if (newVal > maxAgePicker.getValue()) {
+                    maxAgePicker.setValue(newVal);
+                }
             }
         });
-    }
-
-    private int calculateAge(int rangePos) {
-        return rangePos - 1 + SearchParametersPresenter.MIN_SEARCH_AGE;
-    }
-
-    private int calculatePos(int age) {
-        return age - SearchParametersPresenter.MIN_SEARCH_AGE + 1;
+        maxAgePicker.setMaxValue(SearchParametersPresenter.MAX_SEARCH_AGE);
+        maxAgePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
+                if (newVal < minAgePicker.getValue()) {
+                    minAgePicker.setValue(newVal);
+                }
+            }
+        });
     }
 
     public void render(String error) {
@@ -75,8 +75,8 @@ public class SearchParametersActivity extends BaseActivity {
     public void render(SearchParameters searchParameters) {
         this.searchMale.setChecked(searchParameters.getSearchMale());
         this.searchFemale.setChecked(searchParameters.getSearchFemale());
-        ageRangeBar.setThumbIndices(calculatePos(searchParameters.getMinAge()),
-                                    calculatePos(searchParameters.getMaxAge()));
+        minAgePicker.setValue(searchParameters.getMinAge());
+        maxAgePicker.setValue(searchParameters.getMaxAge());
         progressBar.setVisibility(View.GONE);
         mainLayout.setVisibility(View.VISIBLE);
     }
@@ -104,10 +104,8 @@ public class SearchParametersActivity extends BaseActivity {
         SearchParameters searchParameters = new SearchParameters();
         searchParameters.setSearchMale(searchMale.isChecked());
         searchParameters.setSearchFemale(searchFemale.isChecked());
-        int minAge = calculateAge(ageRangeBar.getLeftIndex());
-        int maxAge = calculateAge(ageRangeBar.getRightIndex());
-        searchParameters.setMinAge(minAge);
-        searchParameters.setMaxAge(maxAge);
+        searchParameters.setMinAge(minAgePicker.getValue());
+        searchParameters.setMaxAge(maxAgePicker.getValue());
         presenter.save(searchParameters);
         Intent resultData = new Intent();
         Bundle bundle = new Bundle();

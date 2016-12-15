@@ -44,7 +44,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:9.6.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.vk:androidsdk:1.6.7'
-    compile 'com.edmodo:rangebar:1.0.0'
 
     testCompile 'junit:junit:4.12'
 

@@ -61,55 +61,45 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:weightSum="2"
             android:layout_marginTop="30dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/min_age_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="25sp"
-                    android:layout_marginRight="15dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="-"
-                    android:textSize="25sp"/>
-
-                <TextView
-                    android:id="@+id/max_age_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="25sp"
-                    android:layout_marginLeft="15dp"/>
-
-            </LinearLayout>
-
-            <com.edmodo.rangebar.RangeBar
-                xmlns:custom="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/age_range_bar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                custom:tickCount="92"
-                custom:tickHeight="0dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:weightSum="2">
+                android:layout_weight="1"
+                android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/min_age"
                     android:layout_weight="1"/>
+
+                <NumberPicker
+                    android:id="@+id/min_age_picker"
+                    android:layout_width="50dp"
+                    android:layout_height="100dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+
+                <NumberPicker
+                    android:id="@+id/max_age_picker"
+                    android:layout_width="50dp"
+                    android:layout_height="100dp"/>
 
                 <TextView
                     android:layout_width="0dp"
