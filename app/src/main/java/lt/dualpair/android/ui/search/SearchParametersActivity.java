@@ -49,6 +49,7 @@ public class SearchParametersActivity extends BaseActivity {
         presenter.onTakeView(this);
 
         minAgePicker.setMinValue(SearchParametersPresenter.MIN_SEARCH_AGE);
+        minAgePicker.setMaxValue(SearchParametersPresenter.MAX_SEARCH_AGE);
         minAgePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
@@ -57,6 +58,7 @@ public class SearchParametersActivity extends BaseActivity {
                 }
             }
         });
+        maxAgePicker.setMinValue(SearchParametersPresenter.MIN_SEARCH_AGE);
         maxAgePicker.setMaxValue(SearchParametersPresenter.MAX_SEARCH_AGE);
         maxAgePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override

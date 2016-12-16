@@ -15,14 +15,13 @@
             android:id="@+id/mutual_matches"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:spanCount="3"
+            app:spanCount="2"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"/>
 
-        <ScrollView
+        <LinearLayout
             android:id="@android:id/empty"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/no_matches_text"
@@ -31,7 +30,7 @@
                 android:text="@string/you_have_no_matches"
                 android:gravity="center"/>
 
-        </ScrollView>
+        </LinearLayout>
 
     </FrameLayout>
 

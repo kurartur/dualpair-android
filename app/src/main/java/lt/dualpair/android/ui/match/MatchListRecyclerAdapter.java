@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -89,13 +88,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
     @Override
     public void onBindViewHolder(final MatchViewHolder holder, int position) {
         final Match match = matchList.get(position);
-        holder.picture.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                loadPhoto(holder.context, match.getOpponent().getUser(), holder.picture);
-                holder.picture.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
+        loadPhoto(holder.context, match.getOpponent().getUser(), holder.picture);
         final User opponent = match.getOpponent().getUser();
         holder.name.setText(opponent.getName());
         setupFacebookButton(holder.context, holder.facebookButton, opponent);
@@ -109,15 +102,13 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
 
     @Override
     public int getItemCount() {
-        return 0;
+        return matchList.size();
     }
 
     private void loadPhoto(Context context, User user, ImageView picture) {
         Picasso.with(context)
                 .load(user.getPhotos().get(0).getSourceUrl())
-                .resize(picture.getWidth(), picture.getHeight())
                 .error(R.drawable.image_not_found)
-                .centerCrop()
                 .into(picture, new Callback() {
                     @Override
                     public void onSuccess() {

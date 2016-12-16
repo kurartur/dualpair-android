@@ -25,26 +25,27 @@ public abstract class MatchListFragment extends BaseFragment implements SwipeRef
     @Bind(android.R.id.empty) View emptyView;
     @Bind(R.id.no_matches_text) TextView emptyText;
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.match_list_layout, container, false);
         swipeRefreshLayout = (ScrollSwipeRefreshLayout)view;
         ButterKnife.bind(this, view);
         emptyText.setText(getEmptyViewText());
         swipeRefreshLayout.setView(matchesView);
+        swipeRefreshLayout.setOnRefreshListener(this);
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        swipeRefreshLayout.setOnRefreshListener(this);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         if (getPresenter() == null) {
             swipeRefreshLayout.setRefreshing(true);
             createPresenter();
@@ -54,10 +55,17 @@ public abstract class MatchListFragment extends BaseFragment implements SwipeRef
 
     @Override
     public void onDetach() {
-        super.onDetach();
         if (getPresenter() != null) {
             getPresenter().onTakeView(null);
         }
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroy() {
+        getPresenter().onTakeView(null);
+        destroyPresenter();
+        super.onDestroy();
     }
 
     @Override
@@ -66,19 +74,20 @@ public abstract class MatchListFragment extends BaseFragment implements SwipeRef
         getPresenter().onSave(outState);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getPresenter().onTakeView(null);
-        destroyPresenter();
-    }
-
     public void setAdapter(MatchListRecyclerAdapter adapter) {
         matchesView.setAdapter(adapter);
     }
 
     public void stopRefreshing() {
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    public void showEmpty() {
+        emptyText.setVisibility(View.VISIBLE);
+    }
+
+    public void showList() {
+        emptyText.setVisibility(View.GONE);
     }
 
     @Override

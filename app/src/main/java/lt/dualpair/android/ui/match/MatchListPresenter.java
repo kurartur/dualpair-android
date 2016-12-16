@@ -35,7 +35,7 @@ public abstract class MatchListPresenter {
                 .subscribe(new EmptySubscriber<Match>() {
                     @Override
                     public void onCompleted() {
-                        super.onCompleted();
+                        view.stopRefreshing();
                     }
 
                     @Override
@@ -48,18 +48,30 @@ public abstract class MatchListPresenter {
                         adapter.append(match);
                         adapter.notifyDataSetChanged();
                         view.stopRefreshing();
+                        publish();
                     }
                 });
     }
 
     public void onTakeView(MatchListFragment v) {
         view = v;
+        setAdapter();
         publish();
     }
 
-    public void publish() {
+    private void setAdapter() {
         if (view != null) {
             view.setAdapter(adapter);
+        }
+    }
+
+    private void publish() {
+        if (view != null) {
+            if (adapter.getItemCount() == 0) {
+                view.showEmpty();
+            } else {
+                view.showList();
+            }
         }
     }
 

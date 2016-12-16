@@ -162,7 +162,7 @@
           _id BIGINT NOT NULL,
           match_id BIGINT NOT NULL,
           user_id BIGINT NOT NULL,
-          response VARCHAR NOT NULL,
+          response VARCHAR NULL,
           sync_status VARCHAR(1) NOT NULL DEFAULT \'C\',
           PRIMARY KEY (_id));
 

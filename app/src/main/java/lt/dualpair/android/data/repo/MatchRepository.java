@@ -3,6 +3,7 @@ package lt.dualpair.android.data.repo;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,7 +68,9 @@ public class MatchRepository extends Repository<Match> {
         User opponent = userRepository.get(c.getLong(c.getColumnIndex("opponent_id")));
         MatchParty opponentParty = new MatchParty();
         opponentParty.setId(c.getLong(c.getColumnIndex("opponent_party_id")));
-        opponentParty.setResponse(Response.valueOf(c.getString(c.getColumnIndex("opponent_response"))));
+
+        String opponentResponse = c.getString(c.getColumnIndex("opponent_response"));
+        opponentParty.setResponse(TextUtils.isEmpty(opponentResponse) ? null : Response.valueOf(opponentResponse));
         opponentParty.setUser(opponent);
 
         User user = userRepository.get(c.getLong(c.getColumnIndex("user_id")));
@@ -115,7 +118,7 @@ public class MatchRepository extends Repository<Match> {
         contentValues.put(MatchMeta.Party._ID, party.getId());
         contentValues.put(MatchMeta.Party.MATCH_ID, matchId);
         contentValues.put(MatchMeta.Party.USER_ID, party.getUser().getId());
-        contentValues.put(MatchMeta.Party.RESPONSE, Response.UNDEFINED.name());
+        contentValues.put(MatchMeta.Party.RESPONSE, party.getResponse() != null ? party.getResponse().name() : null);
         assertOperation(db.insert(MatchMeta.Party.TABLE_NAME, null, contentValues), "Unable to save party " + party);
     }
 

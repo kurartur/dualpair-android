@@ -58,7 +58,7 @@ public class MatchDataManager extends DataManager {
         return execute(context, new DataRequest<>("mutualMatchList", new AuthenticatedTaskCreator<Match>() {
             @Override
             protected Task<Match> doCreateTask(String authToken) {
-                return new GetUserMutualMatchListTask(authToken, start, count);
+                return new GetUserMutualMatchListTask(authToken, start, count, true);
             }
         }));
     }
@@ -67,7 +67,7 @@ public class MatchDataManager extends DataManager {
         return execute(context, new DataRequest<>("reviewedMatchList", new AuthenticatedTaskCreator<Match>() {
             @Override
             protected Task<Match> doCreateTask(String authToken) {
-                return new GetUserReviewedMatchListTask(authToken, start, count);
+                return new GetUserReviewedMatchListTask(authToken, start, count, true);
             }
         }));
     }
