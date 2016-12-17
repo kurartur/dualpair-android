@@ -13,10 +13,10 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
+import lt.dualpair.android.ui.main.MainTabFragment;
 
-public abstract class MatchListFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class MatchListFragment extends MainTabFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "MatchListFragment";
 

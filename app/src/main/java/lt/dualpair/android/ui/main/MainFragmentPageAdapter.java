@@ -2,11 +2,11 @@ package lt.dualpair.android.ui.main;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 
 import lt.dualpair.android.R;
 
-public class MainFragmentPageAdapter extends FragmentStatePagerAdapter {
+public class MainFragmentPageAdapter extends FragmentPagerAdapter {
 
     public MainFragmentPageAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);

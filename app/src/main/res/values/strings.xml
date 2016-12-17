@@ -191,5 +191,8 @@
     <string name="you">You</string>
     <string name="date_of_birth_warning">Date of birth will be used to calculate your age. It will not be disclosed to other users.</string>
     <string name="about_you">About you</string>
+    <string name="review_age">, %1$d</string>
+    <string name="review_city">%1$s (%2$dkm)</string>
+    <string name="age_range">Age range</string>
 
 </resources>

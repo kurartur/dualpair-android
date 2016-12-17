@@ -4,32 +4,10 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <lt.dualpair.android.ui.ImageSwipe
+        android:id="@+id/photos"
         android:layout_width="match_parent"
-        android:layout_height="300dp">
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/photo_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-        <LinearLayout
-            android:id="@+id/photo_dots"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="5dp">
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/selected_item_dot"/>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+        android:layout_height="250dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"

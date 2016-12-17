@@ -16,6 +16,5 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:visibility="gone"/>
-    <!--android:src="@drawable/lovely_me"-->
 
 </LinearLayout>

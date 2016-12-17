@@ -1,7 +1,6 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,27 +22,27 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.SearchParameters;
-import lt.dualpair.android.ui.BaseFragment;
-import lt.dualpair.android.ui.match.OpponentUserView;
+import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.ui.ImageSwipe;
 import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 
-public class ReviewFragment extends BaseFragment {
+public class ReviewFragment extends MainTabFragment {
 
     private static final String TAG = "ReviewFragment";
     private static final int SP_REQ_CODE = 1;
     private static final int ADD_SOCIOTYPE_REQUEST_CODE = 2;
     private static final int SET_BIRTHDAY_REQUEST_CODE = 3;
 
-    private OpponentUserView opponentUserView;
-
     @Bind(R.id.review) LinearLayout reviewLayout;
-    @Bind(R.id.no_button) Button noButton;
-    @Bind(R.id.yes_button) Button yesButton;
+    @Bind(R.id.no_button) View noButton;
+    @Bind(R.id.yes_button) View yesButton;
 
     @Bind(R.id.progress_layout) LinearLayout progressLayout;
     @Bind(R.id.progress_bar) ProgressBar progressBar;
@@ -54,6 +53,12 @@ public class ReviewFragment extends BaseFragment {
     @Bind(R.id.provide_sociotype) View provideSociotype;
     @Bind(R.id.provide_date_of_birth) View provideDateOfBirth;
     @Bind(R.id.provide_search_parameters) View provideSearchParameters;
+
+    @Bind(R.id.photos) ImageSwipe photosView;
+    @Bind(R.id.sociotypes) TextView sociotypes;
+    @Bind(R.id.description) TextView description;
+
+    private ActionBarViewHolder actionBarViewHolder;
 
     private static ReviewPresenter presenter;
 
@@ -70,13 +75,15 @@ public class ReviewFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.review_layout, container, false);
         ButterKnife.bind(this, view);
         showLoading();
-        opponentUserView = new OpponentUserView(getActivity(), view);
+        actionBarViewHolder = new ActionBarViewHolder();
+        actionBarViewHolder.actionBarView = getLayoutInflater(savedInstanceState).inflate(R.layout.review_action_bar, null);
+        ButterKnife.bind(actionBarViewHolder, actionBarViewHolder.actionBarView);
         return view;
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         if (presenter == null) {
             presenter = new ReviewPresenter(getActivity());
         }
@@ -128,11 +135,33 @@ public class ReviewFragment extends BaseFragment {
         startActivityForResult(SearchParametersActivity.createIntent(getActivity()), SP_REQ_CODE);
     }
 
+    @Override
+    protected View getActionBarView() {
+        return actionBarViewHolder.actionBarView;
+    }
+
     public void renderReview(Match match) {
-        opponentUserView.render(match.getOpponent().getUser());
+        User opponentUser = match.getOpponent().getUser();
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
         validationLayout.setVisibility(View.GONE);
+
+        actionBarViewHolder.name.setText(opponentUser.getName());
+        actionBarViewHolder.age.setText(getString(R.string.review_age, opponentUser.getAge()));
+        Location location = opponentUser.getFirstLocation();
+        if (location != null) {
+            actionBarViewHolder.city.setText(getString(R.string.review_city, location.getCity(), match.getDistance()));
+        }
+        StringBuilder sb = new StringBuilder();
+        String prefix = "";
+        for (Sociotype sociotype : opponentUser.getSociotypes()) {
+            sb.append(prefix);
+            prefix = ", ";
+            sb.append(sociotype.getCode1());
+        }
+        sociotypes.setText(sb);
+        description.setText(opponentUser.getDescription());
+        photosView.setPhotos(opponentUser.getPhotos());
     }
 
     public void showLoading() {
@@ -201,6 +230,7 @@ public class ReviewFragment extends BaseFragment {
         }
         return false;
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -218,6 +248,16 @@ public class ReviewFragment extends BaseFragment {
                 }
                 break;
         }
+    }
+
+    public static class ActionBarViewHolder {
+
+        View actionBarView;
+
+        @Bind(R.id.name) TextView name;
+        @Bind(R.id.age) TextView age;
+        @Bind(R.id.city) TextView city;
+
     }
 
 }

@@ -37,7 +37,6 @@ import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
 import lt.dualpair.android.ui.AboutActivity;
-import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
@@ -48,7 +47,7 @@ import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class ProfileFragment extends BaseFragment {
+public class ProfileFragment extends MainTabFragment {
 
     private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
     private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
