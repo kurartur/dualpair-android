@@ -43,7 +43,9 @@ public class OpponentUserView {
         for (Sociotype sociotype : user.getSociotypes()) {
             sb.append(prefix);
             prefix = ", ";
-            sb.append(sociotype.getCode1());
+            String code = sociotype.getCode1();
+            int titleId = context.getResources().getIdentifier(code.toLowerCase() + "_title", "string", context.getPackageName());
+            sb.append(context.getString(titleId) + " (" + sociotype.getCode1() + ")");
         }
         sociotypes.setText(sb);
         description.setText(user.getDescription());

@@ -42,8 +42,7 @@
                     <TextView
                         android:id="@+id/sociotypes"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="#787878"/>
+                        android:layout_height="wrap_content"/>
 
                     <TextView
                         android:id="@+id/description"

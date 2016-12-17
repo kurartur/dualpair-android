@@ -157,7 +157,9 @@ public class ReviewFragment extends MainTabFragment {
         for (Sociotype sociotype : opponentUser.getSociotypes()) {
             sb.append(prefix);
             prefix = ", ";
-            sb.append(sociotype.getCode1());
+            String code = sociotype.getCode1();
+            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getActivity().getPackageName());
+            sb.append(getString(titleId) + " (" + sociotype.getCode1() + ")");
         }
         sociotypes.setText(sb);
         description.setText(opponentUser.getDescription());
