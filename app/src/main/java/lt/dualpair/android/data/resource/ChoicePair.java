@@ -5,6 +5,7 @@ public class ChoicePair {
     String id;
     Choice choice1;
     Choice choice2;
+    Choice selected;
 
     public ChoicePair(String id, Choice choice1, Choice choice2) {
         this.id = id;
@@ -32,5 +33,24 @@ public class ChoicePair {
         } else {
             throw new IllegalArgumentException(choice + " is not part of this choice pair");
         }
+    }
+
+    public void setSelected(Choice choice) {
+        if (choice != choice1 && choice != choice2) {
+            throw new IllegalArgumentException("Invalid choice");
+        }
+        selected = choice;
+    }
+
+    public boolean isChoice1Selected() {
+        return selected == choice1;
+    }
+
+    public boolean isChoice2Selected() {
+        return selected == choice2;
+    }
+
+    public boolean isAnySelected() {
+        return selected != null;
     }
 }

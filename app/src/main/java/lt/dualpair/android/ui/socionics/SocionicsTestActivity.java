@@ -1,139 +1,175 @@
 package lt.dualpair.android.ui.socionics;
 
-import android.app.ActionBar;
-import android.app.ListActivity;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import lt.dualpair.android.BuildConfig;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.resource.Choice;
 import lt.dualpair.android.data.resource.ChoicePair;
-import lt.dualpair.android.data.resource.ErrorResponse;
 import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.task.socionics.EvaluateTestTask;
+import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.user.ConfirmSociotypeActivity;
 import lt.dualpair.android.utils.ToastUtils;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
-public class SocionicsTestActivity extends ListActivity {
+public class SocionicsTestActivity extends BaseActivity {
+
+    private static final int MENU_ITEM_SUBMIT = 1;
+    private static final int MENU_ITEM_HELP = 2;
+    private static final int MENU_ITEM_RANDOM = 3;
 
     private static final String TAG = "SocionicsTestActivity";
 
-    private Button submitButton;
+    @Bind(R.id.choices) RecyclerView choicesView;
+    TextView leftPairsCounterText;
 
-    private SocionicsTestListViewAdapter adapter;
+    private SocionicsTestRecyclerAdapter adapter;
+
+    private static SocionicsTestPresenter presenter;
+
+    private View defaultSubmitMenuItemView;
+    private MenuItem submitMenuItem;
+
+    private int selectedItems;
+    private int totalItems;
+    private boolean itemsAreSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        setContentView(R.layout.layout_socionics_test);
-        ActionBar actionBar = getActionBar();
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+        setContentView(R.layout.socionics_test_layout);
+        setupActionBar(true, getString(R.string.socionics_test));
 
-        submitButton = createSubmitButton();
-        adapter = new SocionicsTestListViewAdapter(this, buildChoicePairs(), submitButton);
-        setListAdapter(adapter);
+        ButterKnife.bind(this);
 
-        actionBar.setTitle(TitleCreator.createTitle(this, 0, adapter.getCount()));
+        if (presenter == null || savedInstanceState == null) {
+            presenter = new SocionicsTestPresenter();
+        } else {
+            presenter = new SocionicsTestPresenter(savedInstanceState);
+        }
 
-        ListView view = getListView();
-        view.addFooterView(submitButton);
+        adapter = new SocionicsTestRecyclerAdapter(new ArrayList<ChoicePair>(), new SocionicsTestRecyclerAdapter.OnChoiceListener() {
+            @Override
+            public void onChoice(String id, int position, Choice choice) {
+                presenter.onChoice(id, choice);
+            }
+        });
+        choicesView.setAdapter(adapter);
+
+        leftPairsCounterText = new TextView(this);
+        leftPairsCounterText.setPadding(20, 20, 40, 20);
+
+        presenter.onTakeView(this);
+
+        showHelp();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+    public void setChoicePairs(List<ChoicePair> choicePairs) {
+        if (!itemsAreSet) {
+            adapter.setItems(choicePairs);
+            adapter.notifyDataSetChanged();
+            itemsAreSet = true;
+        }
+
+        selectedItems = countAlreadySelected(choicePairs);
+        totalItems = choicePairs.size();
+        leftPairsCounterText.setText(getString(R.string.socionics_test_counter, selectedItems, totalItems));
+        setSubmitMenuItem();
+    }
+
+    private void setSubmitMenuItem() {
+        if (submitMenuItem != null) {
+            if (selectedItems == totalItems) {
+                submitMenuItem.setActionView(defaultSubmitMenuItemView);
+            } else {
+                submitMenuItem.setActionView(leftPairsCounterText);
+            }
         }
     }
 
-    private Button createSubmitButton() {
-        Button button = new Button(this);
-        button.setText(R.string.submit);
-        button.setEnabled(false);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new EvaluateTestTask(null, adapter.getResults()).execute(SocionicsTestActivity.this) // TODO null token
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new EmptySubscriber<Sociotype>() {
-                            @Override
-                            public void onError(Throwable e) {
-                                ServiceException se = (ServiceException)e;
-                                String message;
-                                try {
-                                    message = "Couldn't evaluate test: " + se.getErrorBodyAs(ErrorResponse.class).getMessage();
-                                } catch (IOException ioe) {
-                                    message = se.getMessage();
-                                }
-                                Log.e(TAG, message, e);
-                                ToastUtils.show(SocionicsTestActivity.this, message);
-                            }
-
-                            @Override
-                            public void onNext(Sociotype sociotype) {
-                                showResults(sociotype);
-                            }
-                        });
+    private int countAlreadySelected(List<ChoicePair> choicePairs) {
+        int c = 0;
+        for (ChoicePair choicePair : choicePairs) {
+            if (choicePair.isAnySelected()) {
+                c += 1;
             }
-        });
-        return button;
+        }
+        return c;
     }
 
-    private void showResults(final Sociotype sociotype) {
+    public void onSelectionChange(String id) {
+        adapter.notifyItemChanged(id);
+    }
+
+    public void showResults(final Sociotype sociotype) {
         Intent intent = new Intent(this, ConfirmSociotypeActivity.class);
         intent.putExtra(ConfirmSociotypeActivity.PARAM_SOCIOTYPE, sociotype);
         startActivity(intent);
         finish();
     }
 
-    public static class TitleCreator {
-        public static final String createTitle(Context context, int itemsSelected, int totalItems) {
-            return context.getResources().getString(R.string.socionics_test) + " (" + itemsSelected + "/" + totalItems + ")";
-        }
+    public void showError(String error) {
+        ToastUtils.show(this, error);
     }
 
-    private List<ChoicePair> buildChoicePairs() {
-        List<ChoicePair> choicePairs = new ArrayList<>();
-        choicePairs.add(new ChoicePair("1", Choice.SISTEMATIC, Choice.SPONTANEOUS));
-        /*choicePairs.add(new ChoicePair("2", Choice.STRUCTURE, Choice.FLOW));
-        choicePairs.add(new ChoicePair("3", Choice.PLAN, Choice.IMPROVISATION));
-        choicePairs.add(new ChoicePair("4", Choice.SOLUTION, Choice.IMPULSE));
-        choicePairs.add(new ChoicePair("5", Choice.REGULARITY, Choice.ACCIDENT));
-        choicePairs.add(new ChoicePair("6", Choice.ORGANIZED, Choice.IMPULSIVE));
-        choicePairs.add(new ChoicePair("7", Choice.PREPARATION, Choice.IMPROMTU));
+    private void showHelp() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle(getString(R.string.how_to))
+                .setMessage(R.string.socionics_test_help)
+                .setPositiveButton(getString(R.string.got_it), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        dialogBuilder.create().show();
+    }
 
-        choicePairs.add(new ChoicePair("8", Choice.RESOLUTE, Choice.DEDICATED));
-        choicePairs.add(new ChoicePair("9", Choice.SOLID, Choice.KIND_HEARTED));
-        choicePairs.add(new ChoicePair("10", Choice.PRONE_TO_CRITICISM, Choice.WELLWISHING));
-        choicePairs.add(new ChoicePair("11", Choice.ADVANTAGE, Choice.LUCK));
-        choicePairs.add(new ChoicePair("12", Choice.HEAD, Choice.HEART));
-        choicePairs.add(new ChoicePair("13", Choice.THOUGHTS, Choice.FEELINGS));
-        choicePairs.add(new ChoicePair("14", Choice.ANALYZE, Choice.SYMPATHIZE));*/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem helpMenuItem = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
+        helpMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        helpMenuItem.setIcon(R.drawable.help_grey_100x100);
+        submitMenuItem = menu.add(Menu.NONE, MENU_ITEM_SUBMIT, Menu.NONE, R.string.save);
+        submitMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        defaultSubmitMenuItemView = submitMenuItem.getActionView();
+        setSubmitMenuItem();
+        if (BuildConfig.DEBUG) {
+            menu.add(Menu.NONE, MENU_ITEM_RANDOM, Menu.NONE, R.string.random);
+        }
+        return true;
+    }
 
-        return choicePairs;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item)) return true;
+        switch (item.getItemId()) {
+            case MENU_ITEM_SUBMIT:
+                if (selectedItems == totalItems) {
+                    submitMenuItem.setActionView(R.layout.action_progressbar);
+                    presenter.submitTest(this);
+                }
+                return true;
+            case MENU_ITEM_HELP:
+                showHelp();
+                return true;
+            case MENU_ITEM_RANDOM:
+                presenter.selectRandom();
+                return true;
+        }
+        return false;
+
     }
 }

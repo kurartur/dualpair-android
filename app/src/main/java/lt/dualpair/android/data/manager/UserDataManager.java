@@ -4,13 +4,16 @@ import android.content.Context;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import lt.dualpair.android.data.resource.Choice;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.LogoutTask;
 import lt.dualpair.android.data.task.Task;
+import lt.dualpair.android.data.task.socionics.EvaluateTestTask;
 import lt.dualpair.android.data.task.user.AddPhotoTask;
 import lt.dualpair.android.data.task.user.DeletePhotoTask;
 import lt.dualpair.android.data.task.user.GetAvailablePhotosTask;
@@ -108,6 +111,15 @@ public class UserDataManager extends DataManager {
             @Override
             protected Task<Void> doCreateTask(String authToken) {
                 return new LogoutTask(authToken);
+            }
+        }));
+    }
+
+    public Observable<Sociotype> evaluateTest(final Map<String, Choice> choices) {
+        return execute(context, new DataRequest<>("evaluateTest", new AuthenticatedTaskCreator<Sociotype>() {
+            @Override
+            protected Task<Sociotype> doCreateTask(String authToken) {
+                return new EvaluateTestTask(authToken, choices);
             }
         }));
     }
