@@ -82,6 +82,10 @@ public class ProfileFragment extends MainTabFragment {
         startActivityForResult(EditUserActivity.createIntent(getActivity()), EDIT_USER_REQ_CODE);
     }
 
+    @OnClick(R.id.photos_section) void onPhotosSectionClick(View v) {
+        startActivityForResult(EditPhotosActivity.createIntent(getActivity()), EDIT_PHOTOS_REQ_CODE);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,13 +96,6 @@ public class ProfileFragment extends MainTabFragment {
             @Override
             public void onClick(View v) {
                 startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQ_CODE);
-            }
-        });
-
-        editPhotos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(EditPhotosActivity.createIntent(getActivity()), EDIT_PHOTOS_REQ_CODE);
             }
         });
 

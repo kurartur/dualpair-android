@@ -228,5 +228,7 @@
     <string name="got_it">Got it</string>
     <string name="socionics_test_counter">%1$d/%2$d</string>
     <string name="random">Random</string>
+    <string name="move">Move</string>
+    <string name="delete">Delete</string>
 
 </resources>
