@@ -4,8 +4,11 @@ package lt.dualpair.android.ui.user;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.List;
+
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.UserDataManager;
+import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.User;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -48,4 +51,17 @@ public class EditPhotosPresenter {
         this.view = view;
         publish();
     }
+
+    public void onSave(Context context, List<Photo> photos) {
+        new UserDataManager(context).savePhotos(photos)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new EmptySubscriber<List<Photo>>() {
+                    @Override
+                    public void onNext(List<Photo> photos) {
+                        view.onSaved();
+                    }
+                });
+    }
+
 }

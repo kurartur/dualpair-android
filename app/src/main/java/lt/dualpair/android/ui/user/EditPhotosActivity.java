@@ -1,34 +1,38 @@
 package lt.dualpair.android.ui.user;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.BaseActivity;
-import lt.dualpair.android.utils.ToastUtils;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 
-public class EditPhotosActivity extends BaseActivity implements EditPhotosRecyclerAdapter.OnStartDragListener {
+public class EditPhotosActivity extends BaseActivity implements EditPhotosRecyclerAdapter.OnStartDragListener,
+                                                                AvailablePhotosSheetDialog.OnPhotoSelectedListener {
 
     private static final String TAG = "EditPhotosActivity";
-    private static final int MENU_ITEM_DELETE = 1;
-    private static final int MENU_ITEM_MOVE = 2;
+
+    private static final int MENU_ITEM_SAVE = 1;
+    private static final int MENU_ITEM_HELP = 2;
+
+    public static final String PHOTOS_KEY = "PHOTOS";
+    public static final String RESULT_BUNDLE_KEY = "RESULT_BUNDLE";
 
     @Bind(R.id.photos) RecyclerView photosView;
 
@@ -36,10 +40,11 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     private ItemTouchHelper itemTouchHelper;
 
-    private MenuItem menuItemMove;
-    private MenuItem menuItemDelete;
+    private MenuItem menuItemSave;
 
     private static EditPhotosPresenter presenter;
+
+    private AvailablePhotosSheetDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,13 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         setContentView(R.layout.edit_photos_layout);
 
         setupActionBar(true, getResources().getString(R.string.photos));
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            Drawable icon = getResources().getDrawable(R.drawable.close_24x24);
+            icon.setColorFilter(getResources().getColor(R.color.action_bar_control), PorterDuff.Mode.SRC_ATOP);
+            actionBar.setHomeAsUpIndicator(icon);
+        }
 
         ButterKnife.bind(this);
 
@@ -68,31 +80,32 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         presenter.onTakeView(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.onTakeView(null);
+        if (!isChangingConfigurations())
+            presenter = null;
+    }
+
+    @Override
+    public void onPhotoSelected(Photo photo) {
+        photo.setPosition(adapter.getItemCount());
+        adapter.addPhoto(photo);
+        dialog.dismiss();
+    }
+
     public void render(final User user) {
 
-        View.OnClickListener onAddClickListener = new View.OnClickListener() {
+        adapter = new EditPhotosRecyclerAdapter(user.getPhotos(), new EditPhotosRecyclerAdapter.OnAddClickListener() {
             @Override
-            public void onClick(View v) {
-                final AvailablePhotosSheetDialog dialog = AvailablePhotosSheetDialog.getInstance(user);
-                dialog.setOnPhotoSelectedListener(new OnNewPhotoSelectedListener(EditPhotosActivity.this, dialog, adapter));
+            public void onAddClick() {
+                dialog = AvailablePhotosSheetDialog.getInstance(user);
+                dialog.setOnPhotoSelectedListener(EditPhotosActivity.this);
                 dialog.show(getSupportFragmentManager(), "AvailablePhotosSheetDialog");
             }
-        };
-        adapter = new EditPhotosRecyclerAdapter(user.getPhotos(), onAddClickListener, new EditPhotosRecyclerAdapter.OnRemoveListener() {
-                @Override
-                public void onRemove(Photo photo) {
-                    new UserDataManager(EditPhotosActivity.this).deletePhoto(photo)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeOn(Schedulers.io())
-                            .subscribe(new EmptySubscriber<User>() {
-                                @Override
-                                public void onError(Throwable e) {
-                                    Log.e(TAG, "Unable to remove photo", e);
-                                    ToastUtils.show(EditPhotosActivity.this, "Unable to remove photo");
-                                }
-                            });
-                }
-            }, this);
+        }, this);
+
         ItemTouchHelper.Callback callback =
                 new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);
@@ -109,44 +122,16 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         return new Intent(activity, EditPhotosActivity.class);
     }
 
-    private static class OnNewPhotoSelectedListener implements AvailablePhotosSheetDialog.OnPhotoSelectedListener {
-
-        private EditPhotosActivity editPhotosActivity;
-        private AvailablePhotosSheetDialog dialog;
-        private EditPhotosRecyclerAdapter adapter;
-
-        public OnNewPhotoSelectedListener(EditPhotosActivity editPhotosActivity, AvailablePhotosSheetDialog dialog, EditPhotosRecyclerAdapter adapter) {
-            this.editPhotosActivity = editPhotosActivity;
-            this.dialog = dialog;
-            this.adapter = adapter;
-        }
-
-        @Override
-        public void onPhotoSelected(Photo photo) {
-            photo.setPosition(adapter.getItemCount());
-            adapter.addPhoto(photo);
-            new UserDataManager(editPhotosActivity).addPhoto(photo)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new EmptySubscriber<User>() {
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.e(TAG, "Unable to save photo", e);
-                            ToastUtils.show(editPhotosActivity, "Unable to save photo");
-                        }
-                    });
-            dialog.dismiss();
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menuItemMove = menu.add(Menu.NONE, MENU_ITEM_MOVE, Menu.NONE, R.string.move);
-        menuItemMove.setIcon(R.drawable.move);
-        menuItemMove.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menuItemDelete = menu.add(Menu.NONE, MENU_ITEM_DELETE, Menu.NONE, R.string.delete);
-        menuItemDelete.setIcon(R.drawable.trash);
-        menuItemDelete.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem menuItemHelp = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
+        menuItemHelp.setIcon(R.drawable.help_grey_100x100);
+        menuItemHelp.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menuItemSave = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
+        Drawable icon = getResources().getDrawable(R.drawable.checkmark_24x24);
+        icon.setColorFilter(getResources().getColor(R.color.action_bar_control), PorterDuff.Mode.SRC_ATOP);
+        menuItemSave.setIcon(icon);
+        menuItemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
 
@@ -155,33 +140,47 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         if (super.onOptionsItemSelected(item)) {
             return true;
         }
-        int currentMode = adapter.getMode();
-        int selectedItemMode;
         switch (item.getItemId()) {
-            case MENU_ITEM_MOVE:
-                selectedItemMode = EditPhotosRecyclerAdapter.MOVE_MODE;
-                break;
-            case MENU_ITEM_DELETE:
-                selectedItemMode = EditPhotosRecyclerAdapter.DELETE_MODE;
-                break;
-            default:
-                throw new RuntimeException("Unrecognized menu item");
+            case MENU_ITEM_SAVE:
+                menuItemSave.setActionView(R.layout.action_progressbar);
+                save();
+                return true;
+            case MENU_ITEM_HELP:
+                showHelp();
+                return true;
         }
-        menuItemMove.getIcon().clearColorFilter();
-        menuItemDelete.getIcon().clearColorFilter();
-        if (currentMode == selectedItemMode) {
-            adapter.setMode(EditPhotosRecyclerAdapter.NORMAL_MODE);
-        } else {
-            adapter.setMode(selectedItemMode);
-            switch (selectedItemMode) {
-                case EditPhotosRecyclerAdapter.MOVE_MODE:
-                    menuItemMove.getIcon().mutate().setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.MULTIPLY);
-                    break;
-                case EditPhotosRecyclerAdapter.DELETE_MODE:
-                    menuItemDelete.getIcon().mutate().setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.MULTIPLY);
-                    break;
-            }
-        }
-        return true;
+        return false;
+    }
+
+    private void showHelp() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle(getString(R.string.how_to))
+                .setMessage(R.string.photo_edit_help)
+                .setPositiveButton(getString(R.string.got_it), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        dialogBuilder.create().show();
+    }
+
+    private void save() {
+        presenter.onSave(this, adapter.getPhotos());
+    }
+
+    public void onSaved() {
+        Intent resultData = new Intent();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(PHOTOS_KEY, new ArrayList<>(adapter.getPhotos()));
+        resultData.putExtra(RESULT_BUNDLE_KEY, bundle);
+        setResult(Activity.RESULT_OK, resultData);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        save();
+        super.onBackPressed();
     }
 }

@@ -59,4 +59,9 @@ public class MutualMatchListFragment extends MatchListFragment {
     protected MatchListPresenter getPresenter() {
         return presenter;
     }
+
+    @Override
+    protected String getActionBarTitle() {
+        return getResources().getString(R.string.my_matches);
+    }
 }

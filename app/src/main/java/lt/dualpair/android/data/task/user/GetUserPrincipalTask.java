@@ -17,7 +17,7 @@ import rx.Subscriber;
 public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
 
     private static final int EXPIRATION_TIME_MS = 1000 * 60 * 5; // 5 minutes
-    boolean forceUpdate;
+    private boolean forceUpdate;
 
     public GetUserPrincipalTask(String authToken) {
         super(authToken);

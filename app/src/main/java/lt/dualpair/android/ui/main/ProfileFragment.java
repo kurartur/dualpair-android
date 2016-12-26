@@ -244,4 +244,9 @@ public class ProfileFragment extends MainTabFragment {
                     }
                 });
     }
+
+    @Override
+    protected String getActionBarTitle() {
+        return getResources().getString(R.string.profile);
+    }
 }

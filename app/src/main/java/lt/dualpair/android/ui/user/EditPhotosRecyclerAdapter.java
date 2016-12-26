@@ -2,10 +2,8 @@ package lt.dualpair.android.ui.user;
 
 
 import android.content.Context;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,7 +11,9 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.Bind;
@@ -26,46 +26,45 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     private static final int PHOTO_ITEM = 1;
     private static final int ADD_PHOTO_ITEM = 2;
 
-    public static final int NORMAL_MODE = 1;
-    public static final int MOVE_MODE = 2;
-    public static final int DELETE_MODE = 3;
-
     private static final int MAX_PHOTOS = 9;
-
-    private static final float FIRST_POSITION_TEXT_SIZE = 40;
-    private static final float POSITION_TEXT_SIZE = 30;
 
     private RecyclerView recyclerView;
 
-    private List<Photo> photos;
-    private View.OnClickListener onAddClickListener;
-    private OnRemoveListener onRemoveListener;
+    private List<Photo> photos = new ArrayList<>();
+
+    private OnAddClickListener onAddClickListener;
     private OnStartDragListener onStartDragListener;
 
-    private int mode = NORMAL_MODE;
-
     public EditPhotosRecyclerAdapter(List<Photo> photos,
-                                     View.OnClickListener onAddClickListener,
-                                     OnRemoveListener onRemoveListener,
+                                     OnAddClickListener onAddClickListener,
                                      OnStartDragListener onStartDragListener) {
-        this.photos = photos;
+
+        this.photos.addAll(photos);
+        sortByPosition();
+
         this.onAddClickListener = onAddClickListener;
-        this.onRemoveListener = onRemoveListener;
         this.onStartDragListener = onStartDragListener;
+    }
+
+    private void sortByPosition() {
+        Collections.sort(this.photos, new Comparator<Photo>() {
+            @Override
+            public int compare(Photo o1, Photo o2) {
+                return o1.getPosition() > o2.getPosition() ? 1 : -1;
+            }
+        });
     }
 
     public void addPhoto(Photo photo) {
         photos.add(photo);
         notifyItemInserted(photos.size() - 1);
+        if (photos.size() == MAX_PHOTOS) {
+            notifyItemRemoved(MAX_PHOTOS + 1);
+        }
     }
 
-    public void setMode(int mode) {
-        this.mode = mode;
-        notifyDataSetChanged();
-    }
-
-    public int getMode() {
-        return mode;
+    public List<Photo> getPhotos() {
+        return photos;
     }
 
     @Override
@@ -102,59 +101,45 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                         .error(R.drawable.image_not_found)
                         .into(photoHolder.photo);
 
-                photoHolder.delete.setVisibility(View.GONE);
-                photoHolder.position.setVisibility(View.GONE);
+                photoHolder.delete.setVisibility(View.VISIBLE);
+                photoHolder.delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        photos.remove(holder.getAdapterPosition());
+                        notifyItemRemoved(holder.getAdapterPosition());
+                        for (int i=holder.getAdapterPosition(); i < photos.size(); i++) {
+                            updatePositionText(i);
+                        }
+                    }
+                });
 
-                if (mode == DELETE_MODE) {
-                    photoHolder.delete.setVisibility(View.VISIBLE);
-                    photoHolder.delete.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            photos.remove(holder.getAdapterPosition());
-                            notifyItemRemoved(holder.getAdapterPosition());
-                            onRemoveListener.onRemove(photo);
-                        }
-                    });
-                } else if (mode == MOVE_MODE) {
-                    setPositionTextSize(photoHolder.position, holder.getAdapterPosition());
-                    photoHolder.position.setText(position + 1 + "");
-                    photoHolder.position.setVisibility(View.VISIBLE);
-                    photoHolder.itemView.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            if (MotionEventCompat.getActionMasked(event) ==
-                                    MotionEvent.ACTION_DOWN) {
-                                onStartDragListener.onStartDrag(photoHolder);
-                            }
-                            return false;
-                        }
-                    });
-                }
+                photoHolder.position.setText(position + 1 + "");
+                photoHolder.position.setVisibility(View.VISIBLE);
+                photoHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        onStartDragListener.onStartDrag(photoHolder);
+                        return true;
+                    }
+                });
 
                 break;
 
             case ADD_PHOTO_ITEM:
                 final AddPhotoHolder addPhotoHolder = (AddPhotoHolder) holder;
-                addPhotoHolder.itemView.setOnClickListener(onAddClickListener);
+                addPhotoHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onAddClickListener.onAddClick();
+                    }
+                });
         }
 
-    }
-
-    private void setPositionTextSize(TextView tv, int position) {
-        if (position == 0) {
-            tv.setTextSize(FIRST_POSITION_TEXT_SIZE);
-        } else {
-            tv.setTextSize(POSITION_TEXT_SIZE);
-        }
     }
 
     @Override
     public int getItemCount() {
-        if (mode == NORMAL_MODE) {
-            return photos.size() + 1;
-        } else {
-            return photos.size();
-        }
+        return photos.size() < MAX_PHOTOS ? photos.size() + 1 : photos.size();
     }
 
     protected static class PhotoHolder extends RecyclerView.ViewHolder {
@@ -184,22 +169,26 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     }
 
-    public interface OnRemoveListener {
-        void onRemove(Photo photo);
-    }
-
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
+    }
+
+    public interface OnAddClickListener {
+        void onAddClick();
     }
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
+                photos.get(i).setPosition(i + 1);
+                photos.get(i + 1).setPosition(i);
                 Collections.swap(photos, i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
+                photos.get(i).setPosition(i - 1);
+                photos.get(i - 1).setPosition(i);
                 Collections.swap(photos, i, i - 1);
             }
         }
@@ -220,7 +209,6 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     private void updatePositionText(int position) {
         TextView tv = (TextView)recyclerView.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.position);
         tv.setText(position + 1 + "");
-        setPositionTextSize(tv, position);
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import lt.dualpair.android.R;
 import lt.dualpair.android.ui.BaseFragment;
 
 public abstract class MainTabFragment extends BaseFragment {
@@ -40,6 +41,7 @@ public abstract class MainTabFragment extends BaseFragment {
                 } else {
                     actionBar.setDisplayShowCustomEnabled(false);
                     actionBar.setDisplayShowTitleEnabled(true);
+                    actionBar.setTitle(getActionBarTitle());
                 }
             }
         }
@@ -47,6 +49,10 @@ public abstract class MainTabFragment extends BaseFragment {
 
     protected View getActionBarView() {
         return null;
+    }
+
+    protected String getActionBarTitle() {
+        return getResources().getString(R.string.app_name);
     }
 
 }

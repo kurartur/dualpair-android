@@ -49,13 +49,6 @@ public class AvailablePhotosSheetDialog extends BottomSheetDialogFragment {
             }
         }
 
-        /*CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
-        CoordinatorLayout.Behavior behavior = params.getBehavior();
-
-        if( behavior != null && behavior instanceof BottomSheetBehavior ) {
-            ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback); // TODO doesnt work
-        }*/
-
         return contentView;
     }
 

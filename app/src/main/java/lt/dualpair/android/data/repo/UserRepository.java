@@ -18,8 +18,11 @@ import lt.dualpair.android.ui.accounts.AccountType;
 
 public class UserRepository extends Repository<User> {
 
+    private PhotoRepository photoRepository;
+
     public UserRepository(SQLiteDatabase db) {
         super(db);
+        photoRepository = new PhotoRepository(db);
     }
 
     public User get(Long userId) {
@@ -87,13 +90,7 @@ public class UserRepository extends Repository<User> {
 
     private void insertPhotos(Long userId, List<Photo> photos) {
         for (Photo photo : photos) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(UserMeta.Photo._ID, photo.getId());
-            contentValues.put(UserMeta.Photo.USER_ID, userId);
-            contentValues.put(UserMeta.Photo.ACCOUNT_TYPE, photo.getAccountType().name());
-            contentValues.put(UserMeta.Photo.ID_ON_ACCOUNT, photo.getIdOnAccount());
-            contentValues.put(UserMeta.Photo.SOURCE_LINK, photo.getSourceUrl());
-            assertOperation(db.insert(UserMeta.Photo.TABLE_NAME, null, contentValues), "Unable to insert photo " + photo);
+            photoRepository.save(photo, userId);
         }
     }
 
@@ -138,7 +135,7 @@ public class UserRepository extends Repository<User> {
         user.setDescription(c.getString(c.getColumnIndex(UserMeta.User.DESCRIPTION)));
 
         user.setSociotypes(getSociotypes(userId));
-        user.setPhotos(getPhotos(userId));
+        user.setPhotos(photoRepository.fetch(userId));
         user.setLocations(getLocations(userId));
         user.setAccounts(getAccounts(userId));
 
@@ -162,27 +159,6 @@ public class UserRepository extends Repository<User> {
         } finally {
             if (sociotypesCursor != null) {
                 sociotypesCursor.close();
-            }
-        }
-    }
-
-    private List<Photo> getPhotos(Long userId) {
-        Cursor photosCursor = null;
-        try {
-            List<Photo> photos = new ArrayList<>();
-            photosCursor = db.query(UserMeta.Photo.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
-            while (photosCursor.moveToNext()) {
-                Photo photo = new Photo();
-                photo.setId(photosCursor.getLong(photosCursor.getColumnIndex(UserMeta.Photo._ID)));
-                photo.setAccountType(AccountType.valueOf(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.ACCOUNT_TYPE))));
-                photo.setIdOnAccount(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.ID_ON_ACCOUNT)));
-                photo.setSourceUrl(photosCursor.getString(photosCursor.getColumnIndex(UserMeta.Photo.SOURCE_LINK)));
-                photos.add(photo);
-            }
-            return photos;
-        } finally {
-            if (photosCursor != null) {
-                photosCursor.close();
             }
         }
     }

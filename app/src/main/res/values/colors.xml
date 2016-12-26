@@ -11,4 +11,5 @@
     <color name="light_green">#93e77e</color>
     <color name="black">#000000</color>
     <color name="grey">#cccccc</color>
+    <color name="action_bar_control">#7d7d7d</color>
 </resources>
