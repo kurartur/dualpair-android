@@ -22,6 +22,7 @@ import lt.dualpair.android.data.resource.ChoicePair;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.user.ConfirmSociotypeActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class SocionicsTestActivity extends BaseActivity {
@@ -141,8 +142,9 @@ public class SocionicsTestActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem helpMenuItem = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
         helpMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        helpMenuItem.setIcon(R.drawable.help_grey_100x100);
+        helpMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.help_grey_100x100));
         submitMenuItem = menu.add(Menu.NONE, MENU_ITEM_SUBMIT, Menu.NONE, R.string.save);
+        submitMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.checkmark_24x24));
         submitMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         defaultSubmitMenuItemView = submitMenuItem.getActionView();
         setSubmitMenuItem();
