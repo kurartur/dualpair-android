@@ -13,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -173,17 +172,10 @@ public class ProfileFragment extends MainTabFragment {
         }
 
         final Photo photo = user.getPhotos().iterator().next();
-        mainPicture.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                Picasso.with(getActivity())
-                        .load(photo.getSourceUrl())
-                        .resize(mainPicture.getWidth(), mainPicture.getHeight())
-                        .centerCrop()
-                        .error(R.drawable.image_not_found)
-                        .into(mainPicture);
-            }
-        });
+        Picasso.with(getActivity())
+                .load(photo.getSourceUrl())
+                .error(R.drawable.image_not_found)
+                .into(mainPicture);
     }
 
     private void renderAccounts(List<UserAccount> userAccounts) {
@@ -197,7 +189,12 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     private void renderPhotos(List<Photo> photos) {
-        UserPhotosRecyclerAdapter userPhotosRecyclerAdapter = new UserPhotosRecyclerAdapter(photos);
+        UserPhotosRecyclerAdapter userPhotosRecyclerAdapter = new UserPhotosRecyclerAdapter(photos, new UserPhotosRecyclerAdapter.OnPhotoClickListener() {
+            @Override
+            public void onPhotoClick(Photo photo) {
+                onPhotosSectionClick(null);
+            }
+        });
         photosView.setAdapter(userPhotosRecyclerAdapter);
     }
 

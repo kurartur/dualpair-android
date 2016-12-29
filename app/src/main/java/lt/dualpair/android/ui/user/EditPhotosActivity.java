@@ -90,7 +90,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     @Override
     public void onPhotoSelected(Photo photo) {
-        photo.setPosition(adapter.getItemCount());
+        photo.setPosition(adapter.getItemCount() - 1);
         adapter.addPhoto(photo);
         dialog.dismiss();
     }

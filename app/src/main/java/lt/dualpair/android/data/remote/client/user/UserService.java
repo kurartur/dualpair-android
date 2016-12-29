@@ -60,4 +60,6 @@ public interface UserService {
                              @Field("expiresIn") Long expiresIn,
                              @Field("scope") String scope);
 
+    @POST("api/user/{userId}/photos")
+    Observable<Void> setPhotos(@Path("userId") Long userId, @Body List<Photo> photos);
 }

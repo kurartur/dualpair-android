@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,9 +19,11 @@ import lt.dualpair.android.data.resource.Photo;
 public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRecyclerAdapter.PhotoHolder> {
 
     private List<Photo> photos;
+    private OnPhotoClickListener onPhotoClickListener;
 
-    public UserPhotosRecyclerAdapter(List<Photo> photos) {
+    public UserPhotosRecyclerAdapter(List<Photo> photos, OnPhotoClickListener onPhotoClickListener) {
         this.photos = photos;
+        this.onPhotoClickListener = onPhotoClickListener;
     }
 
     @Override
@@ -40,13 +41,7 @@ public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRe
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(holder.context);
-                ImageView iv = new ImageView(holder.context);
-                builder.setView(iv).create().show();
-                Picasso.with(holder.context)
-                        .load(photos.get(position).getSourceUrl())
-                        .error(R.drawable.image_not_found)
-                        .into(iv);
+                onPhotoClickListener.onPhotoClick(photos.get(position));
             }
         });
         Picasso.with(holder.context)
@@ -68,5 +63,9 @@ public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRe
             super(itemView);
             this.context = context;
         }
+    }
+
+    public interface OnPhotoClickListener {
+        void onPhotoClick(Photo photo);
     }
 }
