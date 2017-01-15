@@ -28,6 +28,12 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     @Bind(R.id.terms_and_conditions_disclaimer_text)
     TextView termAndConditionsDisclaimerText;
 
+    @Bind(R.id.main_layout)
+    View mainLayout;
+
+    @Bind(R.id.progress_layout)
+    View progressLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +50,16 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
     @OnClick(R.id.fb_login_button) void onFbLoginClick(View v) {
         loginPresenter.loginWithFacebook();
+    }
+
+    public void showMain() {
+        mainLayout.setVisibility(View.VISIBLE);
+        progressLayout.setVisibility(View.GONE);
+    }
+
+    public void showProgress() {
+        mainLayout.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.VISIBLE);
     }
 
     @Override

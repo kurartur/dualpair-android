@@ -142,7 +142,7 @@ public class SocionicsTestActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem helpMenuItem = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
         helpMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        helpMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.help_grey_100x100));
+        helpMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_help_black_48dp));
         submitMenuItem = menu.add(Menu.NONE, MENU_ITEM_SUBMIT, Menu.NONE, R.string.save);
         submitMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.checkmark_24x24));
         submitMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);

@@ -1,10 +1,6 @@
 package lt.dualpair.android.ui.match;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,10 +21,10 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.ui.accounts.AccountType;
+import lt.dualpair.android.utils.SocialUtils;
 
 public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecyclerAdapter.MatchViewHolder> {
-
-    private static final String FACEBOOK_DOMAIN = "https://www.facebook.com";
 
     final private List<Match> matchList = new ArrayList<>();
 
@@ -53,7 +49,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
     }
 
     private void setupFacebookButton(final Context context, View button, User user) {
-        final UserAccount account = user.getFacebookAccount();
+        final UserAccount account = user.getAccountByType(AccountType.FB);
         if (account == null) {
             button.setVisibility(View.GONE);
         } else {
@@ -61,17 +57,22 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String url = FACEBOOK_DOMAIN + "/" + account.getAccountId();
-                    Uri uri = Uri.parse(url);
-                    try {
-                        ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo("com.facebook.katana", 0);
-                        if (applicationInfo.enabled) {
-                            // http://stackoverflow.com/a/24547437/1048340
-                            uri = Uri.parse("fb://facewebmodal/f?href=" + url);
-                        }
-                    } catch (PackageManager.NameNotFoundException ignored) {
-                    }
-                    context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                    SocialUtils.openFacebookUser(context, account.getAccountId());
+                }
+            });
+        }
+    }
+
+    private void setupVkontakteButton(final Context context, View button, User user) {
+        final UserAccount account = user.getAccountByType(AccountType.VK);
+        if (account == null) {
+            button.setVisibility(View.GONE);
+        } else {
+            button.setVisibility(View.VISIBLE);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SocialUtils.openVKontakteUser(context, account.getAccountId());
                 }
             });
         }
@@ -92,6 +93,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         final User opponent = match.getOpponent().getUser();
         holder.name.setText(opponent.getName());
         setupFacebookButton(holder.context, holder.facebookButton, opponent);
+        setupVkontakteButton(holder.context, holder.vkontakteButton, opponent);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,6 +130,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         @Bind(R.id.picture) public ImageView picture;
         @Bind(R.id.name) public TextView name;
         @Bind(R.id.facebook_button) public View facebookButton;
+        @Bind(R.id.vkontakte_button) public View vkontakteButton;
 
         public MatchViewHolder(Context ctx, View itemView) {
             super(itemView);

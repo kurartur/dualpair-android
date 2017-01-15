@@ -23,6 +23,7 @@ public class VKLoginCallback implements VKCallback<VKAccessToken> {
 
     @Override
     public void onResult(VKAccessToken res) {
+        loginActivity.showProgress();
         new RequestTokenClient("vkontakte", res.accessToken, res.expiresIn == 0 ? null : getExpiresIn(res.expiresIn),
                 null, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET)
                 .observable()
@@ -33,7 +34,7 @@ public class VKLoginCallback implements VKCallback<VKAccessToken> {
 
     @Override
     public void onError(VKError error) {
-        Log.e(TAG, "Facebook login error", error.httpError);
+        Log.e(TAG, "VK login error", error.httpError);
     }
 
     private Long getExpiresIn(int expiresInSec) {

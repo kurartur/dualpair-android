@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lt.dualpair.android.ui.accounts.AccountType;
+
 public class User extends BaseResource implements Serializable {
 
     private Long id;
@@ -55,17 +57,6 @@ public class User extends BaseResource implements Serializable {
 
     public List<UserAccount> getAccounts() {
         return accounts;
-    }
-
-    public UserAccount getFacebookAccount() {
-        if (getAccounts() != null) {
-            for (UserAccount account : getAccounts()) {
-                if (account.getAccountType().equals("FACEBOOK")) {
-                    return account;
-                }
-            }
-        }
-        return null;
     }
 
     public Location getFirstLocation() {
@@ -117,5 +108,16 @@ public class User extends BaseResource implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public UserAccount getAccountByType(AccountType accountType) {
+        if (getAccounts() != null) {
+            for (UserAccount account : getAccounts()) {
+                if (account.getAccountType() == accountType) {
+                    return account;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -25,17 +25,34 @@
             android:textColor="@color/white"
             android:textStyle="bold"
             android:shadowColor="@color/text_shadow"
-            android:shadowRadius="4"/>
+            android:shadowRadius="2"
+            android:shadowDx="1"
+            android:shadowDy="1"/>
 
-        <ImageButton
-            android:id="@+id/facebook_button"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:src="@drawable/fb_f_logo__blue_50"
-            android:layout_alignParentRight="true"
-            android:scaleType="centerInside"
-            android:padding="7dp"
-            android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentRight="true">
+
+            <ImageView
+                android:id="@+id/facebook_button"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/fb_f_logo__blue_50"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/vkontakte_button"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/vkontakte_logo"
+                android:visibility="gone"
+                android:layout_marginLeft="5dp"/>
+
+        </LinearLayout>
+
+
 
     </RelativeLayout>
 

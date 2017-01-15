@@ -15,7 +15,7 @@
             android:id="@+id/mutual_matches"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:spanCount="3"
+            app:spanCount="2"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"/>
 
         <LinearLayout

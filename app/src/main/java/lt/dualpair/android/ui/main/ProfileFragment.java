@@ -68,8 +68,6 @@ public class ProfileFragment extends MainTabFragment {
     @Bind(R.id.edit_photos) ImageView editPhotos;
 
     @Bind(R.id.accounts) GridView accountsGridView;
-    @Bind(R.id.edit_sociotypes) ImageView editSociotypes;
-    @Bind(R.id.edit_accounts) ImageView editAccounts;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,26 +83,19 @@ public class ProfileFragment extends MainTabFragment {
         startActivityForResult(EditPhotosActivity.createIntent(getActivity()), EDIT_PHOTOS_REQ_CODE);
     }
 
+    @OnClick(R.id.sociotypes_header) void onSociotypesHeaderClick(View v) {
+        startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQ_CODE);
+    }
+
+    @OnClick(R.id.accounts_header) void onAccountsHeaderClick(View v) {
+        startActivityForResult(EditAccountsActivity.createIntent(getActivity()), EDIT_ACCOUNTS_REQ_CODE);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_layout, container, false);
         ButterKnife.bind(this, view);
-
-        editSociotypes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQ_CODE);
-            }
-        });
-
-        editAccounts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(EditAccountsActivity.createIntent(getActivity()), EDIT_ACCOUNTS_REQ_CODE);
-            }
-        });
-
         return view;
     }
 

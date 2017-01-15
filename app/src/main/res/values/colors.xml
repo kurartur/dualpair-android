@@ -19,4 +19,6 @@
     <color name="light_green">#93e77e</color>
     <color name="black">#000000</color>
     <color name="grey">#cccccc</color>
+
+    <color name="new_match_background">#eccfd8dc</color>
 </resources>

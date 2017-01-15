@@ -13,12 +13,17 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.resource.UserAccount;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.ui.accounts.AccountType;
+import lt.dualpair.android.utils.SocialUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -29,8 +34,9 @@ public class NewMatchActivity extends BaseActivity {
 
     @Bind(R.id.main_picture) protected ImageView mainPicture;
     @Bind(R.id.name) protected TextView name;
-    @Bind(R.id.close) protected ImageView close;
     @Bind(R.id.forward) protected ImageView forward;
+    @Bind(R.id.facebook_button) protected View facebookButton;
+    @Bind(R.id.vkontakte_button) protected View vkontakteButton;
 
     private Long matchId;
 
@@ -46,13 +52,6 @@ public class NewMatchActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         matchId = getIntent().getLongExtra(MATCH_ID, -1);
-
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         forward.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,8 +73,12 @@ public class NewMatchActivity extends BaseActivity {
         }
     }
 
+    @OnClick(R.id.close) void onCloseClick(View v) {
+        finish();
+    }
+
     private void init(final Long matchId) {
-        new MatchDataManager(this).match(matchId)
+        new MatchDataManager(this).match(matchId, true)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .compose(this.<Match>bindToLifecycle())
@@ -94,9 +97,33 @@ public class NewMatchActivity extends BaseActivity {
     }
 
     private void render(Match match) {
-        name.setText(match.getOpponent().getUser().getName());
-        if (!match.getOpponent().getUser().getPhotos().isEmpty()) {
-            loadPhoto(match.getOpponent().getUser().getPhotos().get(0));
+        User opponent = match.getOpponent().getUser();
+        name.setText(opponent.getName());
+        if (!opponent.getPhotos().isEmpty()) {
+            loadPhoto(opponent.getPhotos().get(0));
+        }
+
+        UserAccount userAccount;
+        if ((userAccount = opponent.getAccountByType(AccountType.FB)) != null) {
+            facebookButton.setVisibility(View.VISIBLE);
+            final String accountId = userAccount.getAccountId();
+            facebookButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SocialUtils.openFacebookUser(NewMatchActivity.this, accountId);
+                }
+            });
+        }
+
+        if ((userAccount = opponent.getAccountByType(AccountType.VK)) != null) {
+            vkontakteButton.setVisibility(View.VISIBLE);
+            final String accountId = userAccount.getAccountId();
+            vkontakteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SocialUtils.openVKontakteUser(NewMatchActivity.this, accountId);
+                }
+            });
         }
 
     }
@@ -104,9 +131,7 @@ public class NewMatchActivity extends BaseActivity {
     private void loadPhoto(Photo photo) {
         Picasso.with(this)
                 .load(photo.getSourceUrl())
-                .resize(mainPicture.getWidth(), mainPicture.getHeight())
                 .error(R.drawable.image_not_found)
-                .centerCrop()
                 .into(mainPicture, new Callback() {
                     @Override
                     public void onSuccess() {

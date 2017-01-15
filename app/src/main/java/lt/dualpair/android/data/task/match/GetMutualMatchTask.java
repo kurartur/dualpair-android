@@ -15,10 +15,16 @@ import rx.Subscriber;
 public class GetMutualMatchTask extends AuthenticatedUserTask<Match> {
 
     private Long matchId;
+    private boolean refresh;
 
     public GetMutualMatchTask(String authToken, Long matchId) {
         super(authToken);
         this.matchId = matchId;
+    }
+
+    public GetMutualMatchTask(String authToken, Long matchId, boolean refresh) {
+        this(authToken, matchId);
+        this.refresh = refresh;
     }
 
     @Override
@@ -29,17 +35,38 @@ public class GetMutualMatchTask extends AuthenticatedUserTask<Match> {
                 SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
                 MatchRepository matchRepository = new MatchRepository(db);
                 UserRepository userRepository = new UserRepository(db);
-                Match match = matchRepository.findOne(matchId, getUserId(context));
+
+                Long userId = getUserId(context);
+
+                Match match;
+
+                if (refresh) {
+                    match = loadRemotely(matchRepository, userRepository, matchId, userId);
+                } else {
+                    match = loadFromRepo(matchRepository, matchId, userId);
+                    if (match == null) {
+                        match = loadRemotely(matchRepository, userRepository, matchId, userId);
+                    }
+                }
+
                 if (match != null) {
                     subscriber.onNext(match);
                 } else {
-                    match = new GetMutualMatchClient(getUserId(context), matchId).observable().toBlocking().first();
-                    match.getUser().setUser(userRepository.get(getUserId(context)));
-                    matchRepository.save(match);
-                    subscriber.onNext(match);
+                    subscriber.onError(new RuntimeException("Match not found"));
                 }
                 subscriber.onCompleted();
             }
         });
+    }
+
+    private Match loadFromRepo(MatchRepository matchRepository, Long matchId, Long userId) {
+        return matchRepository.findOne(matchId, userId);
+    }
+
+    private Match loadRemotely(MatchRepository matchRepository, UserRepository userRepository,  Long matchId, Long userId) {
+        Match match = new GetMutualMatchClient(userId, matchId).observable().toBlocking().first();
+        match.getUser().setUser(userRepository.get(userId));
+        matchRepository.save(match);
+        return match;
     }
 }

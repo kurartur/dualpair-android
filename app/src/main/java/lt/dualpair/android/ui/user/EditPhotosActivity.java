@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +19,7 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 
 
 public class EditPhotosActivity extends BaseActivity implements EditPhotosRecyclerAdapter.OnStartDragListener,
@@ -55,9 +54,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            Drawable icon = getResources().getDrawable(R.drawable.close_24x24);
-            icon.setColorFilter(getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
-            actionBar.setHomeAsUpIndicator(icon);
+            actionBar.setHomeAsUpIndicator(DrawableUtils.getActionBarIcon(this, R.drawable.ic_close_black_24dp));
         }
 
         ButterKnife.bind(this);
@@ -125,12 +122,10 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem menuItemHelp = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
-        menuItemHelp.setIcon(R.drawable.help_grey_100x100);
+        menuItemHelp.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_help_black_48dp));
         menuItemHelp.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menuItemSave = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
-        Drawable icon = getResources().getDrawable(R.drawable.checkmark_24x24);
-        icon.setColorFilter(getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
-        menuItemSave.setIcon(icon);
+        menuItemSave.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
         menuItemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }

@@ -79,6 +79,7 @@
             style="@style/ProfileViewSection.Container">
 
             <LinearLayout
+                android:id="@+id/sociotypes_header"
                 style="@style/ProfileViewSection.Header">
 
                 <ImageView
@@ -216,6 +217,7 @@
             style="@style/ProfileViewSection.Container">
 
             <LinearLayout
+                android:id="@+id/accounts_header"
                 style="@style/ProfileViewSection.Header">
 
                 <ImageView

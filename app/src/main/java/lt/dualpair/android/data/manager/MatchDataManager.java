@@ -54,6 +54,15 @@ public class MatchDataManager extends DataManager {
         }));
     }
 
+    public Observable<Match> match(final Long matchId, final boolean refresh) {
+        return execute(context, new DataRequest<>("match" + matchId, new AuthenticatedTaskCreator<Match>() {
+            @Override
+            protected Task<Match> doCreateTask(String authToken) {
+                return new GetMutualMatchTask(authToken, matchId, refresh);
+            }
+        }));
+    }
+
     public Observable<Match> mutualMatches(final Integer start, final Integer count) {
         return execute(context, new DataRequest<>("mutualMatchList", new AuthenticatedTaskCreator<Match>() {
             @Override

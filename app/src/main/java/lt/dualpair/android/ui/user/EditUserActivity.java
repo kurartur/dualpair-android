@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class EditUserActivity extends BaseActivity {
@@ -39,6 +41,11 @@ public class EditUserActivity extends BaseActivity {
         setupActionBar(true, getString(R.string.you));
         setContentView(R.layout.edit_user_layout);
         ButterKnife.bind(this);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(DrawableUtils.getActionBarIcon(this, R.drawable.ic_close_black_24dp));
+        }
 
         if (presenter == null || savedInstanceState == null) {
             presenter = new EditUserPresenter(this);
@@ -101,6 +108,7 @@ public class EditUserActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         saveMenuItem = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
+        saveMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
         saveMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }

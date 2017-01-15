@@ -24,6 +24,7 @@ public class FacebookLoginCallback implements FacebookCallback<LoginResult> {
 
     @Override
     public void onSuccess(LoginResult loginResult) {
+        loginActivity.showProgress();
         AccessToken accessToken = loginResult.getAccessToken();
         new RequestTokenClient("facebook", accessToken.getToken(), accessToken.getExpires().getTime(),
                                     null, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET)
