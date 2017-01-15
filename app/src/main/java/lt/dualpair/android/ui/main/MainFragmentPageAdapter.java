@@ -31,19 +31,19 @@ public class MainFragmentPageAdapter extends FragmentPagerAdapter {
     }
 
     private enum Tab {
-        REVIEW(0, R.drawable.home_icon, R.string.tab_review, new FragmentCreator() {
+        REVIEW(0, R.drawable.ic_home_black_48dp, R.string.tab_review, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new ReviewFragment();
             }
         }),
-        MATCH_LIST(1, R.drawable.linked, R.string.tab_pairs, new FragmentCreator() {
+        MATCH_LIST(1, R.drawable.ic_star_black_48dp, R.string.tab_pairs, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new MutualMatchListFragment();
             }
         }),
-        PROFILE(2, R.drawable.profile_icon, R.string.profile, new FragmentCreator() {
+        PROFILE(2, R.drawable.ic_person_black_48dp, R.string.profile, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new ProfileFragment();

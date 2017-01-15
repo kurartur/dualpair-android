@@ -6,13 +6,13 @@
         android:id="@+id/search_parameters_menu_item"
         android:title="@string/search_parameters"
         app:showAsAction="always"
-        android:icon="@drawable/search_icon">
+        android:icon="@drawable/ic_search_black_48dp">
     </item>
     <item
         android:id="@+id/history_menu_item"
         android:title="@string/history"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/history_icon">
+        android:icon="@drawable/ic_history_black_48dp">
     </item>
 
 </menu>

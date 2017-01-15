@@ -29,6 +29,7 @@ import lt.dualpair.android.data.task.user.SetLocationTask;
 import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.match.NewMatchActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LocationUtils;
 import lt.dualpair.android.utils.OnceOnlyLocationListener;
 import lt.dualpair.android.utils.ToastUtils;
@@ -79,17 +80,32 @@ public class MainActivity extends BaseActivity {
     }
 
     private void init() {
-        MainFragmentPageAdapter adapter = new MainFragmentPageAdapter(getSupportFragmentManager());
+        final MainFragmentPageAdapter adapter = new MainFragmentPageAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
-            if (adapter.getIconId(i) == null) {
-                tab.setText(adapter.getTitleId(i));
-            } else {
-                tab.setIcon(adapter.getIconId(i));
+            tab.setIcon(DrawableUtils.getActionBarIcon(this, adapter.getIconId(i)));
+            if (i == 0) {
+                DrawableUtils.setAccentColorFilter(this, tab.getIcon());
             }
         }
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                DrawableUtils.setAccentColorFilter(MainActivity.this, tab.getIcon());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                DrawableUtils.setActionBarIconColorFilter(MainActivity.this, tab.getIcon());
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
         startService(RegistrationService.createIntent(this));
         requestLocationUpdate();
     }

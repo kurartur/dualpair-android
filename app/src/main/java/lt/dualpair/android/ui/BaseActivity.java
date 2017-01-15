@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui;
 
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.v7.app.ActionBar;
@@ -26,7 +25,7 @@ public class BaseActivity extends AppCompatActivity implements ActivityLifecycle
         lifecycleSubject.onNext(ActivityEvent.CREATE);
     }
 
-    protected void setupActionBar(boolean enableHome, String title, Integer icon) {
+    protected void setupActionBar(boolean enableHome, String title) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             if (enableHome) {
@@ -34,23 +33,13 @@ public class BaseActivity extends AppCompatActivity implements ActivityLifecycle
                 actionBar.setDisplayHomeAsUpEnabled(true);
             }
             actionBar.setTitle(title);
-            if (icon == null) {
-                actionBar.setIcon(
-                        new ColorDrawable(getResources().getColor(android.R.color.transparent)));
-            } else {
-                actionBar.setIcon(icon);
-            }
         } else {
             Log.i(getClass().getSimpleName(), "ActionBar not found");
         }
     }
 
-    protected void setupActionBar(boolean enableHome, String title) {
-        setupActionBar(enableHome, title, null);
-    }
-
     protected void setupActionBar() {
-        setupActionBar(true, getResources().getString(R.string.app_name), null);
+        setupActionBar(true, getResources().getString(R.string.app_name));
     }
 
     @Override

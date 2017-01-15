@@ -56,7 +56,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             Drawable icon = getResources().getDrawable(R.drawable.close_24x24);
-            icon.setColorFilter(getResources().getColor(R.color.action_bar_control), PorterDuff.Mode.SRC_ATOP);
+            icon.setColorFilter(getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(icon);
         }
 
@@ -129,7 +129,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         menuItemHelp.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menuItemSave = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
         Drawable icon = getResources().getDrawable(R.drawable.checkmark_24x24);
-        icon.setColorFilter(getResources().getColor(R.color.action_bar_control), PorterDuff.Mode.SRC_ATOP);
+        icon.setColorFilter(getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
         menuItemSave.setIcon(icon);
         menuItemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;

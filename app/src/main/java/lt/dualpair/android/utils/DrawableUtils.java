@@ -10,8 +10,15 @@ public class DrawableUtils {
 
     public static Drawable getActionBarIcon(Context context, int drawableId) {
         Drawable drawable = context.getResources().getDrawable(drawableId);
-        drawable.setColorFilter(context.getResources().getColor(R.color.action_bar_control), PorterDuff.Mode.SRC_ATOP);
+        drawable.setColorFilter(context.getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
         return drawable;
     }
 
+    public static void setAccentColorFilter(Context context, Drawable drawable) {
+        drawable.setColorFilter(context.getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+    }
+
+    public static void setActionBarIconColorFilter(Context context, Drawable drawable) {
+        drawable.setColorFilter(context.getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
+    }
 }

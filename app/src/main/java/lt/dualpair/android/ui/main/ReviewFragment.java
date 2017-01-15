@@ -32,6 +32,7 @@ import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 
 public class ReviewFragment extends MainTabFragment {
 
@@ -218,6 +219,10 @@ public class ReviewFragment extends MainTabFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.review_fragment_menu, menu);
+        for(int i=0 ; i < menu.size(); i++) {
+            MenuItem menuItem = menu.getItem(i);
+            DrawableUtils.setActionBarIconColorFilter(getActivity(), menuItem.getIcon());
+        }
     }
 
     @Override

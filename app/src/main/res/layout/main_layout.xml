@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/windowBackground">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/layout_main"
@@ -15,8 +14,7 @@
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@android:color/white" />
+            android:layout_weight="1"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
@@ -25,7 +23,7 @@
             app:tabMode="fixed"
             app:tabMaxWidth="0dp"
             app:tabGravity="fill"
-            android:background="@color/white"/>
+            style="@style/MainTabs"/>
 
     </LinearLayout>
 
