@@ -1,6 +1,7 @@
 package lt.dualpair.android.ui.main;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lt.dualpair.android.R;
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.MatchDataManager;
 import lt.dualpair.android.data.manager.SearchParametersManager;
@@ -17,6 +19,9 @@ import lt.dualpair.android.data.resource.ErrorResponse;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.Response;
 import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.task.user.SetLocationTask;
+import lt.dualpair.android.utils.LocationUtil;
+import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -34,6 +39,11 @@ public class ReviewPresenter {
 
     private ReviewFragment view;
 
+    private LocationUtil locationUtil;
+
+    private long lastLocationUpdate;
+    private static final long LOCATION_UPDATE_INTERVAL = 1000 * 60 * 5;
+
     public ReviewPresenter(final Context context) {
         new SearchParametersManager(context).getSearchParameters()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -48,18 +58,18 @@ public class ReviewPresenter {
                     @Override
                     public void onNext(SearchParameters sp) {
                         searchParameters = sp;
-                        validateAndFetchNext(context);
+                        validate(context);
                     }
                 });
     }
 
-    private void validateAndFetchNext(Context context) {
+    private void validate(final Context context) {
         new NextMatchRequestValidator(context).validate()
                 .subscribe(new EmptySubscriber<NextMatchRequestValidator.Error>() {
                     @Override
                     public void onCompleted() {
                         if (errors.isEmpty()) {
-                            fetchNextMatch();
+                            updateLocation();
                         } else {
                             publish();
                         }
@@ -73,6 +83,39 @@ public class ReviewPresenter {
                     @Override
                     public void onNext(NextMatchRequestValidator.Error error) {
                         errors.add(error);
+                    }
+                });
+    }
+
+    private void updateLocation() {
+        if (System.currentTimeMillis() - lastLocationUpdate > LOCATION_UPDATE_INTERVAL) {
+            view.showLoading(R.string.waiting_for_location);
+            locationUtil.getLocation(new LocationUtil.LocationListener() {
+                @Override
+                public void onLocation(Location location) {
+                    saveLocation(location);
+                }
+            });
+        } else {
+            fetchNextMatch();
+        }
+    }
+
+    private void saveLocation(Location location) {
+        new SetLocationTask(null, lt.dualpair.android.data.resource.Location.fromAndroidLocation(location)).execute(view.getActivity()) // TODO token null
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new EmptySubscriber<Void>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Unable to set location", e);
+                        ToastUtils.show(view.getActivity(), "Unable to set location");
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        lastLocationUpdate = System.currentTimeMillis();
+                        fetchNextMatch();
                     }
                 });
     }
@@ -139,7 +182,7 @@ public class ReviewPresenter {
         searchParameters = sp;
         match = null;
         if (view != null) {
-            validateAndFetchNext(view.getActivity());
+            validate(view.getActivity());
         }
     }
 
@@ -152,6 +195,7 @@ public class ReviewPresenter {
     }
 
     private void setResponse(final Response response) {
+        view.showLoading();
         new MatchDataManager(view.getActivity()).setResponse(match.getId(), response)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -159,16 +203,19 @@ public class ReviewPresenter {
                     @Override
                     public void onNext(Match m) {
                         match = null;
-                        validateAndFetchNext(view.getActivity());
+                        validate(view.getActivity());
                     }
                 });
     }
 
     public void retry() {
-        validateAndFetchNext(view.getActivity());
+        validate(view.getActivity());
     }
 
-    public void onSave(Bundle outState) {
+    public void onSave(Bundle outState) {}
 
+    public void setLocationUtil(LocationUtil locationUtil) {
+        this.locationUtil = locationUtil;
     }
+
 }

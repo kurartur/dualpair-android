@@ -2,6 +2,7 @@ package lt.dualpair.android.ui.match;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.resource.Match;
@@ -10,6 +11,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public abstract class MatchListPresenter {
+
+    private static final String TAG = "MatchListPresenter";
 
     protected final MatchListRecyclerAdapter adapter;
 
@@ -40,7 +43,7 @@ public abstract class MatchListPresenter {
 
                     @Override
                     public void onError(Throwable e) {
-                        super.onError(e);
+                        Log.e(TAG, "Unable to load match list", e);
                     }
 
                     @Override

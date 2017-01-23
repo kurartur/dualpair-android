@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,13 +34,18 @@ import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 import lt.dualpair.android.utils.DrawableUtils;
+import lt.dualpair.android.utils.LocationUtil;
 
 public class ReviewFragment extends MainTabFragment {
 
     private static final String TAG = "ReviewFragment";
+
     private static final int SP_REQ_CODE = 1;
     private static final int ADD_SOCIOTYPE_REQUEST_CODE = 2;
     private static final int SET_BIRTHDAY_REQUEST_CODE = 3;
+
+    private static final int PERMISSIONS_REQUEST_CODE = 1;
+    private static final int RESOLUTION_FOR_RESULT_REQ_CODE = 4;
 
     @Bind(R.id.review) LinearLayout reviewLayout;
     @Bind(R.id.no_button) View noButton;
@@ -63,6 +69,8 @@ public class ReviewFragment extends MainTabFragment {
 
     private static ReviewPresenter presenter;
 
+    private LocationUtil locationUtil;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,9 +93,15 @@ public class ReviewFragment extends MainTabFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         if (presenter == null) {
             presenter = new ReviewPresenter(getActivity());
         }
+
+        locationUtil = new LocationUtil(this, PERMISSIONS_REQUEST_CODE, RESOLUTION_FOR_RESULT_REQ_CODE);
+        presenter.setLocationUtil(locationUtil);
+
+        locationUtil.connect();
         presenter.onTakeView(this);
     }
 
@@ -108,6 +122,7 @@ public class ReviewFragment extends MainTabFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        locationUtil.disconnect();
         presenter.onTakeView(null);
         presenter = null;
     }
@@ -168,12 +183,16 @@ public class ReviewFragment extends MainTabFragment {
     }
 
     public void showLoading() {
-        progressText.setText(getResources().getString(R.string.loading) + "...");
+        showLoading(R.string.loading);
+    }
+
+    public void showLoading(int loadingText) {
+        progressText.setText(loadingText);
         retryButton.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         reviewLayout.setVisibility(View.GONE);
-        progressLayout.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.VISIBLE);
         validationLayout.setVisibility(View.GONE);
     }
 
@@ -253,6 +272,18 @@ public class ReviewFragment extends MainTabFragment {
                 if (resultCode == Activity.RESULT_OK) {
                     presenter.retry();
                 }
+                break;
+            case RESOLUTION_FOR_RESULT_REQ_CODE:
+                locationUtil.onResolutionForResultResult(requestCode, resultCode, data);
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CODE:
+                locationUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
                 break;
         }
     }

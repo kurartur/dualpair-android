@@ -83,10 +83,12 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
     }
 
     public void showEmpty() {
+        swipeRefreshLayout.setRefreshing(false);
         emptyText.setVisibility(View.VISIBLE);
     }
 
     public void showList() {
+        swipeRefreshLayout.setRefreshing(false);
         emptyText.setVisibility(View.GONE);
     }
 

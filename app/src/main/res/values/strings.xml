@@ -233,5 +233,6 @@
     <string name="photo_edit_help">Are you stupid?</string>
     <string name="my_matches">My matches</string>
     <string name="logging_in">Logging in</string>
+    <string name="waiting_for_location">Waiting for location</string>
 
 </resources>

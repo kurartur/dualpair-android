@@ -20,5 +20,5 @@
     <color name="black">#000000</color>
     <color name="grey">#cccccc</color>
 
-    <color name="new_match_background">#eccfd8dc</color>
+    <color name="new_match_background">#e5000000</color>
 </resources>

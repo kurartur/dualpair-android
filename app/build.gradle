@@ -42,6 +42,7 @@ dependencies {
     compile 'com.android.support:support-v13:25.0.1'
     compile 'com.trello:rxlifecycle:0.5.0'
     compile 'com.google.android.gms:play-services-gcm:9.6.1'
+    compile 'com.google.android.gms:play-services-location:9.6.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.vk:androidsdk:1.6.7'
 
