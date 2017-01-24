@@ -166,7 +166,7 @@ public class EditAccountsPresenter {
                         @Override
                         public void onCompleted() {
                             Log.d(TAG, "onCompleted");
-                            presenter.loadAccounts(true);
+                            presenter.onAccountAdded();
                         }
 
                         @Override
