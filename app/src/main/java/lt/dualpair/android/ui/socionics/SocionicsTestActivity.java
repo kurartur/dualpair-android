@@ -144,7 +144,7 @@ public class SocionicsTestActivity extends BaseActivity {
         helpMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         helpMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_help_black_48dp));
         submitMenuItem = menu.add(Menu.NONE, MENU_ITEM_SUBMIT, Menu.NONE, R.string.save);
-        submitMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.checkmark_24x24));
+        submitMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
         submitMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         defaultSubmitMenuItemView = submitMenuItem.getActionView();
         setSubmitMenuItem();
