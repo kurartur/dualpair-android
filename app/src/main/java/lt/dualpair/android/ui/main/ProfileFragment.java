@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -167,6 +168,8 @@ public class ProfileFragment extends MainTabFragment {
                 .load(photo.getSourceUrl())
                 .error(R.drawable.image_not_found)
                 .into(mainPicture);
+
+        ((ScrollView)getView()).fullScroll(ScrollView.FOCUS_UP);
     }
 
     private void renderAccounts(List<UserAccount> userAccounts) {
