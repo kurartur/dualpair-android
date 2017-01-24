@@ -54,7 +54,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(DrawableUtils.getActionBarIcon(this, R.drawable.ic_close_black_24dp));
+            actionBar.setHomeAsUpIndicator(DrawableUtils.getActionBarIcon(this, R.drawable.ic_close_black_30dp));
         }
 
         ButterKnife.bind(this);

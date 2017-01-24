@@ -50,7 +50,6 @@ public abstract class MatchListPresenter {
                     public void onNext(Match match) {
                         adapter.append(match);
                         adapter.notifyDataSetChanged();
-                        view.stopRefreshing();
                         publish();
                     }
                 });

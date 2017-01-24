@@ -58,7 +58,6 @@ public class PhotoRepository extends Repository<Photo> {
         contentValues.put(UserMeta.Photo.POSITION, photo.getPosition());
         long id = db.insert(UserMeta.Photo.TABLE_NAME, null, contentValues);
         assertOperation(id, "Unable to insert photo " + photo);
-        photo.setId(id);
         return photo;
     }
 }
