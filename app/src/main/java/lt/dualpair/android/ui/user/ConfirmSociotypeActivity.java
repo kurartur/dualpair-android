@@ -1,10 +1,10 @@
 package lt.dualpair.android.ui.user;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +21,7 @@ import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -31,8 +32,8 @@ public class ConfirmSociotypeActivity extends BaseActivity {
     public static final String PARAM_SOCIOTYPE = "sociotype";
     private static final int MENU_ITEM_OK = 1;
 
-    @Bind(R.id.header)
-    TextView header;
+    @Bind(R.id.link)
+    TextView link;
 
     private Sociotype sociotype;
 
@@ -43,15 +44,10 @@ public class ConfirmSociotypeActivity extends BaseActivity {
 
         Sociotype sociotype = (Sociotype)getIntent().getSerializableExtra(PARAM_SOCIOTYPE);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(sociotype.getCode1());
-            actionBar.setIcon(
-                    new ColorDrawable(getResources().getColor(android.R.color.transparent)));
-        }
-        setupActionBar(true, sociotype.getCode1());
+        String title = sociotype.getCode1() + " - ";
+        title += getString(getResources().getIdentifier(sociotype.getCode1().toLowerCase() + "_title", "string", getPackageName()));
+
+        setupActionBar(true, title);
 
         ButterKnife.bind(this);
 
@@ -113,13 +109,21 @@ public class ConfirmSociotypeActivity extends BaseActivity {
 
     private void loadSociotype(Sociotype sociotype) {
         this.sociotype = sociotype;
-        header.setText(sociotype.getCode1());
+        String url = "http://www.sociotype.com/socionics/types/"
+                + sociotype.getCode1()
+                + "-"
+                + sociotype.getCode2().substring(0, 3)
+                + sociotype.getCode2().substring(3).toLowerCase()
+                + "/";
+        link.setText(Html.fromHtml("<a href=\"" + url + "\">" + url + "</a>"));
+        link.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, MENU_ITEM_OK, Menu.NONE, R.string.ok)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem okMenuItem = menu.add(Menu.NONE, MENU_ITEM_OK, Menu.NONE, R.string.ok);
+        okMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
+        okMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
 
