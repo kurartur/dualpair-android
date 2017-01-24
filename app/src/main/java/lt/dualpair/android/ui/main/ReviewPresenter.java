@@ -64,6 +64,7 @@ public class ReviewPresenter {
     }
 
     private void validate(final Context context) {
+        errors.clear();
         new NextMatchRequestValidator(context).validate()
                 .subscribe(new EmptySubscriber<NextMatchRequestValidator.Error>() {
                     @Override

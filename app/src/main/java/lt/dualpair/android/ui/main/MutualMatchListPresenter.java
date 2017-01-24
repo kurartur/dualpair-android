@@ -23,7 +23,7 @@ public class MutualMatchListPresenter extends MatchListPresenter {
     }
 
     public void loadAndPrependMatch(Context context, Long matchId) {
-        new MatchDataManager(context).match(matchId)
+        new MatchDataManager(context).match(matchId, true)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new EmptySubscriber<Match>() {
