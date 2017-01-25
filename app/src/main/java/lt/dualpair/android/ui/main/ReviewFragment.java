@@ -166,7 +166,7 @@ public class ReviewFragment extends MainTabFragment {
         actionBarViewHolder.age.setText(getString(R.string.review_age, opponentUser.getAge()));
         Location location = opponentUser.getFirstLocation();
         if (location != null) {
-            actionBarViewHolder.city.setText(getString(R.string.review_city, location.getCity(), match.getDistance()));
+            actionBarViewHolder.city.setText(getString(R.string.review_city, location.getCity(), match.getDistance() / 1000));
         }
         StringBuilder sb = new StringBuilder();
         String prefix = "";
