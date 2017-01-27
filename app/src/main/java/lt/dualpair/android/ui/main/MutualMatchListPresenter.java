@@ -31,6 +31,7 @@ public class MutualMatchListPresenter extends MatchListPresenter {
                     public void onNext(Match match) {
                         adapter.prepend(match);
                         adapter.notifyDataSetChanged();
+                        publish();
                     }
                 });
     }

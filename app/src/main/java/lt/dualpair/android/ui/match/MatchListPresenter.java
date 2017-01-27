@@ -67,7 +67,7 @@ public abstract class MatchListPresenter {
         }
     }
 
-    private void publish() {
+    protected void publish() {
         if (view != null) {
             if (adapter.getItemCount() == 0) {
                 view.showEmpty();
