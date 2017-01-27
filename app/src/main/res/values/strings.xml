@@ -234,5 +234,8 @@
     <string name="my_matches">My matches</string>
     <string name="logging_in">Logging in</string>
     <string name="waiting_for_location">Waiting for location</string>
+    <string name="error">Error</string>
+    <string name="unmatch">Unmatch</string>
+    <string name="report">Report</string>
 
 </resources>

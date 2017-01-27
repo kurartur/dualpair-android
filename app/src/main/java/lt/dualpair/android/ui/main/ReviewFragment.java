@@ -85,7 +85,7 @@ public class ReviewFragment extends MainTabFragment {
         ButterKnife.bind(this, view);
         showLoading();
         actionBarViewHolder = new ActionBarViewHolder();
-        actionBarViewHolder.actionBarView = getLayoutInflater(savedInstanceState).inflate(R.layout.review_action_bar, null);
+        actionBarViewHolder.actionBarView = getLayoutInflater(savedInstanceState).inflate(R.layout.review_action_bar_layout, null);
         ButterKnife.bind(actionBarViewHolder, actionBarViewHolder.actionBarView);
         return view;
     }
@@ -288,7 +288,7 @@ public class ReviewFragment extends MainTabFragment {
         }
     }
 
-    public static class ActionBarViewHolder {
+    protected static class ActionBarViewHolder {
 
         View actionBarView;
 
