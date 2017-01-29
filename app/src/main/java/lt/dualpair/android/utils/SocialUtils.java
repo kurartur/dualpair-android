@@ -5,8 +5,13 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.util.Log;
+
+import lt.dualpair.android.data.resource.UserAccount;
 
 public class SocialUtils {
+
+    private static final String TAG = "SocialUtils";
 
     private static final String FACEBOOK_DOMAIN = "https://www.facebook.com";
     private static final String VKONTAKTE_DOMAIN = "https://vk.com";
@@ -37,5 +42,18 @@ public class SocialUtils {
         } catch (PackageManager.NameNotFoundException ignored) {
         }
         context.startActivity(intent);
+    }
+
+    public static void openUserAccount(Context context, UserAccount userAccount) {
+        switch (userAccount.getAccountType()) {
+            case FB:
+                openFacebookUser(context, userAccount.getAccountId());
+                break;
+            case VK:
+                openVKontakteUser(context, userAccount.getAccountId());
+                break;
+            default:
+                Log.e(TAG, "Unrecognized account type");
+        }
     }
 }

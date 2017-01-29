@@ -40,4 +40,8 @@ public class Match implements Serializable {
     public int getDistance() {
         return distance;
     }
+
+    public boolean isMutual() {
+        return user.getResponse() == Response.YES && opponent.getResponse() == Response.YES;
+    }
 }

@@ -62,4 +62,7 @@ public interface UserService {
 
     @POST("api/user/{userId}/photos")
     Observable<Void> setPhotos(@Path("userId") Long userId, @Body List<Photo> photos);
+
+    @POST("api/report")
+    Observable<Void> reportUser(@Body Map<String, Object> data);
 }

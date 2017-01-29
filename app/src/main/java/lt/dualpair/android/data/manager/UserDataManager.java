@@ -18,6 +18,7 @@ import lt.dualpair.android.data.task.user.AddPhotoTask;
 import lt.dualpair.android.data.task.user.DeletePhotoTask;
 import lt.dualpair.android.data.task.user.GetAvailablePhotosTask;
 import lt.dualpair.android.data.task.user.GetUserPrincipalTask;
+import lt.dualpair.android.data.task.user.ReportUserTask;
 import lt.dualpair.android.data.task.user.SavePhotosTask;
 import lt.dualpair.android.data.task.user.SetDateOfBirthTask;
 import lt.dualpair.android.data.task.user.SetUserSociotypesTask;
@@ -130,6 +131,15 @@ public class UserDataManager extends DataManager {
             @Override
             protected Task<List<Photo>> doCreateTask(String authToken) {
                 return new SavePhotosTask(authToken, photos);
+            }
+        }));
+    }
+
+    public Observable<Void> reportUser(final Long userId) {
+        return execute(context, new DataRequest<Void>("reportUser" + userId, new AuthenticatedTaskCreator<Void>() {
+            @Override
+            protected Task<Void> doCreateTask(String authToken) {
+                return new ReportUserTask(authToken, userId);
             }
         }));
     }

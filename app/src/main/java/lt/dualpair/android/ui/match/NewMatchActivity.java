@@ -56,7 +56,7 @@ public class NewMatchActivity extends BaseActivity {
         forward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(MatchActivity.createIntent(NewMatchActivity.this, matchId));
+                startActivity(MutualMatchActivity.createIntent(NewMatchActivity.this, matchId));
                 finish();
             }
         });

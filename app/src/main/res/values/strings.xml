@@ -237,5 +237,9 @@
     <string name="error">Error</string>
     <string name="unmatch">Unmatch</string>
     <string name="report">Report</string>
+    <string name="report_user_confirmation">Report %1$s?</string>
+    <string name="user_reported">%1$s reported</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
 
 </resources>

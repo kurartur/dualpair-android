@@ -13,8 +13,12 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.bus.RxBus;
+import lt.dualpair.android.bus.UnmatchEvent;
 import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
 import lt.dualpair.android.ui.main.MainTabFragment;
+import rx.Subscription;
+import rx.functions.Action1;
 
 public abstract class MatchListFragment extends MainTabFragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -24,6 +28,8 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
     @Bind(R.id.mutual_matches) RecyclerView matchesView;
     @Bind(android.R.id.empty) View emptyView;
     @Bind(R.id.no_matches_text) TextView emptyText;
+
+    private Subscription unmatchEventSubscription;
 
     @Override
     public void onAttach(Context context) {
@@ -51,6 +57,13 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
             createPresenter();
         }
         getPresenter().onTakeView(this);
+
+        unmatchEventSubscription = RxBus.getInstance().register(UnmatchEvent.class, new Action1<UnmatchEvent>() {
+            @Override
+            public void call(UnmatchEvent unmatchEvent) {
+                getPresenter().refresh(getActivity());
+            }
+        });
     }
 
     @Override
@@ -65,6 +78,7 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
     public void onDestroy() {
         getPresenter().onTakeView(null);
         destroyPresenter();
+        unmatchEventSubscription.unsubscribe();
         super.onDestroy();
     }
 

@@ -97,7 +97,10 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.context.startActivity(MatchActivity.createIntent(holder.context, match.getId()));
+                holder.context.startActivity(
+                        match.isMutual() ?
+                        MutualMatchActivity.createIntent(holder.context, match.getId()) :
+                        MatchActivity.createIntent(holder.context, match.getId()));
             }
         });
     }

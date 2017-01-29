@@ -28,10 +28,10 @@ import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.ui.ImageSwipe;
 import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
+import lt.dualpair.android.ui.user.OpponentUserView;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LocationUtil;
@@ -48,8 +48,6 @@ public class ReviewFragment extends MainTabFragment {
     private static final int RESOLUTION_FOR_RESULT_REQ_CODE = 4;
 
     @Bind(R.id.review) LinearLayout reviewLayout;
-    @Bind(R.id.no_button) View noButton;
-    @Bind(R.id.yes_button) View yesButton;
 
     @Bind(R.id.progress_layout) LinearLayout progressLayout;
     @Bind(R.id.progress_bar) ProgressBar progressBar;
@@ -61,9 +59,7 @@ public class ReviewFragment extends MainTabFragment {
     @Bind(R.id.provide_date_of_birth) View provideDateOfBirth;
     @Bind(R.id.provide_search_parameters) View provideSearchParameters;
 
-    @Bind(R.id.photos) ImageSwipe photosView;
-    @Bind(R.id.sociotypes) TextView sociotypes;
-    @Bind(R.id.description) TextView description;
+    @Bind(R.id.opponent_user_view) OpponentUserView opponentUserView;
 
     private ActionBarViewHolder actionBarViewHolder;
 
@@ -83,11 +79,30 @@ public class ReviewFragment extends MainTabFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.review_layout, container, false);
         ButterKnife.bind(this, view);
+
         showLoading();
         actionBarViewHolder = new ActionBarViewHolder();
         actionBarViewHolder.actionBarView = getLayoutInflater(savedInstanceState).inflate(R.layout.review_action_bar_layout, null);
         ButterKnife.bind(actionBarViewHolder, actionBarViewHolder.actionBarView);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        opponentUserView.setPhotoOverlay(R.layout.review_buttons);
+        ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.yes();
+            }
+        });
+        ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.no();
+            }
+        });
     }
 
     @Override
@@ -131,13 +146,13 @@ public class ReviewFragment extends MainTabFragment {
         presenter.retry();
     }
 
-    @OnClick(R.id.yes_button) void onYesClick() {
+    /*@OnClick(R.id.yes_button) void onYesClick() {
         presenter.yes();
     }
 
     @OnClick(R.id.no_button) void onNoClick() {
         presenter.no();
-    }
+    }*/
 
     @OnClick(R.id.provide_sociotype) void onProvideSociotypeClick() {
         startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQUEST_CODE);
@@ -177,9 +192,7 @@ public class ReviewFragment extends MainTabFragment {
             int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getActivity().getPackageName());
             sb.append(getString(titleId) + " (" + sociotype.getCode1() + ")");
         }
-        sociotypes.setText(sb);
-        description.setText(opponentUser.getDescription());
-        photosView.setPhotos(opponentUser.getPhotos());
+        opponentUserView.setUser(opponentUser);
     }
 
     public void showLoading() {
