@@ -9,6 +9,8 @@ import java.util.Set;
 
 import lt.dualpair.android.data.resource.Choice;
 import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.resource.PurposeOfBeing;
+import lt.dualpair.android.data.resource.RelationshipStatus;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.LogoutTask;
@@ -81,11 +83,15 @@ public class UserDataManager extends DataManager {
         }));
     }
 
-    public Observable<User> updateUser(final String name, final Date dateOfBirth, final String description) {
+    public Observable<User> updateUser(final String name,
+                                       final Date dateOfBirth,
+                                       final String description,
+                                       final RelationshipStatus relationshipStatus,
+                                       final Set<PurposeOfBeing> purposesOfBeing) {
         return execute(context, new DataRequest<>("updateUser", new AuthenticatedTaskCreator<User>() {
             @Override
             protected Task<User> doCreateTask(String authToken) {
-                return new UpdateUserTask(authToken, name, dateOfBirth, description);
+                return new UpdateUserTask(authToken, name, dateOfBirth, description, relationshipStatus, purposesOfBeing);
             }
         }));
     }

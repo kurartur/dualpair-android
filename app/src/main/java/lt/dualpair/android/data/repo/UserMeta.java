@@ -13,7 +13,13 @@ public class UserMeta {
         public static final String DATE_OF_BIRTH = "date_of_birth";
         public static final String AGE = "age";
         public static final String UPDATE_TIME = "update_time";
+        public static final String RELATIONSHIP_STATUS = "relationship_status";
+    }
 
+    public static final class PurposeOfBeing {
+        public static final String TABLE_NAME = "user_purposes_of_being";
+        public static final String USER_ID = "user_id";
+        public static final String PURPOSE_OF_BEING = "purpose";
     }
 
     public static final class Sociotype implements BaseColumns {

@@ -47,7 +47,8 @@
         <activity android:name=".ui.match.MutualMatchActivity"/>
         <activity android:name=".ui.match.NewMatchActivity" android:theme="@style/AppTheme.NewMatchWindow"/>
         <activity android:name=".ui.match.ReviewHistoryActivity"/>
-        <activity android:name=".ui.user.EditUserActivity"/>
+        <activity android:name=".ui.user.EditUserActivity"
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".ui.user.EditPhotosActivity"/>
         <activity android:name=".ui.accounts.EditAccountsActivity"/>
         <activity android:name=".ui.accounts.LinkAccountActivity"/>

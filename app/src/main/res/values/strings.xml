@@ -135,7 +135,15 @@
             status SMALLINT NOT NULL DEFAULT 0,
             gender VARCHAR(1) NULL,
             update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            relationship_status VARCHAR(2),
+            purpose_of_being VARCHAR(4),
             PRIMARY KEY (_id));
+
+        DROP TABLE IF EXISTS user_purposes_of_being;
+        CREATE TABLE IF NOT EXISTS user_purposes_of_being (
+          user_id BIGINT NOT NULL,
+          purpose VARCHAR(4) NOT NULL,
+          PRIMARY KEY (user_id, purpose));
 
         DROP TABLE IF EXISTS search_parameters;
         CREATE TABLE IF NOT EXISTS search_parameters (
@@ -241,5 +249,12 @@
     <string name="user_reported">%1$s reported</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
-
+    <string name="relationship_status">Relationship status</string>
+    <string name="rs_none">No answer</string>
+    <string name="rs_single">Single</string>
+    <string name="rs_in_relationship">In relationship</string>
+    <string name="why_are_you_here">Why are you here?</string>
+    <string name="pob_none">No answer</string>
+    <string name="pob_find_friend">To find a friend</string>
+    <string name="pob_find_love">To find love</string>
 </resources>

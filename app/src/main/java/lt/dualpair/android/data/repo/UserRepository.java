@@ -3,6 +3,7 @@ package lt.dualpair.android.data.repo;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,6 +12,8 @@ import java.util.Set;
 
 import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.resource.PurposeOfBeing;
+import lt.dualpair.android.data.resource.RelationshipStatus;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
@@ -54,6 +57,11 @@ public class UserRepository extends Repository<User> {
         }
         contentValues.put(UserMeta.User.AGE, user.getAge());
         contentValues.put(UserMeta.User.NAME, user.getName());
+        if (user.getRelationshipStatus() != null) {
+            contentValues.put(UserMeta.User.RELATIONSHIP_STATUS, user.getRelationshipStatus().getCode());
+        } else {
+            contentValues.put(UserMeta.User.RELATIONSHIP_STATUS, "");
+        }
 
         boolean userExists = db.query(UserMeta.User.TABLE_NAME, new String[]{UserMeta.User._ID}, "_id=?", new String[]{userId.toString()}, null, null, null).moveToNext();
 
@@ -63,6 +71,7 @@ public class UserRepository extends Repository<User> {
             insertPhotos(userId, user.getPhotos());
             insertLocations(userId, user.getLocations());
             insertAccounts(userId, user.getAccounts());
+            insertPurposesOfBeing(userId, user.getPurposesOfBeing());
         } else {
             db.update(UserMeta.User.TABLE_NAME, contentValues, "_id=?", args(userId.toString()));
             db.delete(UserMeta.Sociotype.TABLE_NAME, "user_id=?", args(userId.toString()));
@@ -73,6 +82,8 @@ public class UserRepository extends Repository<User> {
             insertLocations(userId, user.getLocations());
             db.delete(UserMeta.UserAccount.TABLE_NAME, "user_id=?", args(userId.toString()));
             insertAccounts(userId, user.getAccounts());
+            db.delete(UserMeta.PurposeOfBeing.TABLE_NAME, "user_id=?", args(userId.toString()));
+            insertPurposesOfBeing(userId, user.getPurposesOfBeing());
         }
 
         return user;
@@ -119,6 +130,15 @@ public class UserRepository extends Repository<User> {
         }
     }
 
+    private void insertPurposesOfBeing(Long userId, Set<PurposeOfBeing> purposesOfBeing) {
+        for (PurposeOfBeing purpose : purposesOfBeing) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(UserMeta.PurposeOfBeing.USER_ID, userId);
+            contentValues.put(UserMeta.PurposeOfBeing.PURPOSE_OF_BEING, purpose.getCode());
+            assertOperation(db.insert(UserMeta.PurposeOfBeing.TABLE_NAME, null, contentValues), "Unable to insert purpose " + purpose);
+        }
+    }
+
     private User map(Cursor c) {
         User user = new User();
 
@@ -134,10 +154,18 @@ public class UserRepository extends Repository<User> {
         user.setName(c.getString(c.getColumnIndex(UserMeta.User.NAME)));
         user.setDescription(c.getString(c.getColumnIndex(UserMeta.User.DESCRIPTION)));
 
+        String relStatusCode = c.getString(c.getColumnIndex(UserMeta.User.RELATIONSHIP_STATUS));
+        if (TextUtils.isEmpty(relStatusCode)) {
+            user.setRelationshipStatus(RelationshipStatus.NONE);
+        } else {
+            user.setRelationshipStatus(RelationshipStatus.fromCode(relStatusCode));
+        }
+
         user.setSociotypes(getSociotypes(userId));
         user.setPhotos(photoRepository.fetch(userId));
         user.setLocations(getLocations(userId));
         user.setAccounts(getAccounts(userId));
+        user.setPurposesOfBeing(getPurposesOfBeing(userId));
 
         user.setUpdateTime(DatabaseHelper.getDateFromString(c.getString(c.getColumnIndex(UserMeta.User.UPDATE_TIME))));
 
@@ -199,6 +227,22 @@ public class UserRepository extends Repository<User> {
         } finally {
             if (accountsCursor != null) {
                 accountsCursor.close();
+            }
+        }
+    }
+
+    private Set<PurposeOfBeing> getPurposesOfBeing(Long userId) {
+        Cursor purposesCursor = null;
+        try {
+            Set<PurposeOfBeing> purposes = new HashSet<>();
+            purposesCursor = db.query(UserMeta.PurposeOfBeing.TABLE_NAME, null, "user_id=?", new String[]{userId.toString()}, null, null, null);
+            while (purposesCursor.moveToNext()) {
+                purposes.add(PurposeOfBeing.fromCode(purposesCursor.getString(purposesCursor.getColumnIndex(UserMeta.PurposeOfBeing.PURPOSE_OF_BEING))));
+            }
+            return purposes;
+        } finally {
+            if (purposesCursor != null) {
+                purposesCursor.close();
             }
         }
     }

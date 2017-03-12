@@ -20,6 +20,8 @@ public class User extends BaseResource implements Serializable {
     private String description;
     private List<Photo> photos;
     private List<UserAccount> accounts = new ArrayList<>();
+    private RelationshipStatus relationshipStatus = RelationshipStatus.NONE;
+    private Set<PurposeOfBeing> purposesOfBeing = new HashSet<>();
 
     private Date updateTime = new Date();
 
@@ -119,5 +121,21 @@ public class User extends BaseResource implements Serializable {
             }
         }
         return null;
+    }
+
+    public RelationshipStatus getRelationshipStatus() {
+        return relationshipStatus;
+    }
+
+    public void setRelationshipStatus(RelationshipStatus relationshipStatus) {
+        this.relationshipStatus = relationshipStatus;
+    }
+
+    public Set<PurposeOfBeing> getPurposesOfBeing() {
+        return purposesOfBeing;
+    }
+
+    public void setPurposesOfBeing(Set<PurposeOfBeing> purposesOfBeing) {
+        this.purposesOfBeing = purposesOfBeing;
     }
 }
