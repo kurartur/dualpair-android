@@ -131,11 +131,13 @@ public class UserRepository extends Repository<User> {
     }
 
     private void insertPurposesOfBeing(Long userId, Set<PurposeOfBeing> purposesOfBeing) {
-        for (PurposeOfBeing purpose : purposesOfBeing) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(UserMeta.PurposeOfBeing.USER_ID, userId);
-            contentValues.put(UserMeta.PurposeOfBeing.PURPOSE_OF_BEING, purpose.getCode());
-            assertOperation(db.insert(UserMeta.PurposeOfBeing.TABLE_NAME, null, contentValues), "Unable to insert purpose " + purpose);
+        if (purposesOfBeing != null) {
+            for (PurposeOfBeing purpose : purposesOfBeing) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(UserMeta.PurposeOfBeing.USER_ID, userId);
+                contentValues.put(UserMeta.PurposeOfBeing.PURPOSE_OF_BEING, purpose.getCode());
+                assertOperation(db.insert(UserMeta.PurposeOfBeing.TABLE_NAME, null, contentValues), "Unable to insert purpose " + purpose);
+            }
         }
     }
 

@@ -70,6 +70,7 @@
         <item name="android:layout_marginTop">25dp</item>
         <item name="android:paddingLeft">25dp</item>
         <item name="android:paddingRight">25dp</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="ProfileViewSection.HeaderText">

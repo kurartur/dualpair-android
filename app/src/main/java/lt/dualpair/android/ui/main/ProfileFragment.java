@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +49,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ProfileFragment extends MainTabFragment {
+
+    private static final String LOG_TAG = "ProfileFragment";
 
     private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
     private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
@@ -146,16 +149,22 @@ public class ProfileFragment extends MainTabFragment {
                 .subscribeOn(Schedulers.io())
                 .compose(this.<User>bindToLifecycle())
                 .subscribe(new EmptySubscriber<User>() {
-                @Override
-                public void onNext(User user) {
-                    render(user);
-                }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(LOG_TAG, e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onNext(User user) {
+                        render(user);
+                    }
             });
     }
 
     private void renderUser(User user) {
         name.setText(user.getName());
-        age.setText("(" + Integer.toString(user.getAge()) + ")");
+        age.setText(user.getAge().toString());
         if (TextUtils.isEmpty(user.getDescription())) {
             description.setText(getResources().getString(R.string.add_description));
             description.setTextColor(getResources().getColor(android.R.color.darker_gray));
