@@ -19,7 +19,8 @@
             style="@style/ProfileViewSection.Container">
 
             <LinearLayout
-                style="@style/ProfileViewSection.Header">
+                style="@style/ProfileViewSection.Header"
+                android:layout_marginTop="10dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"

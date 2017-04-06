@@ -1,12 +1,19 @@
 package lt.dualpair.android.data.resource;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public enum RelationshipStatus {
 
+    @SerializedName("")
     NONE(""),
+
+    @SerializedName("SI")
     SINGLE("SI"),
+
+    @SerializedName("IR")
     IN_RELATIONSHIP("IR");
 
     private String code;
