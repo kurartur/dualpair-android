@@ -9,6 +9,7 @@ import android.widget.Filter;
 import android.widget.TextView;
 
 import lt.dualpair.android.data.resource.RelationshipStatus;
+import lt.dualpair.android.utils.LabelUtils;
 
 class RelationshipStatusAdapter extends ArrayAdapter<RelationshipStatus> {
 
@@ -31,14 +32,14 @@ class RelationshipStatusAdapter extends ArrayAdapter<RelationshipStatus> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         TextView tv = (TextView) super.getView(position, convertView, parent);
-        tv.setText(editUserActivity.getRelationshipStatusLabel(getItem(position)));
+        tv.setText(LabelUtils.getRelationshipStatusLabel(editUserActivity, getItem(position)));
         return tv;
     }
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         TextView tv = (TextView) super.getView(position, convertView, parent);
-        tv.setText(editUserActivity.getRelationshipStatusLabel(getItem(position)));
+        tv.setText(LabelUtils.getRelationshipStatusLabel(editUserActivity, getItem(position)));
         return tv;
     }
 

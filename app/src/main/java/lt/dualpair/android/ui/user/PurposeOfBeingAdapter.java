@@ -14,6 +14,7 @@ import java.util.Set;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.PurposeOfBeing;
+import lt.dualpair.android.utils.LabelUtils;
 
 public class PurposeOfBeingAdapter extends BaseAdapter {
 
@@ -64,7 +65,7 @@ public class PurposeOfBeingAdapter extends BaseAdapter {
         });
 
         TextView text = (TextView)ll.findViewById(R.id.text);
-        text.setText(editUserActivity.getPurposeOfBeingLabel(purposeOfBeing));
+        text.setText(LabelUtils.getPurposeOfBeingLabel(editUserActivity, purposeOfBeing));
         text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

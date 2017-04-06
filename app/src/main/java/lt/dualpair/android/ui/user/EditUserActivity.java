@@ -22,6 +22,7 @@ import lt.dualpair.android.data.resource.PurposeOfBeing;
 import lt.dualpair.android.data.resource.RelationshipStatus;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.DrawableUtils;
+import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdapter.OnPurposeListChangeListener {
@@ -68,7 +69,7 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 RelationshipStatus relStatus = (RelationshipStatus)parent.getItemAtPosition(position);
-                relationshipStatus.setText(getRelationshipStatusLabel(relStatus));
+                relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(EditUserActivity.this, relStatus));
                 presenter.setRelationshipStatus(relStatus);
             }
         });
@@ -102,7 +103,7 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
         this.dateOfBirth.setText(dateOfBirth);
         this.description.setText(description);
         if (relStatus != null) {
-            relationshipStatus.setText(getRelationshipStatusLabel(relStatus));
+            relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(this, relStatus));
         }
         if (purposesOfBeing != null) {
             this.purposeOfBeingAdapter.setCheckedPurposes(purposesOfBeing);
@@ -159,14 +160,6 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
 
     public static Intent createIntent(Activity activity) {
         return new Intent(activity, EditUserActivity.class);
-    }
-
-    protected String getRelationshipStatusLabel(RelationshipStatus relationshipStatus) {
-        return getResources().getString(getResources().getIdentifier("rs_" + relationshipStatus.name().toLowerCase(), "string", getPackageName()));
-    }
-
-    protected String getPurposeOfBeingLabel(PurposeOfBeing purpose) {
-        return getResources().getString(getResources().getIdentifier("pob_" + purpose.name().toLowerCase(), "string", getPackageName()));
     }
 
 }

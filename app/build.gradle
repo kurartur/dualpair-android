@@ -45,6 +45,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:9.6.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.vk:androidsdk:1.6.7'
+    compile 'com.makeramen:roundedimageview:2.3.0'
 
     testCompile 'junit:junit:4.12'
 

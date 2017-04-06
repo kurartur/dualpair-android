@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,6 +35,8 @@ import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.resource.PurposeOfBeing;
+import lt.dualpair.android.data.resource.RelationshipStatus;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
@@ -44,6 +47,7 @@ import lt.dualpair.android.ui.accounts.EditAccountsActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
 import lt.dualpair.android.ui.user.EditUserActivity;
+import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.ToastUtils;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -61,6 +65,8 @@ public class ProfileFragment extends MainTabFragment {
     @Bind(R.id.name) TextView name;
     @Bind(R.id.age) TextView age;
     @Bind(R.id.description) TextView description;
+    @Bind(R.id.relationship_status) TextView relationshipStatus;
+    @Bind(R.id.purposes_of_being) TextView purposeOfBeing;
 
     @Bind(R.id.first_sociotype_info) ImageView firstSociotypeInfo;
     @Bind(R.id.first_sociotype_code) TextView firstSociotypeCode;
@@ -165,20 +171,63 @@ public class ProfileFragment extends MainTabFragment {
     private void renderUser(User user) {
         name.setText(user.getName());
         age.setText(user.getAge().toString());
-        if (TextUtils.isEmpty(user.getDescription())) {
-            description.setText(getResources().getString(R.string.add_description));
-            description.setTextColor(getResources().getColor(android.R.color.darker_gray));
-        } else {
-            description.setText(user.getDescription());
-        }
+        renderDescription(user);
+        renderRelationshipStatus(user);
+        renderPurposesOfBeing(user);
+        renderMainPhoto(user);
+        ((ScrollView)getView()).fullScroll(ScrollView.FOCUS_UP);
+    }
 
+    private void renderMainPhoto(User user) {
         final Photo photo = user.getPhotos().iterator().next();
         Picasso.with(getActivity())
                 .load(photo.getSourceUrl())
                 .error(R.drawable.image_not_found)
                 .into(mainPicture);
+    }
 
-        ((ScrollView)getView()).fullScroll(ScrollView.FOCUS_UP);
+    private void renderDescription(User user) {
+        if (TextUtils.isEmpty(user.getDescription())) {
+            description.setText(getResources().getString(R.string.add_description));
+            description.setTextColor(getNotProvidedFieldsColor());
+        } else {
+            description.setText(user.getDescription());
+            description.setTextColor(getNormalTextColor());
+        }
+    }
+
+    private void renderRelationshipStatus(User user) {
+        if (user.getRelationshipStatus() == RelationshipStatus.NONE) {
+            relationshipStatus.setText(getResources().getString(R.string.provide_relationship_status));
+            relationshipStatus.setTextColor(getNotProvidedFieldsColor());
+        } else {
+            relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(getContext(), user.getRelationshipStatus()));
+            relationshipStatus.setTextColor(getNormalTextColor());
+        }
+    }
+
+    private void renderPurposesOfBeing(User user) {
+        if (user.getPurposesOfBeing().isEmpty()) {
+            purposeOfBeing.setText(getResources().getString(R.string.provide_purpose_of_beings));
+            purposeOfBeing.setTextColor(getNotProvidedFieldsColor());
+        } else {
+            String purposeOfBeingText = "";
+            String prefix = "";
+            for (PurposeOfBeing purposeOfBeing : user.getPurposesOfBeing()) {
+                purposeOfBeingText += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing);
+                prefix = ", ";
+            }
+            purposeOfBeing.setText(purposeOfBeingText);
+            purposeOfBeing.setTextColor(getNormalTextColor());
+        }
+    }
+
+    private int getNotProvidedFieldsColor() {
+        return ContextCompat.getColor(getContext(), android.R.color.darker_gray);
+    }
+
+    private int getNormalTextColor() {
+        return ContextCompat.getColor(getContext(), R.color.colorPrimaryText);
     }
 
     private void renderAccounts(List<UserAccount> userAccounts) {

@@ -113,7 +113,7 @@
     <string name="save">Save</string>
     <string name="user_profile">User profile</string>
     <string name="sample_text">Sample text</string>
-    <string name="add_description">Write about yourself...</string>
+    <string name="add_description">Write about yourself</string>
     <string name="about">About</string>
     <string name="edit">Edit</string>
     <string name="add">Add</string>
@@ -257,4 +257,6 @@
     <string name="pob_none">No answer</string>
     <string name="pob_find_friend">To find a friend</string>
     <string name="pob_find_love">To find love</string>
+    <string name="provide_relationship_status">Share your relationship status</string>
+    <string name="provide_purpose_of_beings">Let others know why you are here</string>
 </resources>
