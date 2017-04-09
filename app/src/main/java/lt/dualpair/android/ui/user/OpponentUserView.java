@@ -9,12 +9,17 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Set;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.resource.PurposeOfBeing;
+import lt.dualpair.android.data.resource.RelationshipStatus;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.ui.ImageSwipe;
+import lt.dualpair.android.utils.LabelUtils;
 
 public class OpponentUserView extends LinearLayout {
 
@@ -22,6 +27,8 @@ public class OpponentUserView extends LinearLayout {
     @Bind(R.id.sociotypes)  TextView sociotypes;
     @Bind(R.id.description) TextView description;
     @Bind(R.id.photos_wrapper) RelativeLayout photosWrapper;
+    @Bind(R.id.purposes_of_being) TextView purposesOfBeing;
+    @Bind(R.id.relationship_status) TextView relationshipStatus;
 
     public OpponentUserView(Context context) {
         super(context);
@@ -62,6 +69,34 @@ public class OpponentUserView extends LinearLayout {
         sociotypes.setText(sb);
         description.setText(opponentUser.getDescription());
         photosView.setPhotos(opponentUser.getPhotos());
+        setRelationshipStatus(opponentUser);
+        setPurposesOfBeing(opponentUser);
+    }
+
+    private void setPurposesOfBeing(User opponentUser) {
+        purposesOfBeing.setVisibility(GONE);
+        if (!opponentUser.getPurposesOfBeing().isEmpty()) {
+            purposesOfBeing.setText(getResources().getString(R.string.i_am_here_to, getPurposesText(opponentUser.getPurposesOfBeing())));
+            purposesOfBeing.setVisibility(VISIBLE);
+        }
+    }
+
+    private void setRelationshipStatus(User opponentUser) {
+        relationshipStatus.setVisibility(GONE);
+        if (opponentUser.getRelationshipStatus() != RelationshipStatus.NONE) {
+            relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(getContext(), opponentUser.getRelationshipStatus()));
+            relationshipStatus.setVisibility(VISIBLE);
+        }
+    }
+
+    private String getPurposesText(Set<PurposeOfBeing> purposesOfBeing) {
+        String text = "";
+        String prefix = "";
+        for (PurposeOfBeing purposeOfBeing : purposesOfBeing) {
+            text += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing);
+            prefix = ", ";
+        }
+        return text.toLowerCase();
     }
 
     public View setPhotoOverlay(int layoutId) {
