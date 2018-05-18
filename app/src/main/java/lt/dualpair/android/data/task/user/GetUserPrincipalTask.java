@@ -9,6 +9,7 @@ import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
+import lt.dualpair.android.data.resource.RelationshipStatus;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.AuthenticatedUserTask;
 import rx.Observable;
@@ -39,6 +40,7 @@ public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
                 if (user == null || isExpired(user.getUpdateTime()) || forceUpdate) {
                     user = new GetUserPrincipalClient().observable().toBlocking().first();
                     user.setUpdateTime(new Date());
+                    fixRelationshipStatus(user);
                     userRepository.save(user);
                     subscriber.onNext(user);
                 } else {
@@ -47,6 +49,13 @@ public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
                 subscriber.onCompleted();
             }
         });
+    }
+
+    // TODO should be fixed on server side
+    private void fixRelationshipStatus(User user) {
+        if (user.getRelationshipStatus() == null) {
+            user.setRelationshipStatus(RelationshipStatus.NONE);
+        }
     }
 
     private boolean isExpired(Date updateTime) {

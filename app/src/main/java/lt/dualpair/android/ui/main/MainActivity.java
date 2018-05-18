@@ -1,10 +1,7 @@
 package lt.dualpair.android.ui.main;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -13,7 +10,6 @@ import android.widget.LinearLayout;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
 import lt.dualpair.android.gcm.RegistrationService;
@@ -43,24 +39,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         ButterKnife.bind(this);
-
-        final AccountManager am = AccountManager.get(this);
-        Account account = AccountUtils.getAccount(am);
-        if (account == null) {
-            new AsyncTask<Void, Void, Bundle>() {
-                @Override
-                protected Bundle doInBackground(Void... params) {
-                    return AccountUtils.addAccount(am, MainActivity.this);
-                }
-
-                @Override
-                protected void onPostExecute(Bundle bundle) {
-                    init();
-                }
-            }.execute((Void)null);
-        } else {
-            init();
-        }
+        init();
     }
 
     private void init() {

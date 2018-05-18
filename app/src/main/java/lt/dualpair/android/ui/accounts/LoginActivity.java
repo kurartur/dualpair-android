@@ -10,19 +10,23 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.CallbackManager;
+import com.facebook.login.LoginManager;
 import com.vk.sdk.VKSdk;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
+import lt.dualpair.android.SocialConstants;
 import lt.dualpair.android.ui.AboutActivity;
 
 public class LoginActivity extends AccountAuthenticatorActivity {
 
     private static final String TAG = "LoginActivity";
 
-    private LoginPresenter loginPresenter;
     private CallbackManager callbackManager;
 
     @Bind(R.id.terms_and_conditions_disclaimer_text)
@@ -41,15 +45,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
         ButterKnife.bind(this);
         termAndConditionsDisclaimerText.setMovementMethod(LinkMovementMethod.getInstance());
         callbackManager = CallbackManager.Factory.create();
-        loginPresenter = new LoginPresenter(this, callbackManager);
     }
 
     @OnClick(R.id.vk_login_button) void onVkLoginClick(View v) {
-        loginPresenter.loginWithVkontakte();
+        loginWithVkontakte();
     }
 
     @OnClick(R.id.fb_login_button) void onFbLoginClick(View v) {
-        loginPresenter.loginWithFacebook();
+        loginWithFacebook();
     }
 
     public void showMain() {
@@ -82,5 +85,15 @@ public class LoginActivity extends AccountAuthenticatorActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
         VKSdk.onActivityResult(requestCode, resultCode, data, new VKLoginCallback(this));
+    }
+
+    public void loginWithFacebook() {
+        LoginManager loginManager = LoginManager.getInstance();
+        loginManager.registerCallback(callbackManager, new FacebookLoginCallback(this));
+        loginManager.logInWithReadPermissions(this, new ArrayList<>(Arrays.asList(SocialConstants.FACEBOOK_SCOPE.split(","))));
+    }
+
+    public void loginWithVkontakte() {
+        VKSdk.login(this, SocialConstants.VKONTAKTE_SCOPE);
     }
 }

@@ -1,4 +1,4 @@
-package lt.dualpair.android.ui.match;
+package lt.dualpair.android.ui.main;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,14 +13,9 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.bus.RxBus;
-import lt.dualpair.android.bus.UnmatchEvent;
 import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
-import lt.dualpair.android.ui.main.MainTabFragment;
-import rx.Subscription;
-import rx.functions.Action1;
 
-public abstract class MatchListFragment extends MainTabFragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class UserListFragment extends MainTabFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "MatchListFragment";
 
@@ -29,7 +24,7 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
     @Bind(android.R.id.empty) View emptyView;
     @Bind(R.id.no_matches_text) TextView emptyText;
 
-    private Subscription unmatchEventSubscription;
+    protected final MatchListRecyclerAdapter adapter = new MatchListRecyclerAdapter();
 
     @Override
     public void onAttach(Context context) {
@@ -52,48 +47,12 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (getPresenter() == null) {
-            swipeRefreshLayout.setRefreshing(true);
-            createPresenter();
-        }
-        getPresenter().onTakeView(this);
-
-        unmatchEventSubscription = RxBus.getInstance().register(UnmatchEvent.class, new Action1<UnmatchEvent>() {
-            @Override
-            public void call(UnmatchEvent unmatchEvent) {
-                getPresenter().refresh(getActivity());
-            }
-        });
-    }
-
-    @Override
-    public void onDetach() {
-        if (getPresenter() != null) {
-            getPresenter().onTakeView(null);
-        }
-        super.onDetach();
-    }
-
-    @Override
-    public void onDestroy() {
-        getPresenter().onTakeView(null);
-        destroyPresenter();
-        unmatchEventSubscription.unsubscribe();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        getPresenter().onSave(outState);
+        emptyText.setVisibility(View.GONE);
+        swipeRefreshLayout.setRefreshing(true);
     }
 
     public void setAdapter(MatchListRecyclerAdapter adapter) {
         matchesView.setAdapter(adapter);
-    }
-
-    public void stopRefreshing() {
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     public void showEmpty() {
@@ -109,15 +68,11 @@ public abstract class MatchListFragment extends MainTabFragment implements Swipe
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
-        getPresenter().refresh(getActivity());
+        refresh();
     }
 
+    protected abstract void refresh();
+
     protected abstract String getEmptyViewText();
-
-    protected abstract void createPresenter();
-
-    protected abstract void destroyPresenter();
-
-    protected abstract MatchListPresenter getPresenter();
 
 }

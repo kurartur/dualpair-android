@@ -260,4 +260,10 @@
     <string name="provide_relationship_status">Share your relationship status</string>
     <string name="provide_purpose_of_beings">Let others know why you are here</string>
     <string name="i_am_here_to">I am here to %1$s</string>
+    <string name="location_permissions_explanation_title">Location access</string>
+    <string name="location_permission_explanation_message">We need to know your location to find users near you. Without this permission you will not be able to use the app.</string>
+    <string name="decline_anyway">Decline anyway</string>
+    <string name="open_app_settings">Open app settings</string>
+    <string name="location_permission_denied_explanation_message">You have denied permission to access location. You can allow this app to access location in app settings.</string>
+    <string name="close_app">Close app</string>
 </resources>

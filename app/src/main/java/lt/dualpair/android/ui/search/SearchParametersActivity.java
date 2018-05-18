@@ -3,6 +3,7 @@ package lt.dualpair.android.ui.search;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -14,13 +15,16 @@ import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class SearchParametersActivity extends BaseActivity {
 
-    private static final String TAG = "SearchParamActivity";
+    private static final String TAG = SearchParametersActivity.class.getName();
     public static final String RESULT_BUNDLE_KEY = "RESULT_BUNDLE";
     public static final String SEARCH_PARAMETERS_KEY = "SEARCH_PARAMETERS";
+    private static final String WITH_HOME_BUTTON = "WITH_HOME_BUTTON";
+    private static final int MENU_ITEM_OK = 1;
 
     @Bind(R.id.checkbox_search_for_male) CheckBox searchMale;
     @Bind(R.id.checkbox_search_for_female) CheckBox searchFemale;
@@ -35,7 +39,10 @@ public class SearchParametersActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_parameters_layout);
-        setupActionBar(true, getResources().getString(R.string.search_parameters));
+
+        boolean homeButton = getIntent().getBooleanExtra(WITH_HOME_BUTTON, true);
+        setupActionBar(homeButton, getResources().getString(R.string.search_parameters));
+
         ButterKnife.bind(this);
 
         mainLayout.setVisibility(View.GONE);
@@ -89,8 +96,18 @@ public class SearchParametersActivity extends BaseActivity {
         ToastUtils.show(this, error);
     }
 
+    public void onSaved(SearchParameters searchParameters) {
+        Intent resultData = new Intent();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(SEARCH_PARAMETERS_KEY, searchParameters);
+        resultData.putExtra(RESULT_BUNDLE_KEY, bundle);
+        setResult(Activity.RESULT_OK, resultData);
+        finish();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         presenter.onSave(outState);
     }
 
@@ -109,32 +126,31 @@ public class SearchParametersActivity extends BaseActivity {
         searchParameters.setMinAge(minAgePicker.getValue());
         searchParameters.setMaxAge(maxAgePicker.getValue());
         presenter.save(searchParameters);
-        Intent resultData = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(SEARCH_PARAMETERS_KEY, searchParameters);
-        resultData.putExtra(RESULT_BUNDLE_KEY, bundle);
-        setResult(Activity.RESULT_OK, resultData);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem okMenuItem = menu.add(Menu.NONE, MENU_ITEM_OK, Menu.NONE, R.string.ok);
+        okMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
+        okMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item)) return true;
         switch (item.getItemId()) {
-            case android.R.id.home:
+            case MENU_ITEM_OK:
                 save();
-                finish();
                 return true;
         }
         return false;
     }
 
-    @Override
-    public void onBackPressed() {
-        save();
-        super.onBackPressed();
-    }
-
-    public static Intent createIntent(Activity activity) {
-        return new Intent(activity, SearchParametersActivity.class);
+    public static Intent createIntent(Activity activity, boolean homeButton) {
+        Intent intent = new Intent(activity, SearchParametersActivity.class);
+        intent.putExtra(WITH_HOME_BUTTON, homeButton);
+        return intent;
     }
 
 }

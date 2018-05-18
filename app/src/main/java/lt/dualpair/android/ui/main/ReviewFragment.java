@@ -1,11 +1,24 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.Activity;
+import android.Manifest;
+import android.app.Application;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,35 +30,38 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.List;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.LocationLiveData;
+import lt.dualpair.android.data.LocationSettingsLiveData;
+import lt.dualpair.android.data.manager.MatchDataManager;
+import lt.dualpair.android.data.manager.UserDataManager;
 import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.ui.match.ReviewHistoryActivity;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
-import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.OpponentUserView;
-import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LocationUtil;
 
 public class ReviewFragment extends MainTabFragment {
 
-    private static final String TAG = "ReviewFragment";
+    private static final String TAG = ReviewFragment.class.getName();
 
     private static final int SP_REQ_CODE = 1;
-    private static final int ADD_SOCIOTYPE_REQUEST_CODE = 2;
-    private static final int SET_BIRTHDAY_REQUEST_CODE = 3;
 
-    private static final int PERMISSIONS_REQUEST_CODE = 1;
-    private static final int RESOLUTION_FOR_RESULT_REQ_CODE = 4;
+    private static final int LOCATION_PERMISSIONS_REQ_CODE = 1;
+    private static final int LOCATION_SETTINGS_REQ_CODE = 4;
+    private static final int PERMISSION_SETTING_REQ_CODE = 5;
 
     @Bind(R.id.review) LinearLayout reviewLayout;
 
@@ -54,18 +70,11 @@ public class ReviewFragment extends MainTabFragment {
     @Bind(R.id.progress_text) TextView progressText;
     @Bind(R.id.retry_button) Button retryButton;
 
-    @Bind(R.id.validation_layout) View validationLayout;
-    @Bind(R.id.provide_sociotype) View provideSociotype;
-    @Bind(R.id.provide_date_of_birth) View provideDateOfBirth;
-    @Bind(R.id.provide_search_parameters) View provideSearchParameters;
-
     @Bind(R.id.opponent_user_view) OpponentUserView opponentUserView;
 
     private ActionBarViewHolder actionBarViewHolder;
 
-    private static ReviewPresenter presenter;
-
-    private LocationUtil locationUtil;
+    private ReviewViewModel viewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,9 +90,11 @@ public class ReviewFragment extends MainTabFragment {
         ButterKnife.bind(this, view);
 
         showLoading();
+
         actionBarViewHolder = new ActionBarViewHolder();
         actionBarViewHolder.actionBarView = getLayoutInflater(savedInstanceState).inflate(R.layout.review_action_bar_layout, null);
         ButterKnife.bind(actionBarViewHolder, actionBarViewHolder.actionBarView);
+
         return view;
     }
 
@@ -94,13 +105,13 @@ public class ReviewFragment extends MainTabFragment {
         ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.yes();
+                viewModel.yes();
             }
         });
         ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.no();
+                viewModel.no();
             }
         });
     }
@@ -109,61 +120,46 @@ public class ReviewFragment extends MainTabFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (presenter == null) {
-            presenter = new ReviewPresenter(getActivity());
-        }
+        viewModel = ViewModelProviders.of(this, new ReviewViewModelFactory(getActivity().getApplication())).get(ReviewViewModel.class);
+        subscribeUi();
 
-        locationUtil = new LocationUtil(this, PERMISSIONS_REQUEST_CODE, RESOLUTION_FOR_RESULT_REQ_CODE);
-        presenter.setLocationUtil(locationUtil);
-
-        locationUtil.connect();
-        presenter.onTakeView(this);
+        doLocationChecks();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (presenter != null) {
-            presenter.onTakeView(null);
+    private void doLocationChecks() {
+        if (!canAccessLocation()) {
+            askForPermissionToAccessLocation();
+        } else {
+            onLocationAccessGranted();
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        presenter.onSave(outState);
+    private void subscribeUi() {
+        viewModel.getUserToReview().observe(this, new Observer<Match>() {
+            @Override
+            public void onChanged(@Nullable Match match) {
+                if (match == null) {
+                    showLoading();
+                } else if (match.getId() == null) {
+                    showNoMatches();
+                } else {
+                    renderReview(match);
+                }
+            }
+        });
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        locationUtil.disconnect();
-        presenter.onTakeView(null);
-        presenter = null;
+    private boolean canAccessLocation() {
+        return ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void askForPermissionToAccessLocation() {
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQ_CODE);
     }
 
     @OnClick(R.id.retry_button) void onRetryClick() {
-        presenter.retry();
-    }
-
-    /*@OnClick(R.id.yes_button) void onYesClick() {
-        presenter.yes();
-    }
-
-    @OnClick(R.id.no_button) void onNoClick() {
-        presenter.no();
-    }*/
-
-    @OnClick(R.id.provide_sociotype) void onProvideSociotypeClick() {
-        startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQUEST_CODE);
-    }
-
-    @OnClick(R.id.provide_date_of_birth) void onProvideDateOfBirthClick() {
-        startActivityForResult(SetDateOfBirthActivity.createIntent(getActivity()), SET_BIRTHDAY_REQUEST_CODE);
-    }
-
-    @OnClick(R.id.provide_search_parameters) void onProvideSearchParametersClick() {
-        startActivityForResult(SearchParametersActivity.createIntent(getActivity()), SP_REQ_CODE);
+        viewModel.retry();
     }
 
     @Override
@@ -175,7 +171,6 @@ public class ReviewFragment extends MainTabFragment {
         User opponentUser = match.getOpponent().getUser();
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
-        validationLayout.setVisibility(View.GONE);
 
         actionBarViewHolder.name.setText(opponentUser.getName());
         actionBarViewHolder.age.setText(getString(R.string.review_age, opponentUser.getAge()));
@@ -196,56 +191,19 @@ public class ReviewFragment extends MainTabFragment {
     }
 
     public void showLoading() {
-        showLoading(R.string.loading);
-    }
-
-    public void showLoading(int loadingText) {
-        progressText.setText(loadingText);
+        progressText.setText("");
         retryButton.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         reviewLayout.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);
-        validationLayout.setVisibility(View.GONE);
-    }
-
-    public void showLoadingError(String text) {
-        progressLayout.setVisibility(View.VISIBLE);
-        validationLayout.setVisibility(View.GONE);
-        progressText.setText(text);
-        progressText.setTextColor(Color.RED);
-        progressBar.setVisibility(View.GONE);
-        retryButton.setVisibility(View.VISIBLE);
     }
 
     public void showNoMatches() {
         progressLayout.setVisibility(View.VISIBLE);
-        validationLayout.setVisibility(View.GONE);
         progressText.setText(getResources().getString(R.string.no_matches_found));
         progressBar.setVisibility(View.GONE);
         retryButton.setVisibility(View.VISIBLE);
-    }
-
-    public void showValidationErrors(List<NextMatchRequestValidator.Error> errors) {
-        validationLayout.setVisibility(View.VISIBLE);
-        reviewLayout.setVisibility(View.GONE);
-        progressLayout.setVisibility(View.GONE);
-        provideSociotype.setVisibility(View.GONE);
-        provideDateOfBirth.setVisibility(View.GONE);
-        provideSearchParameters.setVisibility(View.GONE);
-        for (NextMatchRequestValidator.Error error : errors) {
-            switch (error) {
-                case NO_SOCIOTYPE:
-                    provideSociotype.setVisibility(View.VISIBLE);
-                    break;
-                case NO_DATE_OF_BIRTH:
-                    provideDateOfBirth.setVisibility(View.VISIBLE);
-                    break;
-                case NO_SEARCH_PARAMETERS:
-                    provideSearchParameters.setVisibility(View.VISIBLE);
-                    break;
-            }
-        }
     }
 
     @Override
@@ -261,7 +219,7 @@ public class ReviewFragment extends MainTabFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search_parameters_menu_item:
-                startActivityForResult(SearchParametersActivity.createIntent(getActivity()), SP_REQ_CODE);
+                startActivityForResult(SearchParametersActivity.createIntent(getActivity(), true), SP_REQ_CODE);
                 break;
             case R.id.history_menu_item:
                 startActivity(ReviewHistoryActivity.createIntent(getActivity()));
@@ -273,21 +231,11 @@ public class ReviewFragment extends MainTabFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case SP_REQ_CODE:
-                if (resultCode == Activity.RESULT_OK) {
-                    presenter.updateSearchParameters((SearchParameters)data.getBundleExtra(SearchParametersActivity.RESULT_BUNDLE_KEY)
-                            .getSerializable(SearchParametersActivity.SEARCH_PARAMETERS_KEY)
-                    );
-                }
+            case LOCATION_SETTINGS_REQ_CODE:
+                onLocationSettingsOk();
                 break;
-            case ADD_SOCIOTYPE_REQUEST_CODE:
-            case SET_BIRTHDAY_REQUEST_CODE:
-                if (resultCode == Activity.RESULT_OK) {
-                    presenter.retry();
-                }
-                break;
-            case RESOLUTION_FOR_RESULT_REQ_CODE:
-                locationUtil.onResolutionForResultResult(requestCode, resultCode, data);
+            case PERMISSION_SETTING_REQ_CODE:
+                doLocationChecks();
                 break;
         }
     }
@@ -295,10 +243,118 @@ public class ReviewFragment extends MainTabFragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE:
-                locationUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            case LOCATION_PERMISSIONS_REQ_CODE:
+                for (int i = 0, len = permissions.length; i < len; i++) {
+                    String permission = permissions[i];
+                    if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        boolean showRationale = ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), permission);
+                        if (!showRationale) {
+                            showLocationAccessDeniedNotification();
+                        } else {
+                            showLocationAccessExplanation();
+                        }
+                    } else {
+                        onLocationAccessGranted();
+                    }
+                }
                 break;
         }
+    }
+
+    private void onLocationAccessGranted() {
+        checkLocationSettings();
+    }
+
+    private void showLocationAccessExplanation() {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(getContext());
+        }
+        builder.setTitle(R.string.location_permissions_explanation_title)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage(R.string.location_permission_explanation_message)
+                .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        askForPermissionToAccessLocation();
+                    }
+                })
+                .setNegativeButton(R.string.decline_anyway, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().finishAffinity();
+                    }
+                })
+                .show();
+    }
+
+    private void showLocationAccessDeniedNotification() {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(getContext());
+        }
+        builder.setTitle(R.string.location_permissions_explanation_title)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage(R.string.location_permission_denied_explanation_message)
+                .setPositiveButton(R.string.open_app_settings,  new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                        intent.setData(uri);
+                        startActivityForResult(intent, PERMISSION_SETTING_REQ_CODE);
+                    }
+                })
+                .setNegativeButton(R.string.close_app, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().finishAffinity();
+                    }
+                })
+                .show();
+    }
+
+    public void checkLocationSettings() {
+        viewModel.getLocationSettings().observe(this, new Observer<LocationSettingsResult>() {
+            @Override
+            public void onChanged(@Nullable LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                final LocationSettingsStates states = result.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can
+                        // initialize location requests here.
+                        onLocationSettingsOk();
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            startIntentSenderForResult(status.getResolution().getIntentSender(), LOCATION_SETTINGS_REQ_CODE, null, 0, 0, 0, null);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way
+                        // to fix the settings so we won't show the dialog.
+                        break;
+                }
+                viewModel.getLocationSettings().removeObserver(this);
+            }
+        });
+    }
+
+    private void onLocationSettingsOk() {
+        viewModel.loadNext();
+    }
+
+    private static LocationRequest createLocationRequest() {
+        return LocationUtil.createLocationRequest();
     }
 
     protected static class ActionBarViewHolder {
@@ -309,6 +365,28 @@ public class ReviewFragment extends MainTabFragment {
         @Bind(R.id.age) TextView age;
         @Bind(R.id.city) TextView city;
 
+    }
+
+    private static class ReviewViewModelFactory extends ViewModelProvider.AndroidViewModelFactory {
+
+        private Application application;
+
+        public ReviewViewModelFactory(@NonNull Application application) {
+            super(application);
+            this.application = application;
+        }
+
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            if (modelClass.isAssignableFrom(ReviewViewModel.class)) {
+                LocationSettingsLiveData locationSettingsLiveData = new LocationSettingsLiveData(application, createLocationRequest());
+                MatchDataManager matchDataManager = new MatchDataManager(application);
+                LiveData<android.location.Location> location = new LocationLiveData(application);
+                return (T) new ReviewViewModel(new UserDataManager(application), matchDataManager, locationSettingsLiveData, location);
+            }
+            throw new IllegalArgumentException("Unknown ViewModel class");
+        }
     }
 
 }

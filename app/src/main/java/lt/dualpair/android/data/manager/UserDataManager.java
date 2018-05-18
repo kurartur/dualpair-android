@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import lt.dualpair.android.data.resource.Choice;
+import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.PurposeOfBeing;
 import lt.dualpair.android.data.resource.RelationshipStatus;
+import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.Sociotype;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.task.LogoutTask;
@@ -19,10 +21,13 @@ import lt.dualpair.android.data.task.socionics.EvaluateTestTask;
 import lt.dualpair.android.data.task.user.AddPhotoTask;
 import lt.dualpair.android.data.task.user.DeletePhotoTask;
 import lt.dualpair.android.data.task.user.GetAvailablePhotosTask;
+import lt.dualpair.android.data.task.user.GetSearchParametersTask;
 import lt.dualpair.android.data.task.user.GetUserPrincipalTask;
 import lt.dualpair.android.data.task.user.ReportUserTask;
 import lt.dualpair.android.data.task.user.SavePhotosTask;
 import lt.dualpair.android.data.task.user.SetDateOfBirthTask;
+import lt.dualpair.android.data.task.user.SetLocationTask;
+import lt.dualpair.android.data.task.user.SetSearchParametersTask;
 import lt.dualpair.android.data.task.user.SetUserSociotypesTask;
 import lt.dualpair.android.data.task.user.UpdateUserTask;
 import lt.dualpair.android.ui.accounts.AccountType;
@@ -70,6 +75,15 @@ public class UserDataManager extends DataManager {
             @Override
             protected Task<User> doCreateTask(String authToken) {
                 return new DeletePhotoTask(authToken, photo);
+            }
+        }));
+    }
+
+    public Observable<Void> setLocation(final Location location) {
+        return execute(context, new DataRequest<>("setLocation" + location, new AuthenticatedTaskCreator<Void>() {
+            @Override
+            protected Task<Void> doCreateTask(String authToken) {
+                return new SetLocationTask(authToken, location);
             }
         }));
     }
@@ -146,6 +160,24 @@ public class UserDataManager extends DataManager {
             @Override
             protected Task<Void> doCreateTask(String authToken) {
                 return new ReportUserTask(authToken, userId);
+            }
+        }));
+    }
+
+    public Observable<SearchParameters> getSearchParameters() {
+        return execute(context, new DataRequest<>("getSearchParameters", new AuthenticatedTaskCreator<SearchParameters>() {
+            @Override
+            protected Task<SearchParameters> doCreateTask(String authToken) {
+                return new GetSearchParametersTask(authToken);
+            }
+        }));
+    }
+
+    public Observable<SearchParameters> setSearchParameters(final SearchParameters sp) {
+        return execute(context, new DataRequest<>("setSearchParameters", new AuthenticatedTaskCreator<SearchParameters>() {
+            @Override
+            protected Task<SearchParameters> doCreateTask(String authToken) {
+                return new SetSearchParametersTask(authToken, sp);
             }
         }));
     }

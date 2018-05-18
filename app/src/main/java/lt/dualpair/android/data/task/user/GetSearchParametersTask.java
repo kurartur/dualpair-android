@@ -24,14 +24,9 @@ public class GetSearchParametersTask extends AuthenticatedUserTask<SearchParamet
             public void call(Subscriber<? super SearchParameters> subscriber) {
                 SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
                 SearchParametersRepository searchParametersRepository = new SearchParametersRepository(db);
-                SearchParameters sp = searchParametersRepository.getLastUsed();
-                if (sp != null) {
-                    subscriber.onNext(sp);
-                } else {
-                    sp = new GetSearchParametersClient(getUserId(context)).observable().toBlocking().first();
-                    searchParametersRepository.save(sp);
-                    subscriber.onNext(sp);
-                }
+                SearchParameters sp = new GetSearchParametersClient(getUserId(context)).observable().toBlocking().first();
+                searchParametersRepository.save(sp);
+                subscriber.onNext(sp);
                 subscriber.onCompleted();
             }
         });

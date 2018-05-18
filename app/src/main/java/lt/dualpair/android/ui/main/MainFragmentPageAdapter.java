@@ -40,7 +40,7 @@ public class MainFragmentPageAdapter extends FragmentPagerAdapter {
         MATCH_LIST(1, R.drawable.ic_star_black_48dp, R.string.tab_pairs, new FragmentCreator() {
             @Override
             public Fragment create() {
-                return new MutualMatchListFragment();
+                return new MatchListFragment();
             }
         }),
         PROFILE(2, R.drawable.ic_person_black_48dp, R.string.profile, new FragmentCreator() {

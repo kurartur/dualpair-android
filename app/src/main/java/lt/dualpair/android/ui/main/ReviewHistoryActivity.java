@@ -1,4 +1,4 @@
-package lt.dualpair.android.ui.match;
+package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,9 +11,9 @@ import lt.dualpair.android.ui.BaseActivity;
 
 public class ReviewHistoryActivity extends BaseActivity {
 
-    private final static String MATCH_LIST_FRAGMENT = "MatchListFragment";
+    private final static String REVIEW_HISTORY_FRAGMENT = "ReviewHistoryFragment";
 
-    private MatchListFragment matchListFragment;
+    private ReviewHistoryFragment reviewHistoryFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,11 +23,11 @@ public class ReviewHistoryActivity extends BaseActivity {
         setupActionBar(true, getResources().getString(R.string.history));
 
         FragmentManager fm = getSupportFragmentManager();
-        matchListFragment = (MatchListFragment)fm.findFragmentByTag(MATCH_LIST_FRAGMENT);
-        if (matchListFragment == null) {
+        reviewHistoryFragment = (ReviewHistoryFragment)fm.findFragmentByTag(REVIEW_HISTORY_FRAGMENT);
+        if (reviewHistoryFragment == null) {
             FragmentTransaction ft = fm.beginTransaction();
-            matchListFragment = new HistoryMatchListFragment();
-            ft.add(android.R.id.content, matchListFragment, MATCH_LIST_FRAGMENT);
+            reviewHistoryFragment = new ReviewHistoryFragment();
+            ft.add(android.R.id.content, reviewHistoryFragment, REVIEW_HISTORY_FRAGMENT);
             ft.commit();
         }
 

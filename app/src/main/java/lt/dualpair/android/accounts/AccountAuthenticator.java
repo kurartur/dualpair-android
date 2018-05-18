@@ -20,8 +20,6 @@ import static android.accounts.AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE
 
 public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
-
-
     private Context context;
 
     public AccountAuthenticator(Context ctx) {

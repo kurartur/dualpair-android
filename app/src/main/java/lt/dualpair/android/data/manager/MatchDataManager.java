@@ -26,7 +26,7 @@ public class MatchDataManager extends DataManager {
         searchParametersRepository = new SearchParametersRepository(db);
     }
 
-    public Observable<Match> next() {
+    public Observable<Match> next(SearchParameters searchParameters) {
         final SearchParameters sp = searchParametersRepository.getLastUsed();
         return execute(context, new DataRequest<>("nextMatch", new AuthenticatedTaskCreator<Match>() {
             @Override

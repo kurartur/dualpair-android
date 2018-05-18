@@ -1,5 +1,6 @@
 package lt.dualpair.android.ui;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.v7.app.ActionBar;
@@ -23,6 +24,7 @@ public class BaseActivity extends AppCompatActivity implements ActivityLifecycle
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         lifecycleSubject.onNext(ActivityEvent.CREATE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     protected void setupActionBar(boolean enableHome, String title) {

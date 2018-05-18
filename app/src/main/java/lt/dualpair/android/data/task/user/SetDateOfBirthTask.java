@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.remote.client.user.SetDateOfBirthClient;
+import lt.dualpair.android.data.remote.client.user.UpdateUserClient;
 import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.repo.UserRepository;
 import lt.dualpair.android.data.resource.User;
@@ -32,9 +32,9 @@ public class SetDateOfBirthTask extends AuthenticatedUserTask<User> {
             public void call(Subscriber<? super User> subscriber) {
                 SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
                 UserRepository userRepository = new UserRepository(db);
-                new SetDateOfBirthClient(getUserId(context), date).observable().toBlocking().first();
                 User user = userRepository.get(AccountUtils.getUserId(context));
                 user.setDateOfBirth(date);
+                new UpdateUserClient(user).observable().toBlocking().first();
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);

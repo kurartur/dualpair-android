@@ -1,15 +1,17 @@
 package lt.dualpair.android.ui.user;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -22,6 +24,7 @@ import lt.dualpair.android.ui.socionics.SocionicsTestActivity;
 public class AddSociotypeActivity extends BaseActivity {
 
     private static final int CONFIRM_REQUEST_CODE = 1;
+    private static final String WITH_HOME_BUTTON = "WITH_HOME_BUTTON";
 
     @Bind(R.id.button_start_test)
     LinearLayout startTestButton;
@@ -29,19 +32,36 @@ public class AddSociotypeActivity extends BaseActivity {
     @Bind(R.id.grid_sociotypes)
     GridLayout gridLayout;
 
+    private AddSociotypeViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_add_sociotype);
 
-        setupActionBar(true, getResources().getString(R.string.choose_sociotype));
+        boolean homeButton = getIntent().getBooleanExtra(WITH_HOME_BUTTON, true);
+        setupActionBar(homeButton, getResources().getString(R.string.choose_sociotype));
 
         ButterKnife.bind(this);
-        fillGrid();
+
         startTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openTest();
+            }
+        });
+
+        viewModel = ViewModelProviders.of(this).get(AddSociotypeViewModel.class);
+        subscribeUi(viewModel);
+    }
+
+    private void subscribeUi(AddSociotypeViewModel viewModel) {
+        viewModel.getSociotypes().observe(this, new Observer<List<Sociotype>>() {
+            @Override
+            public void onChanged(@Nullable List<Sociotype> sociotypes) {
+                if (sociotypes != null) {
+                    fillGrid(sociotypes);
+                }
             }
         });
     }
@@ -51,8 +71,8 @@ public class AddSociotypeActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    private void fillGrid() {
-        for (final Sociotype sociotype : getSociotypes()) {
+    private void fillGrid(List<Sociotype> sociotypes) {
+        for (final Sociotype sociotype : sociotypes) {
             View view = LayoutInflater.from(this).inflate(R.layout.item_grid_sociotype, gridLayout, false);
             TextView code = (TextView)view.findViewById(R.id.sociotype_code);
             code.setText(sociotype.getCode1() + " (" + sociotype.getCode2() + ")");
@@ -84,36 +104,11 @@ public class AddSociotypeActivity extends BaseActivity {
         }
     }
 
-    private List<Sociotype> getSociotypes() {
-        // hardcoded
-        List<Sociotype> sociotypes = new ArrayList<>();
-        sociotypes.add(createSociotype("LII", "INTJ"));
-        sociotypes.add(createSociotype("ILE", "ENTP"));
-        sociotypes.add(createSociotype("ESE", "ESFJ"));
-        sociotypes.add(createSociotype("SEI", "ISFP"));
-        sociotypes.add(createSociotype("LSI", "ISTJ"));
-        sociotypes.add(createSociotype("SLE", "ESTP"));
-        sociotypes.add(createSociotype("EIE", "ENFJ"));
-        sociotypes.add(createSociotype("IEI", "INFP"));
-        sociotypes.add(createSociotype("ESI", "ISFJ"));
-        sociotypes.add(createSociotype("SEE", "ESFP"));
-        sociotypes.add(createSociotype("LIE", "ENTJ"));
-        sociotypes.add(createSociotype("ILI", "INTP"));
-        sociotypes.add(createSociotype("EII", "INFJ"));
-        sociotypes.add(createSociotype("IEE", "ENFP"));
-        sociotypes.add(createSociotype("LSE", "ESTJ"));
-        sociotypes.add(createSociotype("SLI", "ISTP"));
-        return sociotypes;
-    }
 
-    private Sociotype createSociotype(String code1, String code2) {
-        Sociotype sociotype = new Sociotype();
-        sociotype.setCode1(code1);
-        sociotype.setCode2(code2);
-        return sociotype;
-    }
 
-    public static Intent createIntent(Activity activity) {
-        return new Intent(activity, AddSociotypeActivity.class);
+    public static Intent createIntent(Activity activity, boolean homeButton) {
+        Intent intent = new Intent(activity, AddSociotypeActivity.class);
+        intent.putExtra(WITH_HOME_BUTTON, homeButton);
+        return intent;
     }
 }

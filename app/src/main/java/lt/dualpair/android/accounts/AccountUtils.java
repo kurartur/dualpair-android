@@ -39,7 +39,7 @@ public class AccountUtils {
             throw new RuntimeException(ae);
         } catch (OperationCanceledException oce) {
             activity.finish();
-            throw new RuntimeException(oce);
+            throw new RuntimeException(oce); // TODO should rethrow
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }

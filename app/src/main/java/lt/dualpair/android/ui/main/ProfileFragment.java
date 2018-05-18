@@ -1,14 +1,14 @@
 package lt.dualpair.android.ui.main;
 
-import android.accounts.AccountManager;
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,11 +29,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
-import lt.dualpair.android.TokenProvider;
-import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.repo.DatabaseHelper;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.PurposeOfBeing;
 import lt.dualpair.android.data.resource.RelationshipStatus;
@@ -44,13 +39,12 @@ import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
+import lt.dualpair.android.ui.splash.SplashActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
 import lt.dualpair.android.ui.user.EditUserActivity;
 import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.ToastUtils;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class ProfileFragment extends MainTabFragment {
 
@@ -79,6 +73,8 @@ public class ProfileFragment extends MainTabFragment {
 
     @Bind(R.id.accounts) GridView accountsGridView;
 
+    private ProfileViewModel viewModel;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +90,7 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     @OnClick(R.id.sociotypes_header) void onSociotypesHeaderClick(View v) {
-        startActivityForResult(AddSociotypeActivity.createIntent(getActivity()), ADD_SOCIOTYPE_REQ_CODE);
+        startActivityForResult(AddSociotypeActivity.createIntent(getActivity(), true), ADD_SOCIOTYPE_REQ_CODE);
     }
 
     @OnClick(R.id.accounts_header) void onAccountsHeaderClick(View v) {
@@ -110,9 +106,28 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        load(false);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel = ViewModelProviders.of(this, new ProfileViewModel.Factory(getActivity().getApplication())).get(ProfileViewModel.class);
+        subscribeUi();
+    }
+
+    private void subscribeUi() {
+        viewModel.getUser().observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(@Nullable User user) {
+                render(user);
+            }
+        });
+        viewModel.isLoggedOut().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                Intent newIntent = SplashActivity.createIntent(getActivity());
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(newIntent);
+            }
+        });
     }
 
     @Override
@@ -127,7 +142,7 @@ public class ProfileFragment extends MainTabFragment {
                 startActivity(AboutActivity.createIntent(this.getActivity()));
                 break;
             case R.id.logout_menu_item:
-                logout();
+                viewModel.logout();
                 break;
         }
         return false;
@@ -139,33 +154,14 @@ public class ProfileFragment extends MainTabFragment {
             case ADD_SOCIOTYPE_REQ_CODE:
             case EDIT_ACCOUNTS_REQ_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    load(true);
+                    viewModel.refresh();
                 }
                 break;
             case EDIT_PHOTOS_REQ_CODE:
             case EDIT_USER_REQ_CODE:
-                load(false);
+                viewModel.refresh();
                 break;
         }
-    }
-
-    private void load(boolean forceUpdate) {
-        new UserDataManager(getActivity()).getUser(forceUpdate)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .compose(this.<User>bindToLifecycle())
-                .subscribe(new EmptySubscriber<User>() {
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(LOG_TAG, e.getMessage(), e);
-                    }
-
-                    @Override
-                    public void onNext(User user) {
-                        render(user);
-                    }
-            });
     }
 
     private void renderUser(User user) {
@@ -274,24 +270,6 @@ public class ProfileFragment extends MainTabFragment {
         renderSociotypes(user.getSociotypes());
         renderPhotos(user.getPhotos());
         renderAccounts(user.getAccounts());
-    }
-
-    private void logout() {
-        new UserDataManager(getActivity()).logout()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new EmptySubscriber<Void>() {
-                    @Override
-                    public void onNext(Void v) {
-                        TokenProvider.getInstance().storeToken(null);
-                        DatabaseHelper.reset(getActivity());
-                        AccountUtils.removeAccount(AccountManager.get(getActivity()));
-                        Intent newIntent = MainActivity.createIntent(getActivity());
-                        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(newIntent);
-                    }
-                });
     }
 
     @Override

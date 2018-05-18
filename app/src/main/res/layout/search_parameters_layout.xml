@@ -87,7 +87,8 @@
                 <NumberPicker
                     android:id="@+id/min_age_picker"
                     android:layout_width="50dp"
-                    android:layout_height="100dp"/>
+                    android:layout_height="100dp"
+                    android:theme="@style/AppTheme.Picker"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -99,7 +100,8 @@
                 <NumberPicker
                     android:id="@+id/max_age_picker"
                     android:layout_width="50dp"
-                    android:layout_height="100dp"/>
+                    android:layout_height="100dp"
+                    android:theme="@style/AppTheme.Picker"/>
 
             </LinearLayout>
 

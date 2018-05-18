@@ -64,7 +64,7 @@ public class SearchParametersPresenter {
         }
     }
 
-    public void save(SearchParameters searchParameters) {
+    public void save(final SearchParameters searchParameters) {
         new SearchParametersManager(view).setSearchParameters(searchParameters)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -79,7 +79,9 @@ public class SearchParametersPresenter {
 
                     @Override
                     public void onCompleted() {
-                        Log.i(TAG, "Search parameters saved");
+                        if (view != null) {
+                            view.onSaved(searchParameters);
+                        }
                     }
                 });
     }

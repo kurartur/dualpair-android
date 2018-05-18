@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="lt.dualpair.android">
 
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
@@ -23,20 +24,25 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="false"
+        tools:replace="android:supportsRtl"
         android:theme="@style/AppTheme">
 
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 
+        <activity android:name=".ui.splash.SplashActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.accounts.LoginActivity"
             android:launchMode="singleTop"/>
         <activity android:name=".ui.main.MainActivity"
-            android:windowSoftInputMode="adjustNothing">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".ui.user.AddSociotypeActivity"/>
         <activity android:name=".ui.user.ConfirmSociotypeActivity"/>
         <activity android:name=".ui.user.SetDateOfBirthActivity"/>
@@ -46,7 +52,7 @@
         <activity android:name=".ui.match.MatchActivity"/>
         <activity android:name=".ui.match.MutualMatchActivity"/>
         <activity android:name=".ui.match.NewMatchActivity" android:theme="@style/AppTheme.NewMatchWindow"/>
-        <activity android:name=".ui.match.ReviewHistoryActivity"/>
+        <activity android:name=".ui.main.ReviewHistoryActivity"/>
         <activity android:name=".ui.user.EditUserActivity"
             android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".ui.user.EditPhotosActivity"/>

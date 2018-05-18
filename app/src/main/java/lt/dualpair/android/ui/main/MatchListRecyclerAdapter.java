@@ -1,4 +1,4 @@
-package lt.dualpair.android.ui.match;
+package lt.dualpair.android.ui.main;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -22,11 +22,21 @@ import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.User;
 import lt.dualpair.android.data.resource.UserAccount;
 import lt.dualpair.android.ui.accounts.AccountType;
+import lt.dualpair.android.ui.match.MatchActivity;
+import lt.dualpair.android.ui.match.MutualMatchActivity;
 import lt.dualpair.android.utils.SocialUtils;
 
 public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecyclerAdapter.MatchViewHolder> {
 
-    final private List<Match> matchList = new ArrayList<>();
+    final private List<Match> matchList;
+
+    public MatchListRecyclerAdapter() {
+        matchList = new ArrayList<>();
+    }
+
+    public MatchListRecyclerAdapter(List<Match> matches) {
+        matchList = matches;
+    }
 
     public void prepend(Match match) {
         ArrayList<Match> tmpMatches = new ArrayList<>(matchList);
