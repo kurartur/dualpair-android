@@ -14,8 +14,7 @@ public class GetAvailablePhotosTask extends AuthenticatedUserTask<List<Photo>> {
 
     private AccountType accountType;
 
-    public GetAvailablePhotosTask(String authToken, AccountType accountType) {
-        super(authToken);
+    public GetAvailablePhotosTask(AccountType accountType) {
         this.accountType = accountType;
     }
 

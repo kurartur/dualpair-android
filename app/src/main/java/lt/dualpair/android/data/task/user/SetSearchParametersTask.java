@@ -18,8 +18,7 @@ public class SetSearchParametersTask extends AuthenticatedUserTask<SearchParamet
     private SearchParametersRepository searchParametersRepository;
     private MatchRepository matchRepository;
 
-    public SetSearchParametersTask(String authToken, SearchParameters searchParameters) {
-        super(authToken);
+    public SetSearchParametersTask(SearchParameters searchParameters) {
         this.searchParameters = searchParameters;
     }
 

@@ -7,10 +7,6 @@ import rx.Observable;
 
 public class LogoutTask extends AuthenticatedUserTask<Void> {
 
-    public LogoutTask(String authToken) {
-        super(authToken);
-    }
-
     @Override
     protected Observable<Void> run(Context context) {
         return new LogoutClient().observable();

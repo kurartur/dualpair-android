@@ -10,8 +10,7 @@ public class ReportUserTask extends AuthenticatedUserTask<Void> {
 
     private Long userId;
 
-    public ReportUserTask(String token, Long userId) {
-        super(token);
+    public ReportUserTask(Long userId) {
         this.userId = userId;
     }
 

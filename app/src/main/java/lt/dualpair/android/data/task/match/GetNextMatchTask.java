@@ -21,8 +21,7 @@ public class GetNextMatchTask extends AuthenticatedUserTask<Match> {
     private Boolean searchFemale;
     private Boolean searchMale;
 
-    public GetNextMatchTask(String authToken, Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
-        super(authToken);
+    public GetNextMatchTask(Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
         this.minAge = minAge;
         this.maxAge = maxAge;
         this.searchFemale = searchFemale;

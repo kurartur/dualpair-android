@@ -20,12 +20,11 @@ public class GetUserPrincipalTask extends AuthenticatedUserTask<User> {
     private static final int EXPIRATION_TIME_MS = 1000 * 60 * 5; // 5 minutes
     private boolean forceUpdate;
 
-    public GetUserPrincipalTask(String authToken) {
-        super(authToken);
+    public GetUserPrincipalTask() {
+        this(false);
     }
 
-    public GetUserPrincipalTask(String authToken, boolean forceUpdate) {
-        super(authToken);
+    public GetUserPrincipalTask(boolean forceUpdate) {
         this.forceUpdate = forceUpdate;
     }
 

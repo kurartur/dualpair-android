@@ -18,8 +18,7 @@ public class DeletePhotoTask extends AuthenticatedUserTask<User> {
 
     private Photo photo;
 
-    public DeletePhotoTask(String authToken, Photo photo) {
-        super(authToken);
+    public DeletePhotoTask( Photo photo) {
         this.photo = photo;
     }
 

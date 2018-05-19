@@ -114,27 +114,6 @@
             android:name=".gcm.RegistrationService"
             android:exported="false"/>
 
-        <service
-            android:name="lt.dualpair.android.data.remote.SyncService"
-            android:exported="true"
-            android:process=":sync">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
-        <service
-            android:name=".data.TaskProcessingService"
-            android:exported="false"/>
-
-        <provider
-            android:name="lt.dualpair.android.data.remote.StubContentProvider"
-            android:authorities="lt.dualpair.android.data.provider"
-            android:exported="false"
-            android:syncable="true"/>
-
     </application>
 
 </manifest>

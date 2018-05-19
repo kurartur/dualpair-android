@@ -20,8 +20,7 @@ public class SetResponseTask extends AuthenticatedUserTask<Match> {
     private Long matchId;
     private Response response;
 
-    public SetResponseTask(String authToken, Long matchId, Response response) {
-        super(authToken);
+    public SetResponseTask(Long matchId, Response response) {
         this.matchId = matchId;
         this.response = response;
 
@@ -35,6 +34,7 @@ public class SetResponseTask extends AuthenticatedUserTask<Match> {
                 SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
                 final MatchRepository matchRepository = new MatchRepository(db);
                 final Match match = matchRepository.findOne(matchId, getUserId(context));
+                // TODO handle match null case
                 final MatchParty matchParty = match.getUser();
                 new SetResponseClient(matchParty.getId(), response).observable().subscribe(new EmptySubscriber<Void>() {
 

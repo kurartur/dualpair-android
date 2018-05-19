@@ -18,8 +18,7 @@ public class SavePhotosTask extends AuthenticatedUserTask<List<Photo>> {
 
     private List<Photo> photos;
 
-    public SavePhotosTask(String authToken, List<Photo> photos) {
-        super(authToken);
+    public SavePhotosTask(List<Photo> photos) {
         this.photos = photos;
     }
 

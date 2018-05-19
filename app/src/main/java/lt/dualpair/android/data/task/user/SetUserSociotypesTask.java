@@ -20,8 +20,7 @@ public class SetUserSociotypesTask extends AuthenticatedUserTask<User> {
 
     private Set<Sociotype> sociotypes;
 
-    public SetUserSociotypesTask(String authToken, Set<Sociotype> sociotypes) {
-        super(authToken);
+    public SetUserSociotypesTask(Set<Sociotype> sociotypes) {
         this.sociotypes = sociotypes;
     }
 

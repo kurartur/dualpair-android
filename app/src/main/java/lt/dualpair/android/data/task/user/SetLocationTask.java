@@ -11,8 +11,7 @@ public class SetLocationTask extends AuthenticatedUserTask<Void> {
 
     private Location location;
 
-    public SetLocationTask(String authToken, Location location) {
-        super(authToken);
+    public SetLocationTask(Location location) {
         this.location = location;
     }
 

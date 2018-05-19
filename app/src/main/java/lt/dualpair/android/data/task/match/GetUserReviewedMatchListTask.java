@@ -19,8 +19,7 @@ public class GetUserReviewedMatchListTask extends AuthenticatedUserTask<Match> {
     private int count;
     private boolean refresh;
 
-    public GetUserReviewedMatchListTask(String authToken, int start, int count, boolean refresh) {
-        super(authToken);
+    public GetUserReviewedMatchListTask(int start, int count, boolean refresh) {
         this.start = start;
         this.count = count;
         this.refresh = refresh;

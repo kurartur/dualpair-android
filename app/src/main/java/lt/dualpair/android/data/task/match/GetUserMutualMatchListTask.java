@@ -21,8 +21,7 @@ public class GetUserMutualMatchListTask extends AuthenticatedUserTask<Match> {
     private int count;
     private boolean refresh;
 
-    public GetUserMutualMatchListTask(String authToken, int start, int count, boolean refresh) {
-        super(authToken);
+    public GetUserMutualMatchListTask(int start, int count, boolean refresh) {
         this.start = start;
         this.count = count;
         this.refresh = refresh;

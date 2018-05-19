@@ -16,6 +16,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Action2;
 import rx.functions.Func0;
+import rx.schedulers.Schedulers;
 
 public class MatchListViewModel extends ViewModel {
 
@@ -46,6 +47,7 @@ public class MatchListViewModel extends ViewModel {
                 }
             })
             .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
             .subscribe(new Action1<List<Match>>() {
                 @Override
                 public void call(List<Match> matches) {

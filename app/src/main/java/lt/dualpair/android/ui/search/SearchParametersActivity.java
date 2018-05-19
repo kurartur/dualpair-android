@@ -1,8 +1,11 @@
 package lt.dualpair.android.ui.search;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,10 +16,12 @@ import android.widget.ProgressBar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.DrawableUtils;
-import lt.dualpair.android.utils.ToastUtils;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class SearchParametersActivity extends BaseActivity {
 
@@ -33,7 +38,10 @@ public class SearchParametersActivity extends BaseActivity {
     @Bind(R.id.min_age_picker) NumberPicker minAgePicker;
     @Bind(R.id.max_age_picker) NumberPicker maxAgePicker;
 
-    private static SearchParametersPresenter presenter;
+    public static final Integer MIN_SEARCH_AGE = 18;
+    public static final Integer MAX_SEARCH_AGE = 110;
+
+    private SearchParametersViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,15 +56,8 @@ public class SearchParametersActivity extends BaseActivity {
         mainLayout.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
 
-        if (presenter == null || savedInstanceState == null) {
-            presenter = new SearchParametersPresenter(this);
-        } else {
-            presenter = new SearchParametersPresenter(savedInstanceState);
-        }
-        presenter.onTakeView(this);
-
-        minAgePicker.setMinValue(SearchParametersPresenter.MIN_SEARCH_AGE);
-        minAgePicker.setMaxValue(SearchParametersPresenter.MAX_SEARCH_AGE);
+        minAgePicker.setMinValue(MIN_SEARCH_AGE);
+        minAgePicker.setMaxValue(MAX_SEARCH_AGE);
         minAgePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
@@ -65,8 +66,8 @@ public class SearchParametersActivity extends BaseActivity {
                 }
             }
         });
-        maxAgePicker.setMinValue(SearchParametersPresenter.MIN_SEARCH_AGE);
-        maxAgePicker.setMaxValue(SearchParametersPresenter.MAX_SEARCH_AGE);
+        maxAgePicker.setMinValue(MIN_SEARCH_AGE);
+        maxAgePicker.setMaxValue(MAX_SEARCH_AGE);
         maxAgePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
@@ -75,10 +76,18 @@ public class SearchParametersActivity extends BaseActivity {
                 }
             }
         });
+
+        viewModel = ViewModelProviders.of(this, new SearchParametersViewModel.Factory(getApplication())).get(SearchParametersViewModel.class);
+        subscribeUi();
     }
 
-    public void render(String error) {
-        ToastUtils.show(this, error);
+    private void subscribeUi() {
+        viewModel.getSearchParameters().observe(this, new Observer<SearchParameters>() {
+            @Override
+            public void onChanged(@Nullable SearchParameters searchParameters) {
+                render(searchParameters);
+            }
+        });
     }
 
     public void render(SearchParameters searchParameters) {
@@ -90,12 +99,6 @@ public class SearchParametersActivity extends BaseActivity {
         mainLayout.setVisibility(View.VISIBLE);
     }
 
-    public void onSaveError(String error) {
-        progressBar.setVisibility(View.GONE);
-        mainLayout.setVisibility(View.VISIBLE);
-        ToastUtils.show(this, error);
-    }
-
     public void onSaved(SearchParameters searchParameters) {
         Intent resultData = new Intent();
         Bundle bundle = new Bundle();
@@ -105,27 +108,21 @@ public class SearchParametersActivity extends BaseActivity {
         finish();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        presenter.onSave(outState);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.onTakeView(null);
-        if (!isChangingConfigurations())
-            presenter = null;
-    }
-
     private void save() {
         SearchParameters searchParameters = new SearchParameters();
         searchParameters.setSearchMale(searchMale.isChecked());
         searchParameters.setSearchFemale(searchFemale.isChecked());
         searchParameters.setMinAge(minAgePicker.getValue());
         searchParameters.setMaxAge(maxAgePicker.getValue());
-        presenter.save(searchParameters);
+        viewModel.save(searchParameters)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new EmptySubscriber<SearchParameters>() {
+                    @Override
+                    public void onNext(SearchParameters sp) {
+                        onSaved(sp);
+                    }
+                });
     }
 
     @Override

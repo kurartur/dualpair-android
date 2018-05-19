@@ -20,8 +20,7 @@ public class SetDateOfBirthTask extends AuthenticatedUserTask<User> {
 
     private Date date;
 
-    public SetDateOfBirthTask(String authToken, Date date) {
-        super(authToken);
+    public SetDateOfBirthTask(Date date) {
         this.date = date;
     }
 

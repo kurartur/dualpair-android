@@ -12,12 +12,6 @@ import rx.functions.Func1;
 
 public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
 
-    private String token;
-
-    public AuthenticatedUserTask(String token) {
-        this.token = token;
-    }
-
     @Override
     public Observable<Result> execute(final Context context) {
         return run(context)
@@ -32,10 +26,6 @@ public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
                         return Observable.error(throwable);
                     }
                 });
-    }
-
-    protected String getToken() {
-        return token;
     }
 
     protected Long getUserId(Context context) {

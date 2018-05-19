@@ -27,18 +27,11 @@ public class UpdateUserTask extends AuthenticatedUserTask<User> {
     private RelationshipStatus relationshipStatus;
     private Set<PurposeOfBeing> purposesOfBeing;
 
-    public UpdateUserTask(String authToken, User user) {
-        super(authToken);
-        this.user = user;
-    }
-
-    public UpdateUserTask(String token,
-                          String name,
+    public UpdateUserTask(String name,
                           Date dateOfBirth,
                           String description,
                           RelationshipStatus relationshipStatus,
                           Set<PurposeOfBeing> purposesOfBeing) {
-        super(token);
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.description = description;

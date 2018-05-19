@@ -13,10 +13,6 @@ import rx.Subscriber;
 
 public class GetSearchParametersTask extends AuthenticatedUserTask<SearchParameters> {
 
-    public GetSearchParametersTask(String authToken) {
-        super(authToken);
-    }
-
     @Override
     protected Observable<SearchParameters> run(final Context context) {
         return Observable.create(new Observable.OnSubscribe<SearchParameters>() {

@@ -17,13 +17,12 @@ public class GetMutualMatchTask extends AuthenticatedUserTask<Match> {
     private Long matchId;
     private boolean refresh;
 
-    public GetMutualMatchTask(String authToken, Long matchId) {
-        super(authToken);
+    public GetMutualMatchTask(Long matchId) {
         this.matchId = matchId;
     }
 
-    public GetMutualMatchTask(String authToken, Long matchId, boolean refresh) {
-        this(authToken, matchId);
+    public GetMutualMatchTask(Long matchId, boolean refresh) {
+        this(matchId);
         this.refresh = refresh;
     }
 

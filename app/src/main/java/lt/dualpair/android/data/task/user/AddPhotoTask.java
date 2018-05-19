@@ -17,8 +17,7 @@ public class AddPhotoTask extends AuthenticatedUserTask<User> {
     private Photo photo;
     private UserRepository userRepository;
 
-    public AddPhotoTask(String token, Photo photo) {
-        super(token);
+    public AddPhotoTask(Photo photo) {
         this.photo = photo;
     }
 

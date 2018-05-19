@@ -15,8 +15,7 @@ public class EvaluateTestTask extends AuthenticatedUserTask<Sociotype> {
 
     private Map<String, Choice> choices;
 
-    public EvaluateTestTask(String authToken, Map<String, Choice> choices) {
-        super(authToken);
+    public EvaluateTestTask(Map<String, Choice> choices) {
         this.choices = choices;
     }
 
