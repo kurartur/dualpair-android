@@ -9,15 +9,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.Set;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.PurposeOfBeing;
-import lt.dualpair.android.data.resource.RelationshipStatus;
-import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.local.entity.FullUserSociotype;
+import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.ui.ImageSwipe;
 import lt.dualpair.android.utils.LabelUtils;
 
@@ -56,44 +55,48 @@ public class OpponentUserView extends LinearLayout {
         ButterKnife.bind(this);
     }
 
-    public void setUser(User opponentUser) {
+    public void setData(List<FullUserSociotype> userSociotypes,
+                        String description,
+                        List<UserPhoto> photos,
+                        lt.dualpair.android.data.local.entity.RelationshipStatus relationshipStatus,
+                        List<UserPurposeOfBeing> purposesOfBeing) {
         StringBuilder sb = new StringBuilder();
         String prefix = "";
-        for (Sociotype sociotype : opponentUser.getSociotypes()) {
+        for (FullUserSociotype sociotype : userSociotypes) {
             sb.append(prefix);
             prefix = ", ";
-            String code = sociotype.getCode1();
+            String code = sociotype.getSociotype().getCode1();
             int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getContext().getPackageName());
-            sb.append(getContext().getString(titleId) + " (" + sociotype.getCode1() + ")");
+            sb.append(getContext().getString(titleId) + " (" + sociotype.getSociotype().getCode1() + ")");
         }
         sociotypes.setText(sb);
-        description.setText(opponentUser.getDescription());
-        photosView.setPhotos(opponentUser.getPhotos());
-        setRelationshipStatus(opponentUser);
-        setPurposesOfBeing(opponentUser);
+        this.description.setText(description);
+        photosView.setPhotos(photos);
+        setRelationshipStatus(relationshipStatus);
+        setPurposesOfBeing(purposesOfBeing);
     }
 
-    private void setPurposesOfBeing(User opponentUser) {
-        purposesOfBeing.setVisibility(GONE);
-        if (!opponentUser.getPurposesOfBeing().isEmpty()) {
-            purposesOfBeing.setText(getResources().getString(R.string.i_am_here_to, getPurposesText(opponentUser.getPurposesOfBeing())));
-            purposesOfBeing.setVisibility(VISIBLE);
+    private void setPurposesOfBeing(List<UserPurposeOfBeing> purposesOfBeing) {
+        this.purposesOfBeing.setVisibility(GONE);
+        if (!purposesOfBeing.isEmpty()) {
+            this.purposesOfBeing.setText(getResources().getString(R.string.i_am_here_to, getPurposesText(purposesOfBeing)));
+            this.purposesOfBeing.setVisibility(VISIBLE);
         }
     }
 
-    private void setRelationshipStatus(User opponentUser) {
-        relationshipStatus.setVisibility(GONE);
-        if (opponentUser.getRelationshipStatus() != RelationshipStatus.NONE) {
-            relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(getContext(), opponentUser.getRelationshipStatus()));
-            relationshipStatus.setVisibility(VISIBLE);
+    private void setRelationshipStatus(lt.dualpair.android.data.local.entity.RelationshipStatus relationshipStatus) {
+        this.relationshipStatus.setVisibility(GONE);
+        if (relationshipStatus != lt.dualpair.android.data.local.entity.RelationshipStatus.NONE) {
+            this.relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(getContext(), relationshipStatus));
+            this.relationshipStatus.setVisibility(VISIBLE);
         }
     }
 
-    private String getPurposesText(Set<PurposeOfBeing> purposesOfBeing) {
+    private String getPurposesText(List<UserPurposeOfBeing> purposesOfBeing) {
         String text = "";
         String prefix = "";
-        for (PurposeOfBeing purposeOfBeing : purposesOfBeing) {
-            text += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing);
+        for (UserPurposeOfBeing purposeOfBeing : purposesOfBeing) {
+            text += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing.getPurpose());
             prefix = ", ";
         }
         return text.toLowerCase();

@@ -4,13 +4,13 @@ import android.util.Base64;
 
 import java.io.IOException;
 
+import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Token;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
-import rx.Observable;
 
 public class RequestTokenClient extends BaseClient<Token> {
 

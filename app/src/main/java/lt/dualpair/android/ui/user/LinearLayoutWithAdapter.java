@@ -39,6 +39,7 @@ public class LinearLayoutWithAdapter extends LinearLayout {
                 repopulateViews();
             }
         });
+        repopulateViews();
     }
 
     public BaseAdapter getAdapter() {

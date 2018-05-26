@@ -10,12 +10,13 @@ import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.remote.client.device.RegisterDeviceClient;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class RegistrationService extends IntentService {
 
@@ -31,12 +32,17 @@ public class RegistrationService extends IntentService {
             InstanceID instanceID = InstanceID.getInstance(this);
             String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            new RegisterDeviceClient(token).observable()
+            new RegisterDeviceClient(token).completable()
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new EmptySubscriber<Void>() {
+                    .subscribe(new Action() {
                         @Override
-                        public void onError(Throwable e) {
+                        public void run() {
+
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable e) {
                             if (e instanceof ServiceException) {
                                 ServiceException se = (ServiceException)e;
                                 if (se.getResponse().code() == 409) {
@@ -46,9 +52,6 @@ public class RegistrationService extends IntentService {
                                 }
                             }
                         }
-
-                        @Override
-                        public void onNext(Void aVoid) {}
                     });
         } catch (IOException ioe) {
             Log.e(SERVICE_NAME, "Unable to register device", ioe);

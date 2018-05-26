@@ -42,7 +42,7 @@ public class AccountListAdapter extends BaseAdapter {
         UserAccount account = (UserAccount) getItem(position);
         LayoutInflater layoutInflater = activity.getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.user_account_list_item, parent, false);
-        TextView accountType = (TextView)view.findViewById(R.id.account_type);
+        TextView accountType = view.findViewById(R.id.account_type);
         accountType.setText(account.getAccountType().name());
         return view;
     }

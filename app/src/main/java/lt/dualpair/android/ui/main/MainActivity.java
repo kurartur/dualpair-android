@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import lt.dualpair.android.R;
 import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
@@ -16,14 +18,12 @@ import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.match.NewMatchActivity;
 import lt.dualpair.android.utils.DrawableUtils;
-import rx.Subscription;
-import rx.functions.Action1;
 
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private static volatile boolean isInForeground = false;
-    private Subscription newMatchEventSubscription;
+    private Disposable newMatchEventSubscription;
 
     @Bind(R.id.tabs)
     TabLayout tabLayout;
@@ -75,9 +75,9 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Action1<NewMatchEvent>() {
+        newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Consumer<NewMatchEvent>() {
             @Override
-            public void call(NewMatchEvent newMatchEvent) {
+            public void accept(NewMatchEvent newMatchEvent) {
                 showNewMatch(newMatchEvent.getMatchId());
             }
         });
@@ -92,7 +92,7 @@ public class MainActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         isInForeground = false;
-        newMatchEventSubscription.unsubscribe();
+        newMatchEventSubscription.dispose();
     }
 
     public static boolean isInForeground() {

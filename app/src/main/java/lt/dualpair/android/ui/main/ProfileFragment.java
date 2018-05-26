@@ -1,7 +1,6 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,18 +22,18 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.PurposeOfBeing;
-import lt.dualpair.android.data.resource.RelationshipStatus;
-import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.FullUserSociotype;
+import lt.dualpair.android.data.local.entity.RelationshipStatus;
+import lt.dualpair.android.data.local.entity.Sociotype;
+import lt.dualpair.android.data.local.entity.User;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
@@ -113,20 +112,19 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     private void subscribeUi() {
-        viewModel.getUser().observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(@Nullable User user) {
-                render(user);
-            }
+        viewModel.getUser().observe(this, this::renderUser);
+        viewModel.getUserSociotypes().observe(this, this::renderSociotypes);
+        viewModel.getUserAccounts().observe(this, this::renderAccounts);
+        viewModel.getUserPhotos().observe(this, photos -> {
+           renderPhotos(photos);
+           renderMainPhoto(photos.get(0));
         });
-        viewModel.isLoggedOut().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(@Nullable Boolean aBoolean) {
-                Intent newIntent = SplashActivity.createIntent(getActivity());
-                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(newIntent);
-            }
+        viewModel.getPurposesOfBeing().observe(this, this::renderPurposesOfBeing);
+        viewModel.isLoggedOut().observe(this, aBoolean -> {
+            Intent newIntent = SplashActivity.createIntent(getActivity());
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(newIntent);
         });
     }
 
@@ -169,15 +167,12 @@ public class ProfileFragment extends MainTabFragment {
         age.setText(user.getAge().toString());
         renderDescription(user);
         renderRelationshipStatus(user);
-        renderPurposesOfBeing(user);
-        renderMainPhoto(user);
         ((ScrollView)getView()).fullScroll(ScrollView.FOCUS_UP);
     }
 
-    private void renderMainPhoto(User user) {
-        final Photo photo = user.getPhotos().iterator().next();
+    private void renderMainPhoto(UserPhoto userPhoto) {
         Picasso.with(getActivity())
-                .load(photo.getSourceUrl())
+                .load(userPhoto.getSourceLink())
                 .error(R.drawable.image_not_found)
                 .into(mainPicture);
     }
@@ -202,15 +197,15 @@ public class ProfileFragment extends MainTabFragment {
         }
     }
 
-    private void renderPurposesOfBeing(User user) {
-        if (user.getPurposesOfBeing().isEmpty()) {
+    private void renderPurposesOfBeing(List<UserPurposeOfBeing> purposesOfBeing) {
+        if (purposesOfBeing.isEmpty()) {
             purposeOfBeing.setText(getResources().getString(R.string.provide_purpose_of_beings));
             purposeOfBeing.setTextColor(getNotProvidedFieldsColor());
         } else {
             String purposeOfBeingText = "";
             String prefix = "";
-            for (PurposeOfBeing purposeOfBeing : user.getPurposesOfBeing()) {
-                purposeOfBeingText += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing);
+            for (UserPurposeOfBeing purposeOfBeing : purposesOfBeing) {
+                purposeOfBeingText += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing.getPurpose());
                 prefix = ", ";
             }
             purposeOfBeing.setText(purposeOfBeingText);
@@ -236,24 +231,24 @@ public class ProfileFragment extends MainTabFragment {
         accountsGridView.setAdapter(accountGridAdapter);
     }
 
-    private void renderPhotos(List<Photo> photos) {
+    private void renderPhotos(List<UserPhoto> photos) {
         UserPhotosRecyclerAdapter userPhotosRecyclerAdapter = new UserPhotosRecyclerAdapter(photos, new UserPhotosRecyclerAdapter.OnPhotoClickListener() {
             @Override
-            public void onPhotoClick(Photo photo) {
+            public void onPhotoClick(UserPhoto photo) {
                 onPhotosSectionClick(null);
             }
         });
         photosView.setAdapter(userPhotosRecyclerAdapter);
     }
 
-    private void renderSociotypes(Set<Sociotype> sociotypes) {
+    private void renderSociotypes(List<FullUserSociotype> sociotypes) {
         if (sociotypes.isEmpty()) {
             firstSociotypeInfo.setVisibility(View.INVISIBLE);
             firstSociotypeCode.setText(":(");
             firstSociotypeTitle.setText(getResources().getString(R.string.no_sociotypes));
         } else {
             firstSociotypeInfo.setVisibility(View.VISIBLE);
-            Sociotype firstSociotype = sociotypes.iterator().next();
+            Sociotype firstSociotype = sociotypes.get(0).getSociotype();
             firstSociotypeInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -263,13 +258,6 @@ public class ProfileFragment extends MainTabFragment {
             firstSociotypeCode.setText(firstSociotype.getCode1() + " (" + firstSociotype.getCode2() + ")");
             firstSociotypeTitle.setText(getResources().getString(getResources().getIdentifier(firstSociotype.getCode1().toLowerCase() + "_title", "string", getActivity().getPackageName())));
         }
-    }
-
-    private void render(User user) {
-        renderUser(user);
-        renderSociotypes(user.getSociotypes());
-        renderPhotos(user.getPhotos());
-        renderAccounts(user.getAccounts());
     }
 
     @Override

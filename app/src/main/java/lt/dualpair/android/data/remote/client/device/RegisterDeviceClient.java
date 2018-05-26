@@ -1,8 +1,8 @@
 package lt.dualpair.android.data.remote.client.device;
 
+import io.reactivex.Completable;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import retrofit2.Retrofit;
-import rx.Observable;
 
 public class RegisterDeviceClient extends BaseClient<Void> {
 
@@ -13,8 +13,7 @@ public class RegisterDeviceClient extends BaseClient<Void> {
     }
 
     @Override
-    protected Observable<Void> getApiObserable(Retrofit retrofit) {
+    protected Completable getApiCompletable(Retrofit retrofit) {
         return retrofit.create(DeviceService.class).registerDevice(token);
     }
-
 }

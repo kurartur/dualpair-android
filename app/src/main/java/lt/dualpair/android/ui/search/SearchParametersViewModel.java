@@ -7,13 +7,13 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.resource.SearchParameters;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import lt.dualpair.android.data.local.entity.UserSearchParameters;
+import lt.dualpair.android.data.repository.UserPrincipalRepository;
 
 public class SearchParametersViewModel extends ViewModel {
 
@@ -21,42 +21,39 @@ public class SearchParametersViewModel extends ViewModel {
     public static final Integer MIN_SEARCH_AGE = 18;
     public static final Integer MAX_SEARCH_AGE = 110;
 
-    private final MutableLiveData<SearchParameters> searchParameters;
-    private UserDataManager userDataManager;
+    private final MutableLiveData<UserSearchParameters> searchParameters;
+    private UserPrincipalRepository userPrincipalRepository;
 
-    public SearchParametersViewModel(UserDataManager userDataManager) {
-        this.userDataManager = userDataManager;
+    public SearchParametersViewModel(UserPrincipalRepository userPrincipalRepository) {
+        this.userPrincipalRepository = userPrincipalRepository;
         searchParameters = new MutableLiveData<>();
         loadSearchParameters();
     }
 
     private void loadSearchParameters() {
-        userDataManager.getSearchParameters()
+        userPrincipalRepository.getSearchParameters()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<SearchParameters>() {
+                .subscribe(new Consumer<UserSearchParameters>() {
                     @Override
-                    public void onNext(SearchParameters sp) {
-                        if (sp != null) {
-                            searchParameters.setValue(sp);
-                        }
+                    public void accept(UserSearchParameters userSearchParameters) {
+                        searchParameters.setValue(userSearchParameters);
                     }
                 });
     }
 
-    public Observable<SearchParameters> save(final SearchParameters sp) {
-        return userDataManager.setSearchParameters(sp)
+    public Completable save(final UserSearchParameters sp) {
+        return userPrincipalRepository.setSearchParameters(sp)
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Func1<SearchParameters, Observable<SearchParameters>>() {
+                .doOnComplete(new Action() {
                     @Override
-                    public Observable<SearchParameters> call(SearchParameters sp) {
+                    public void run() {
                         searchParameters.setValue(sp);
-                        return Observable.just(sp);
                     }
                 });
     }
 
-    public LiveData<SearchParameters> getSearchParameters() {
+    public LiveData<UserSearchParameters> getSearchParameters() {
         return searchParameters;
     }
 
@@ -71,7 +68,7 @@ public class SearchParametersViewModel extends ViewModel {
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(SearchParametersViewModel.class)) {
-                return (T) new SearchParametersViewModel(new UserDataManager(application));
+                return (T) new SearchParametersViewModel(new UserPrincipalRepository(application));
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

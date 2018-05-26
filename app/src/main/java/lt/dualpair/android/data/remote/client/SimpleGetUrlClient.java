@@ -1,10 +1,10 @@
 package lt.dualpair.android.data.remote.client;
 
 
+import io.reactivex.Observable;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import retrofit2.http.Url;
-import rx.Observable;
 
 public class SimpleGetUrlClient<T> extends BaseClient<T> {
 

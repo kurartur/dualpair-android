@@ -4,7 +4,6 @@ import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
-import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,14 +27,14 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
+    public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
         return bundle;
     }
 
     @Override
-    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) throws NetworkErrorException {
+    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) {
         return null;
     }
 
@@ -45,7 +44,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) {
 
         final Bundle bundle = new Bundle();
 
@@ -60,7 +59,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
         } else {
             try {
-                Token token = new RequestTokenClient(refreshToken, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET).observable().toBlocking().first();
+                Token token = new RequestTokenClient(refreshToken, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET).observable().blockingFirst();
                 bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
                 bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
                 bundle.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
@@ -83,14 +82,14 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+    public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
         return bundle;
     }
 
     @Override
-    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
+    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) {
         final Bundle result = new Bundle();
         result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
         return result;

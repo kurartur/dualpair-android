@@ -7,7 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
 
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.ui.accounts.AccountType;
 
 public class SocialUtils {
 
@@ -45,7 +46,7 @@ public class SocialUtils {
     }
 
     public static void openUserAccount(Context context, UserAccount userAccount) {
-        switch (userAccount.getAccountType()) {
+        switch (AccountType.valueOf(userAccount.getAccountType())) {
             case FB:
                 openFacebookUser(context, userAccount.getAccountId());
                 break;

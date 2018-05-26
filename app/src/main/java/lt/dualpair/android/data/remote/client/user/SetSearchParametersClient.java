@@ -1,9 +1,9 @@
 package lt.dualpair.android.data.remote.client.user;
 
+import io.reactivex.Completable;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.SearchParameters;
 import retrofit2.Retrofit;
-import rx.Observable;
 
 public class SetSearchParametersClient extends BaseClient<Void> {
 
@@ -16,7 +16,7 @@ public class SetSearchParametersClient extends BaseClient<Void> {
     }
 
     @Override
-    protected Observable<Void> getApiObserable(Retrofit retrofit) {
+    protected Completable getApiCompletable(Retrofit retrofit) {
         return retrofit.create(UserService.class).setSearchParameters(userId, searchParameters);
     }
 }

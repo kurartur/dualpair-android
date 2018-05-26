@@ -1,9 +1,9 @@
 package lt.dualpair.android.data.remote.client.match;
 
+import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Match;
 import retrofit2.Retrofit;
-import rx.Observable;
 
 public class GetMutualMatchClient extends BaseClient<Match> {
 

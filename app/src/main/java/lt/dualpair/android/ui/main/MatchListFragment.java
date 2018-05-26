@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.local.entity.Match;
 
 public class MatchListFragment extends UserListFragment {
 

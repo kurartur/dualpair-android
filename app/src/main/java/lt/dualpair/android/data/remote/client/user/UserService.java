@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import lt.dualpair.android.data.resource.Location;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.data.resource.SearchParameters;
 import lt.dualpair.android.data.resource.User;
 import retrofit2.http.Body;
-import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -18,7 +19,6 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import rx.Observable;
 
 public interface UserService {
 
@@ -26,43 +26,43 @@ public interface UserService {
     Observable<User> getUser();
 
     @PUT("api/user/{userId}/sociotypes")
-    Observable<Void> setSociotypes(@Path("userId") Long userId, @Body Set<String> codes);
+    Completable setSociotypes(@Path("userId") Long userId, @Body Set<String> codes);
 
     @PUT("api/user/{userId}/date-of-birth")
     @FormUrlEncoded
-    Observable<Void> setDateOfBirth(@Path("userId") Long userId, @Field("dateOfBirth") String date);
+    Completable setDateOfBirth(@Path("userId") Long userId, @Field("dateOfBirth") String date);
 
     @PUT("api/user/{userId}/search-parameters")
-    Observable<Void> setSearchParameters(@Path("userId") Long userId, @Body SearchParameters searchParameters);
+    Completable setSearchParameters(@Path("userId") Long userId, @Body SearchParameters searchParameters);
 
     @PUT("api/user/{userId}/locations")
-    Observable<Void> setLocation(@Path("userId") Long userId, @Body Location location);
+    Completable setLocation(@Path("userId") Long userId, @Body Location location);
 
     @GET("api/user/{userId}/search-parameters")
     Observable<SearchParameters> getSearchParameters(@Path("userId") Long userId);
 
     @PATCH("api/user/{userId}")
-    Observable<Void> updateUser(@Path("userId") Long userId, @Body Map<String, Object> data);
+    Completable updateUser(@Path("userId") Long userId, @Body Map<String, Object> data);
 
     @GET("api/user/{userId}/available-photos")
     Observable<List<Photo>> getAvailablePhotos(@Path("userId") Long userId, @Query("at") String accountType);
-
-    @DELETE("api/user/{userId}/photos/{photoId}")
-    Observable<Void> deletePhoto(@Path("userId") Long userId, @Path("photoId") Long photoId);
 
     @PUT("api/user/{userId}/photos")
     Observable<Photo> addPhoto(@Path("userId") Long userId, @Body Photo photo);
 
     @POST("api/connect")
     @FormUrlEncoded
-    Observable<Void> connect(@Field("provider") String provider,
+    Completable connect(@Field("provider") String provider,
                              @Field("accessToken") String accessToken,
                              @Field("expiresIn") Long expiresIn,
                              @Field("scope") String scope);
 
     @POST("api/user/{userId}/photos")
-    Observable<Void> setPhotos(@Path("userId") Long userId, @Body List<Photo> photos);
+    Completable setPhotos(@Path("userId") Long userId, @Body List<Photo> photos);
 
     @POST("api/report")
-    Observable<Void> reportUser(@Body Map<String, Object> data);
+    Completable reportUser(@Body Map<String, Object> data);
+
+    @PUT("/api/party/{matchPartyId}/response")
+    Completable setResponse(@Path("matchPartyId") Long matchPartyId, @Body String response);
 }

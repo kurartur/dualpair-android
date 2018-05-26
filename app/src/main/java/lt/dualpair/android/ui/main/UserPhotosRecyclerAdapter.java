@@ -13,15 +13,15 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 
 
 public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRecyclerAdapter.PhotoHolder> {
 
-    private List<Photo> photos;
+    private List<UserPhoto> photos;
     private OnPhotoClickListener onPhotoClickListener;
 
-    public UserPhotosRecyclerAdapter(List<Photo> photos, OnPhotoClickListener onPhotoClickListener) {
+    public UserPhotosRecyclerAdapter(List<UserPhoto> photos, OnPhotoClickListener onPhotoClickListener) {
         this.photos = photos;
         this.onPhotoClickListener = onPhotoClickListener;
     }
@@ -45,7 +45,7 @@ public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRe
             }
         });
         Picasso.with(holder.context)
-                .load(photos.get(position).getSourceUrl())
+                .load(photos.get(position).getSourceLink())
                 .error(R.drawable.image_not_found)
                 .into(imageView);
     }
@@ -66,6 +66,6 @@ public class UserPhotosRecyclerAdapter extends RecyclerView.Adapter<UserPhotosRe
     }
 
     public interface OnPhotoClickListener {
-        void onPhotoClick(Photo photo);
+        void onPhotoClick(UserPhoto photo);
     }
 }

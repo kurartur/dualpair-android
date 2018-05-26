@@ -6,18 +6,19 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import lt.dualpair.android.BuildConfig;
 import lt.dualpair.android.TokenProvider;
-import lt.dualpair.android.data.RxErrorHandlingCallAdapterFactory;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
-import rx.Observable;
 
 public abstract class BaseClient<K> {
 
@@ -32,7 +33,8 @@ public abstract class BaseClient<K> {
         Retrofit.Builder retrofitBuilder =
                 new Retrofit.Builder().baseUrl(BuildConfig.SERVER_HOST)
                         .client(okHttpClientBuilder.build())
-                        .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
+                        //.addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create()) // TODO
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .addConverterFactory(ScalarsConverterFactory.create())
                         .addConverterFactory(GsonConverterFactory.create(createGson()));
         return retrofitBuilder.build();
@@ -42,7 +44,17 @@ public abstract class BaseClient<K> {
         return getApiObserable(getRetrofit());
     }
 
-    protected abstract Observable<K> getApiObserable(Retrofit retrofit);
+    protected  Observable<K> getApiObserable(Retrofit retrofit) {
+        throw new UnsupportedOperationException("Not implemented"); // TODO should be abstract
+    }
+
+    public Completable completable() {
+        return getApiCompletable(getRetrofit());
+    }
+
+    protected Completable getApiCompletable(Retrofit retrofit) {
+        throw new UnsupportedOperationException("Not implemented"); // TODO should be abstract
+    }
 
     private HttpLoggingInterceptor httpLoggingInterceptor(HttpLoggingInterceptor.Level logLevel) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();

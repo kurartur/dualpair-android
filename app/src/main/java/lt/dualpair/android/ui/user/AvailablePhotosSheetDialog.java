@@ -11,15 +11,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 
 public class AvailablePhotosSheetDialog extends BottomSheetDialogFragment {
 
-    private User user;
+    private List<UserAccount> accounts;
     private OnPhotoSelectedListener onPhotoSelectedListener;
 
     @Bind(R.id.tabs)
@@ -36,7 +38,7 @@ public class AvailablePhotosSheetDialog extends BottomSheetDialogFragment {
         ButterKnife.bind(this, contentView);
 
         AvailablePhotosFragmentPageAdapter adapter = new AvailablePhotosFragmentPageAdapter(getChildFragmentManager(),
-                user.getAccounts(),
+                accounts,
                 onPhotoSelectedListener);
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
@@ -72,14 +74,14 @@ public class AvailablePhotosSheetDialog extends BottomSheetDialogFragment {
         this.onPhotoSelectedListener = onPhotoSelectedListener;
     }
 
-    public static AvailablePhotosSheetDialog getInstance(User user) {
+    public static AvailablePhotosSheetDialog getInstance(List<UserAccount> accounts) {
         AvailablePhotosSheetDialog dialog = new AvailablePhotosSheetDialog();
-        dialog.user = user;
+        dialog.accounts = accounts;
         return dialog;
     }
 
     public interface OnPhotoSelectedListener {
-        void onPhotoSelected(Photo photo);
+        void onPhotoSelected(UserPhoto photo);
     }
 
 }

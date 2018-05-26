@@ -6,10 +6,10 @@ import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.api.VKError;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.OAuthConstants;
 import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class VKLoginCallback implements VKCallback<VKAccessToken> {
 
@@ -29,7 +29,7 @@ public class VKLoginCallback implements VKCallback<VKAccessToken> {
                 .observable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new TokenRequestSubscriber(loginActivity));
+                .subscribe(new TokenRequestObserver(loginActivity));
     }
 
     @Override

@@ -5,19 +5,19 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.client.ServiceException;
-import rx.Observable;
-import rx.functions.Func1;
 
-public abstract class AuthenticatedUserTask<Result> extends Task<Result> {
+public abstract class AuthenticatedUserTask<Result> {
 
-    @Override
     public Observable<Result> execute(final Context context) {
         return run(context)
-                .onErrorResumeNext(new Func1<Throwable, Observable<? extends Result>>() {
+                .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends Result>>() {
                     @Override
-                    public Observable<? extends Result> call(Throwable throwable) {
+                    public Observable<? extends Result> apply(Throwable throwable) {
                         if (isUnauthorizedException(throwable)) {
                             invalidateToken(context);
                             getAuthToken(context);

@@ -4,9 +4,9 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.reactivex.Completable;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import retrofit2.Retrofit;
-import rx.Observable;
 
 public class SetDateOfBirthClient extends BaseClient<Void> {
 
@@ -19,7 +19,7 @@ public class SetDateOfBirthClient extends BaseClient<Void> {
     }
 
     @Override
-    protected Observable<Void> getApiObserable(Retrofit retrofit) {
+    protected Completable getApiCompletable(Retrofit retrofit) {
         return retrofit.create(UserService.class).setDateOfBirth(userId, dateToString(date));
     }
 

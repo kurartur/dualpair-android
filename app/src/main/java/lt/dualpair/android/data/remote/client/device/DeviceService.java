@@ -1,14 +1,14 @@
 package lt.dualpair.android.data.remote.client.device;
 
+import io.reactivex.Completable;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-import rx.Observable;
 
 public interface DeviceService {
 
     @POST("api/device")
     @FormUrlEncoded
-    Observable<Void> registerDevice(@Field("id") String token);
+    Completable registerDevice(@Field("id") String token);
 
 }

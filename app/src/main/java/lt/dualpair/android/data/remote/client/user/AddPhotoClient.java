@@ -1,9 +1,9 @@
 package lt.dualpair.android.data.remote.client.user;
 
+import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.BaseClient;
 import lt.dualpair.android.data.resource.Photo;
 import retrofit2.Retrofit;
-import rx.Observable;
 
 public class AddPhotoClient extends BaseClient<Photo> {
 

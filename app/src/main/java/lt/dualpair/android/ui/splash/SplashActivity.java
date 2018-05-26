@@ -3,19 +3,20 @@ package lt.dualpair.android.ui.splash;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.EmptySubscriber;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.main.MainActivity;
 import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class SplashActivity extends BaseActivity {
 
@@ -26,30 +27,53 @@ public class SplashActivity extends BaseActivity {
 
     private AddAccountTask addAccountTask = null;
 
-    private Subscription sociotypeCheckerSubscription;
-    private Subscription dateOfBirthSubscription;
+    private SplashViewModel viewModel;
+
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         final AccountManager am = AccountManager.get(this);
         Account account = AccountUtils.getAccount(am);
         if (account == null) {
             addAccount(am);
         } else {
+            viewModel = ViewModelProviders.of(this, new SplashViewModel.Factory(getApplication())).get(SplashViewModel.class);
             checkSociotype();
         }
     }
 
+    private void checkSociotype() {
+        disposable.add(viewModel.getUserSociotypes()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(sociotypeList -> {
+                    if (sociotypeList.isEmpty()) {
+                        startActivityForResult(AddSociotypeActivity.createIntent(SplashActivity.this, false), ADD_SOCIOTYPE_REQUEST_CODE);
+                    } else {
+                        checkDateOfBirth();
+                    }
+                }, e -> Log.e(TAG, e.getMessage(), e)));
+    }
+
+    private void checkDateOfBirth() {
+        disposable.add(viewModel.getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(u -> {
+                    if (u.getDateOfBirth() == null) {
+                        startActivityForResult(SetDateOfBirthActivity.createIntent(SplashActivity.this), SET_BIRTHDAY_REQUEST_CODE);
+                    } else {
+                        startMain();
+                    }
+                }, e -> Log.e(TAG, e.getMessage(), e)));
+    }
+
     @Override
-    protected void onPause() {
-        if (sociotypeCheckerSubscription != null) {
-            sociotypeCheckerSubscription.unsubscribe();
-        }
-        if (dateOfBirthSubscription != null) {
-            dateOfBirthSubscription.unsubscribe();
-        }
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
+        disposable.clear();
     }
 
     private void addAccount(final AccountManager am) {
@@ -63,38 +87,6 @@ public class SplashActivity extends BaseActivity {
     private void startMain() {
         startActivity(MainActivity.createIntent(this));
         finish();
-    }
-
-    private void checkSociotype() {
-        sociotypeCheckerSubscription = new SociotypeChecker(this).userHasSociotype()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<Boolean>() {
-                    @Override
-                    public void onNext(Boolean hasSociotype) {
-                        if (!hasSociotype) {
-                            startActivityForResult(AddSociotypeActivity.createIntent(SplashActivity.this, false), ADD_SOCIOTYPE_REQUEST_CODE);
-                        } else {
-                            checkDateOfBirth();
-                        }
-                    }
-                });
-    }
-
-    private void checkDateOfBirth() {
-        dateOfBirthSubscription = new DateOfBirthChecker(this).userHasDateOfBirth()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<Boolean>() {
-                    @Override
-                    public void onNext(Boolean hasDateOfBirth) {
-                        if (!hasDateOfBirth) {
-                            startActivityForResult(SetDateOfBirthActivity.createIntent(SplashActivity.this), SET_BIRTHDAY_REQUEST_CODE);
-                        } else {
-                            startMain();
-                        }
-                    }
-                });
     }
 
     @Override

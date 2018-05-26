@@ -9,18 +9,18 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.PurposeOfBeing;
+import lt.dualpair.android.data.local.entity.PurposeOfBeing;
 import lt.dualpair.android.utils.LabelUtils;
 
 public class PurposeOfBeingAdapter extends BaseAdapter {
 
     private EditUserActivity editUserActivity;
     private PurposeOfBeing[] purposes = PurposeOfBeing.values();
-    private Set<PurposeOfBeing> checkedPurposes = new HashSet<>();
+    private List<PurposeOfBeing> checkedPurposes = new ArrayList<>();
     private OnPurposeListChangeListener onPurposeListChangeListener;
 
     public PurposeOfBeingAdapter(EditUserActivity editUserActivity, OnPurposeListChangeListener onPurposeListChangeListener) {
@@ -49,7 +49,7 @@ public class PurposeOfBeingAdapter extends BaseAdapter {
         final PurposeOfBeing purposeOfBeing = (PurposeOfBeing)getItem(position);
         LinearLayout ll = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.checkbox_with_label_layout, null);
 
-        final CheckBox checkBox = (CheckBox) ll.findViewById(R.id.checkbox);
+        final CheckBox checkBox = ll.findViewById(R.id.checkbox);
         if (checkedPurposes.contains(purposeOfBeing))
             checkBox.setChecked(true);
         checkBox.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +64,7 @@ public class PurposeOfBeingAdapter extends BaseAdapter {
             }
         });
 
-        TextView text = (TextView)ll.findViewById(R.id.text);
+        TextView text = ll.findViewById(R.id.text);
         text.setText(LabelUtils.getPurposeOfBeingLabel(editUserActivity, purposeOfBeing));
         text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,13 +76,13 @@ public class PurposeOfBeingAdapter extends BaseAdapter {
         return ll;
     }
 
-    public void setCheckedPurposes(Set<PurposeOfBeing> checkedPurposes) {
+    public void setCheckedPurposes(List<PurposeOfBeing> checkedPurposes) {
         this.checkedPurposes = checkedPurposes;
         notifyDataSetChanged();
     }
 
     public interface OnPurposeListChangeListener {
-        void onChange(Set<PurposeOfBeing> purposes);
+        void onChange(List<PurposeOfBeing> purposes);
     }
 
 }

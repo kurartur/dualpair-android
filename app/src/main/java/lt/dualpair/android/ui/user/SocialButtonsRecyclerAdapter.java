@@ -9,7 +9,8 @@ import android.widget.LinearLayout;
 
 import java.util.List;
 
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.ui.accounts.AccountType;
 
 public class SocialButtonsRecyclerAdapter extends RecyclerView.Adapter<SocialButtonsRecyclerAdapter.ViewHolder> {
 
@@ -39,7 +40,7 @@ public class SocialButtonsRecyclerAdapter extends RecyclerView.Adapter<SocialBut
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         final UserAccount userAccount = userAccounts.get(holder.getAdapterPosition());
-        holder.imageView().setImageResource(userAccount.getAccountType().getIcon());
+        holder.imageView().setImageResource(AccountType.valueOf(userAccount.getAccountType()).getIcon());
         holder.imageView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

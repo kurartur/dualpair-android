@@ -15,6 +15,14 @@
             android:textSize="12sp"
             style="@style/ReviewActionBarText"/>
 
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginLeft="2sp"
+            style="@style/ReviewActionBarText"/>
+
     </LinearLayout>
 
     <LinearLayout

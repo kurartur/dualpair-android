@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.socionics;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,15 +11,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.data.remote.client.ServiceException;
+import lt.dualpair.android.data.remote.client.socionics.EvaluateTestClient;
 import lt.dualpair.android.data.resource.Choice;
 import lt.dualpair.android.data.resource.ChoicePair;
 import lt.dualpair.android.data.resource.ErrorResponse;
 import lt.dualpair.android.data.resource.Sociotype;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class SocionicsTestPresenter {
 
@@ -101,13 +100,19 @@ public class SocionicsTestPresenter {
         view.onSelectionChange(id);
     }
 
-    public void submitTest(Context context) {
-        new UserDataManager(context).evaluateTest(collectChoices())
+    public void submitTest() {
+        new EvaluateTestClient(convertChoicesToStrings(collectChoices())).observable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<Sociotype>() {
+                .subscribe(new Consumer<Sociotype>() {
                     @Override
-                    public void onError(Throwable e) {
+                    public void accept(Sociotype sociotype) {
+                        result = sociotype;
+                        publish();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable e) {
                         ServiceException se = (ServiceException)e;
                         String message;
                         try {
@@ -119,13 +124,15 @@ public class SocionicsTestPresenter {
                         error = message;
                         publish();
                     }
-
-                    @Override
-                    public void onNext(Sociotype sociotype) {
-                        result = sociotype;
-                        publish();
-                    }
                 });
+    }
+
+    private Map<String, String> convertChoicesToStrings(Map<String, Choice> input) {
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, Choice> entry : input.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().name());
+        }
+        return result;
     }
 
     private Map<String, Choice> collectChoices() {

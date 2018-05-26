@@ -19,7 +19,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 
 public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemTouchHelperAdapter {
 
@@ -30,12 +30,12 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     private RecyclerView recyclerView;
 
-    private List<Photo> photos = new ArrayList<>();
+    private List<UserPhoto> photos = new ArrayList<>();
 
     private OnAddClickListener onAddClickListener;
     private OnStartDragListener onStartDragListener;
 
-    public EditPhotosRecyclerAdapter(List<Photo> photos,
+    public EditPhotosRecyclerAdapter(List<UserPhoto> photos,
                                      OnAddClickListener onAddClickListener,
                                      OnStartDragListener onStartDragListener) {
 
@@ -47,15 +47,15 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     private void sortByPosition() {
-        Collections.sort(this.photos, new Comparator<Photo>() {
+        Collections.sort(this.photos, new Comparator<UserPhoto>() {
             @Override
-            public int compare(Photo o1, Photo o2) {
+            public int compare(UserPhoto o1, UserPhoto o2) {
                 return o1.getPosition() > o2.getPosition() ? 1 : -1;
             }
         });
     }
 
-    public void addPhoto(Photo photo) {
+    public void addPhoto(UserPhoto photo) {
         photos.add(photo);
         notifyItemInserted(photos.size() - 1);
         if (photos.size() == MAX_PHOTOS) {
@@ -63,7 +63,7 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         }
     }
 
-    public List<Photo> getPhotos() {
+    public List<UserPhoto> getPhotos() {
         return photos;
     }
 
@@ -95,9 +95,9 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             case PHOTO_ITEM:
                 final PhotoHolder photoHolder = (PhotoHolder) holder;
                 final Context context = photoHolder.context;
-                final Photo photo = photos.get(position);
+                final UserPhoto photo = photos.get(position);
                 Picasso.with(context)
-                        .load(photo.getSourceUrl())
+                        .load(photo.getSourceLink())
                         .error(R.drawable.image_not_found)
                         .into(photoHolder.photo);
 
@@ -207,7 +207,7 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     private void updatePositionText(int position) {
-        TextView tv = (TextView)recyclerView.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.position);
+        TextView tv = recyclerView.findViewHolderForAdapterPosition(position).itemView.findViewById(R.id.position);
         tv.setText(position + 1 + "");
     }
 

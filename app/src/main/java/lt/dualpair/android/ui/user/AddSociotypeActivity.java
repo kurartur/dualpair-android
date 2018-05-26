@@ -17,7 +17,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.local.entity.Sociotype;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.socionics.SocionicsTestActivity;
 
@@ -51,7 +51,7 @@ public class AddSociotypeActivity extends BaseActivity {
             }
         });
 
-        viewModel = ViewModelProviders.of(this).get(AddSociotypeViewModel.class);
+        viewModel = ViewModelProviders.of(this, new AddSociotypeViewModel.Factory(getApplication())).get(AddSociotypeViewModel.class);
         subscribeUi(viewModel);
     }
 
@@ -74,9 +74,9 @@ public class AddSociotypeActivity extends BaseActivity {
     private void fillGrid(List<Sociotype> sociotypes) {
         for (final Sociotype sociotype : sociotypes) {
             View view = LayoutInflater.from(this).inflate(R.layout.item_grid_sociotype, gridLayout, false);
-            TextView code = (TextView)view.findViewById(R.id.sociotype_code);
+            TextView code = view.findViewById(R.id.sociotype_code);
             code.setText(sociotype.getCode1() + " (" + sociotype.getCode2() + ")");
-            TextView title = (TextView)view.findViewById(R.id.sociotype_title);
+            TextView title = view.findViewById(R.id.sociotype_title);
             title.setText(getResources().getString(getResources().getIdentifier(sociotype.getCode1().toLowerCase() + "_title", "string", getPackageName())));
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -89,7 +89,7 @@ public class AddSociotypeActivity extends BaseActivity {
     }
 
     private void openConfirmation(Sociotype sociotype) {
-        startActivityForResult(ConfirmSociotypeActivity.createIntent(this, sociotype), CONFIRM_REQUEST_CODE);
+        startActivityForResult(ConfirmSociotypeActivity.createIntent(this, sociotype.getCode1()), CONFIRM_REQUEST_CODE);
     }
 
     @Override

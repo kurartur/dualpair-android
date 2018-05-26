@@ -18,12 +18,12 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.User;
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.Match;
+import lt.dualpair.android.data.local.entity.User;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.ui.accounts.AccountType;
-import lt.dualpair.android.ui.match.MatchActivity;
-import lt.dualpair.android.ui.match.MutualMatchActivity;
+import lt.dualpair.android.ui.match.UserActivity;
 import lt.dualpair.android.utils.SocialUtils;
 
 public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecyclerAdapter.MatchViewHolder> {
@@ -38,28 +38,12 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         matchList = matches;
     }
 
-    public void prepend(Match match) {
-        ArrayList<Match> tmpMatches = new ArrayList<>(matchList);
-        matchList.clear();
-        matchList.add(match);
-        matchList.addAll(tmpMatches);
-    }
-
-    public void append(Match match) {
-        matchList.add(match);
-    }
-
-    public void clear() {
-        matchList.clear();
-    }
-
     @Override
     public long getItemId(int position) {
         return position;
     }
 
-    private void setupFacebookButton(final Context context, View button, User user) {
-        final UserAccount account = user.getAccountByType(AccountType.FB);
+    private void setupFacebookButton(final Context context, View button, UserAccount account) {
         if (account == null) {
             button.setVisibility(View.GONE);
         } else {
@@ -73,8 +57,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         }
     }
 
-    private void setupVkontakteButton(final Context context, View button, User user) {
-        final UserAccount account = user.getAccountByType(AccountType.VK);
+    private void setupVkontakteButton(final Context context, View button, UserAccount account) {
         if (account == null) {
             button.setVisibility(View.GONE);
         } else {
@@ -99,18 +82,15 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
     @Override
     public void onBindViewHolder(final MatchViewHolder holder, int position) {
         final Match match = matchList.get(position);
-        loadPhoto(holder.context, match.getOpponent().getUser(), holder.picture);
-        final User opponent = match.getOpponent().getUser();
+        loadPhoto(holder.context, match.getOpponentPhotos(), holder.picture);
+        final User opponent = match.getOpponent();
         holder.name.setText(opponent.getName());
-        setupFacebookButton(holder.context, holder.facebookButton, opponent);
-        setupVkontakteButton(holder.context, holder.vkontakteButton, opponent);
+        setupFacebookButton(holder.context, holder.facebookButton, getAccountByType(match.getOpponentAccounts(), AccountType.FB));
+        setupVkontakteButton(holder.context, holder.vkontakteButton, getAccountByType(match.getOpponentAccounts(), AccountType.VK));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.context.startActivity(
-                        match.isMutual() ?
-                        MutualMatchActivity.createIntent(holder.context, match.getId()) :
-                        MatchActivity.createIntent(holder.context, match.getId()));
+                holder.context.startActivity(UserActivity.createIntent(holder.context, match.getId()));
             }
         });
     }
@@ -120,9 +100,9 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         return matchList.size();
     }
 
-    private void loadPhoto(Context context, User user, ImageView picture) {
+    private void loadPhoto(Context context, List<UserPhoto> photos, ImageView picture) {
         Picasso.with(context)
-                .load(user.getPhotos().get(0).getSourceUrl())
+                .load(photos.get(0).getSourceLink())
                 .error(R.drawable.image_not_found)
                 .into(picture, new Callback() {
                     @Override
@@ -134,6 +114,17 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
                         Log.e("MatchListPhoto", "Error while loading photo");
                     }
                 });
+    }
+
+    private UserAccount getAccountByType(List<UserAccount> accounts, AccountType accountType) {
+        if (accounts != null) {
+            for (UserAccount account : accounts) {
+                if (account.getAccountType().equals(accountType.name())) {
+                    return account;
+                }
+            }
+        }
+        return null;
     }
 
     public static class MatchViewHolder extends RecyclerView.ViewHolder {

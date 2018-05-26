@@ -15,8 +15,6 @@ public class AboutActivity extends BaseActivity {
         setupActionBar();
     }
 
-
-
     public static Intent createIntent(Activity activity) {
         return new Intent(activity, AboutActivity.class);
     }

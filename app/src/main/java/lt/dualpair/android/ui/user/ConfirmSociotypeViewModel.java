@@ -1,63 +1,73 @@
 package lt.dualpair.android.ui.user;
 
+import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
+import android.support.annotation.NonNull;
 
-import java.util.Set;
+import java.util.List;
 
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.resource.User;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.Subject;
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import lt.dualpair.android.data.local.entity.Sociotype;
+import lt.dualpair.android.data.local.entity.UserSociotype;
+import lt.dualpair.android.data.repository.SociotypeRepository;
+import lt.dualpair.android.data.repository.UserPrincipalRepository;
 
 public class ConfirmSociotypeViewModel extends ViewModel {
 
-    private UserDataManager userDataManager;
-    private final Sociotype sociotype;
-    private final MediatorLiveData<Set<Sociotype>> currentSociotypes;
+    private final MediatorLiveData<List<UserSociotype>> currentSociotypes;
+    private UserPrincipalRepository userPrincipalRepository;
+    private SociotypeRepository sociotypeRepository;
+    private CompositeDisposable disposable = new CompositeDisposable();
 
-    public ConfirmSociotypeViewModel(UserDataManager userDataManager, Sociotype sociotype) {
-        this.userDataManager = userDataManager;
-        this.sociotype = sociotype;
+    public ConfirmSociotypeViewModel(UserPrincipalRepository userPrincipalRepository, SociotypeRepository sociotypeRepository) {
+        this.userPrincipalRepository = userPrincipalRepository;
+        this.sociotypeRepository = sociotypeRepository;
         currentSociotypes = new MediatorLiveData<>();
         currentSociotypes.setValue(null);
-        userDataManager.getUser()
+        disposable.add(
+                userPrincipalRepository.getSociotypes()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(currentSociotypes::setValue));
+    }
+
+    public Completable saveSociotype(String sociotypeCode) {
+        return userPrincipalRepository.setSociotype(sociotypeCode)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<User>() {
-                    @Override
-                    public void onNext(User user) {
-                        unsubscribe();
-                        currentSociotypes.setValue(user.getSociotypes());
-                    }
-                });
+                .subscribeOn(Schedulers.io());
     }
 
-    public LiveData<Set<Sociotype>> getCurrentSociotypes() {
-        return currentSociotypes;
+    public LiveData<Sociotype> getSociotype(String code1) {
+        return sociotypeRepository.getSociotype(code1);
     }
 
-    public Observable saveSociotypes(Set<Sociotype> sociotypes) {
-        final Subject subject = BehaviorSubject.create();
-        userDataManager.setSociotypes(sociotypes)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<User>() {
-                    @Override
-                    public void onNext(User u) {
-                        subject.onCompleted();
-                    }
-                });
-        return subject;
+    @Override
+    protected void onCleared() {
+        disposable.clear();
     }
 
-    public Sociotype getSociotype() {
-        return sociotype;
+    public static class ConfirmSociotypeViewModelFactory extends ViewModelProvider.AndroidViewModelFactory {
+
+        private Application application;
+
+        public ConfirmSociotypeViewModelFactory(@NonNull Application application) {
+            super(application);
+            this.application = application;
+        }
+
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            if (modelClass.isAssignableFrom(ConfirmSociotypeViewModel.class)) {
+                return (T) new ConfirmSociotypeViewModel(new UserPrincipalRepository(application), new SociotypeRepository(application));
+            }
+            throw new IllegalArgumentException("Unknown ViewModel class");
+        }
     }
 }

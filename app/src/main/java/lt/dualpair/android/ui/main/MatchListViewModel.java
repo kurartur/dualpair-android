@@ -7,53 +7,36 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import lt.dualpair.android.data.manager.MatchDataManager;
-import lt.dualpair.android.data.resource.Match;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Action2;
-import rx.functions.Func0;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import lt.dualpair.android.data.local.entity.Match;
+import lt.dualpair.android.data.repository.MatchRepository;
 
 public class MatchListViewModel extends ViewModel {
 
-    private MatchDataManager matchDataManager;
+    private MatchRepository matchRepository;
 
     private final MutableLiveData<List<Match>> matchList;
 
-    private static final int MATCH_COUNT = 1000; // TODO pagination
-    
-    public MatchListViewModel(MatchDataManager matchDataManager) {
-        this.matchDataManager = matchDataManager;
+    public MatchListViewModel(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
         matchList = new MutableLiveData<>();
         loadMatches();
     }
 
     private void loadMatches() {
-        final List<Match> matches = new ArrayList<>();
-        matchDataManager.mutualMatches(0, MATCH_COUNT)
-            .collect(new Func0<List<Match>>() {
-                @Override
-                public List<Match> call() {
-                    return matches;
-                }
-            }, new Action2<List<Match>, Match>() {
-                @Override
-                public void call(List<Match> matches, Match match) {
-                    matches.add(match);
-                }
-            })
+        matchRepository.getMatches()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
-            .subscribe(new Action1<List<Match>>() {
+            .subscribe(new Consumer<List<lt.dualpair.android.data.local.entity.Match>>() {
                 @Override
-                public void call(List<Match> matches) {
+                public void accept(List<lt.dualpair.android.data.local.entity.Match> matches) {
                     matchList.setValue(matches);
                 }
-        });
+            });
     }
 
     public LiveData<List<Match>> getMatchList() {
@@ -76,7 +59,7 @@ public class MatchListViewModel extends ViewModel {
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(MatchListViewModel.class)) {
-                return (T) new MatchListViewModel(new MatchDataManager(application));
+                return (T) new MatchListViewModel(new MatchRepository(application));
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
