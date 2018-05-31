@@ -5,10 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import retrofit2.Retrofit;
 
-public class SetDateOfBirthClient extends BaseClient<Void> {
+public class SetDateOfBirthClient extends CompletableClient {
 
     private Long userId;
     private Date date;

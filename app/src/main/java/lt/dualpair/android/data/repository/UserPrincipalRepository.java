@@ -55,6 +55,9 @@ public class UserPrincipalRepository {
     private Long userId;
     private DualPairRoomDatabase database;
 
+    private static long lastPrincipalApiRequest;
+    private static final long INTERVAL = 1000 * 60 * 1; // one request per minute
+
     public UserPrincipalRepository(Application application) {
         database = DualPairRoomDatabase.getDatabase(application);
         userDao = database.userDao();
@@ -97,32 +100,15 @@ public class UserPrincipalRepository {
         return Maybe.concat(local, remote.toMaybe()).firstElement().toSingle();
     }
 
-    public Single<List<FullUserSociotype>> getFullUserSociotypes() {
-        return getSociotypes()
-                .map(new Function<List<UserSociotype>, List<FullUserSociotype>>() {
-                    @Override
-                    public List<FullUserSociotype> apply(List<UserSociotype> sociotypes) {
-                        return loadSociotypes(sociotypes);
-                    }
-                });
-    }
-
-    private List<FullUserSociotype> loadSociotypes(List<UserSociotype> userSociotypes) {
-        List<FullUserSociotype> fullSociotypes = new ArrayList<>();
-        for (UserSociotype userSociotype : userSociotypes) {
-            fullSociotypes.add(new FullUserSociotype(userSociotype, sociotypeDao.getSociotypeById(userSociotype.getSociotypeId())));
-        }
-        return fullSociotypes;
-    }
-
-
     private UserResourceMapper.Result saveUserResource(lt.dualpair.android.data.resource.User userResource) {
         UserResourceMapper.Result mappingResult = new UserResourceMapper(sociotypeDao).map(userResource);
         database.runInTransaction(() -> {
             userDao.saveUser(mappingResult.getUser());
-            userDao.saveUserAccounts(mappingResult.getUserAccounts());
-            userDao.saveUserPhotos(mappingResult.getUserPhotos());
-            userDao.saveUserSociotypes(mappingResult.getUserSociotypes());
+            userDao.replaceUserAccounts(userId, mappingResult.getUserAccounts());
+            userDao.replaceUserPhotos(userId, mappingResult.getUserPhotos());
+            userDao.replaceUserSociotypes(userId, mappingResult.getUserSociotypes());
+            userDao.replaceUserPurposesOfBeing(userId, mappingResult.getUserPurposesOfBeing());
+            userDao.replaceUserLocations(userId, mappingResult.getUserLocations());
         });
         return mappingResult;
     }
@@ -263,5 +249,40 @@ public class UserPrincipalRepository {
 
     public LiveData<UserLocation> getLastStoredLocation() {
         return userDao.getLastLocation(userId);
+    }
+
+    public Completable loadFromApi() {
+        return new GetUserPrincipalClient().observable()
+                .subscribeOn(Schedulers.io())
+                .doOnNext(userResource -> saveUserResource(userResource))
+                .doOnComplete(() -> lastPrincipalApiRequest = System.currentTimeMillis()).ignoreElements();
+    }
+
+    public Completable loadFromApiIfTime() {
+        if (System.currentTimeMillis() - lastPrincipalApiRequest > INTERVAL) {
+            return loadFromApi();
+        } else {
+            return Completable.complete();
+        }
+    }
+
+    public LiveData<User> getUserLive() {
+        return userDao.getUserLive(userId);
+    }
+
+    public LiveData<List<FullUserSociotype>> getFullUserSociotypesLive() {
+        return userDao.getFullUserSociotypesLive(userId);
+    }
+
+    public LiveData<List<UserAccount>> getUserAccountsLive() {
+        return userDao.getUserAccountsLive(userId);
+    }
+
+    public LiveData<List<UserPhoto>> getUserPhotosLive() {
+        return userDao.getUserPhotosLive(userId);
+    }
+
+    public LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive() {
+        return userDao.getUserPurposesOfBeingLive(userId);
     }
 }

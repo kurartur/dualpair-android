@@ -2,11 +2,10 @@ package lt.dualpair.android.data.remote.client.user;
 
 
 import io.reactivex.Completable;
-import io.reactivex.Observable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import retrofit2.Retrofit;
 
-public class ConnectAccountClient extends BaseClient<Void> {
+public class ConnectAccountClient extends CompletableClient {
 
     private String providerId;
     private String accessToken;
@@ -18,11 +17,6 @@ public class ConnectAccountClient extends BaseClient<Void> {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
         this.scope = scope;
-    }
-
-    @Override
-    protected Observable getApiObserable(Retrofit retrofit) {
-        return null;
     }
 
     @Override

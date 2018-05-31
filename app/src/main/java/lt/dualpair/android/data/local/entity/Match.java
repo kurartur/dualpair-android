@@ -1,34 +1,44 @@
 package lt.dualpair.android.data.local.entity;
 
-import java.util.List;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
+import java.util.Date;
+
+@Entity(tableName = "matches")
 public class Match {
 
+    @PrimaryKey
     private Long id;
-    private User opponent;
-    private List<UserAccount> opponentAccounts;
-    private List<UserPhoto> opponentPhotos;
 
-    public Match(Long id, User opponent, List<UserAccount> opponentAccounts, List<UserPhoto> opponentPhotos) {
-        this.id = id;
-        this.opponent = opponent;
-        this.opponentAccounts = opponentAccounts;
-        this.opponentPhotos = opponentPhotos;
-    }
+    @ColumnInfo(name = "opponent_id")
+    private Long opponentId;
+
+    @ColumnInfo(name = "date")
+    private Date date;
 
     public Long getId() {
         return id;
     }
 
-    public User getOpponent() {
-        return opponent;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public List<UserAccount> getOpponentAccounts() {
-        return opponentAccounts;
+    public Long getOpponentId() {
+        return opponentId;
     }
 
-    public List<UserPhoto> getOpponentPhotos() {
-        return opponentPhotos;
+    public void setOpponentId(Long opponentId) {
+        this.opponentId = opponentId;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
 import lt.dualpair.android.data.resource.Token;
@@ -46,30 +45,42 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) {
 
-        final Bundle bundle = new Bundle();
+        // Extract the username and password from the Account Manager, and ask
+        // the server for an appropriate AuthToken.
+        final AccountManager am = AccountManager.get(context);
 
-        if (!AccountConstants.ACCOUNT_TYPE.equals(authTokenType)) {
-            return bundle;
-        }
+        String authToken = am.peekAuthToken(account, authTokenType);
 
-        AccountManager am = AccountManager.get(context);
-        String refreshToken = am.getPassword(account);
-
-        if (TextUtils.isEmpty(refreshToken)) {
-            bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
-        } else {
-            try {
-                Token token = new RequestTokenClient(refreshToken, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET).observable().blockingFirst();
-                bundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-                bundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-                bundle.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
-                am.setPassword(account, token.getRefreshToken());
-                TokenProvider.getInstance().storeToken(token.getAccessToken());
-                // bundle.putString(KEY_CUSTOM_TOKEN_EXPIRY, somevalue); // TODO set token expiration date;
-            } catch (ServiceException se) {
-                bundle.putParcelable(AccountManager.KEY_INTENT, createLoginIntent(response));
+        // Lets give another try to authenticate the user
+        if (TextUtils.isEmpty(authToken)) {
+            final String password = am.getPassword(account);
+            if (password != null) {
+                try {
+                    Token token = new RequestTokenClient(password, OAuthConstants.CLIENT_ID, OAuthConstants.CLIENT_SERCET).observable().blockingFirst();
+                    am.setPassword(account, token.getRefreshToken());
+                    authToken = token.getAccessToken();
+                    // bundle.putString(KEY_CUSTOM_TOKEN_EXPIRY, somevalue); // TODO Set token expiration date
+                } catch (ServiceException se) {
+                    // Continue without token
+                }
             }
         }
+
+        // If we get an authToken - we return it
+        if (!TextUtils.isEmpty(authToken)) {
+            final Bundle result = new Bundle();
+            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+            result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
+            return result;
+        }
+
+        // If we get here, then we couldn't access the user's password or we got error - so we
+        // need to re-prompt them for their credentials. We do that by creating
+        // an intent to display our LoginActivity.
+        final Intent intent = createLoginIntent(response);
+        final Bundle bundle = new Bundle();
+        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
         return bundle;
     }
 

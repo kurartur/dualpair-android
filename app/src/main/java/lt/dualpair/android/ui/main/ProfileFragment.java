@@ -26,6 +26,9 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.RelationshipStatus;
@@ -74,6 +77,8 @@ public class ProfileFragment extends MainTabFragment {
 
     private ProfileViewModel viewModel;
 
+    private CompositeDisposable disposable = new CompositeDisposable();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,23 +114,32 @@ public class ProfileFragment extends MainTabFragment {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(this, new ProfileViewModel.Factory(getActivity().getApplication())).get(ProfileViewModel.class);
         subscribeUi();
+        refresh();
+    }
+
+    private void refresh() {
+        disposable.add(
+                viewModel.refresh()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> {}, throwable -> ToastUtils.show(getActivity(), throwable.getMessage())));
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disposable.clear();
     }
 
     private void subscribeUi() {
-        viewModel.getUser().observe(this, this::renderUser);
-        viewModel.getUserSociotypes().observe(this, this::renderSociotypes);
-        viewModel.getUserAccounts().observe(this, this::renderAccounts);
-        viewModel.getUserPhotos().observe(this, photos -> {
+        viewModel.getUserLive().observe(this, this::renderUser);
+        viewModel.getUserSociotypesLive().observe(this, this::renderSociotypes);
+        viewModel.getUserAccountsLive().observe(this, this::renderAccounts);
+        viewModel.getUserPhotosLive().observe(this, photos -> {
            renderPhotos(photos);
            renderMainPhoto(photos.get(0));
         });
-        viewModel.getPurposesOfBeing().observe(this, this::renderPurposesOfBeing);
-        viewModel.isLoggedOut().observe(this, aBoolean -> {
-            Intent newIntent = SplashActivity.createIntent(getActivity());
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(newIntent);
-        });
+        viewModel.getPurposesOfBeingLive().observe(this, this::renderPurposesOfBeing);
     }
 
     @Override
@@ -140,7 +154,15 @@ public class ProfileFragment extends MainTabFragment {
                 startActivity(AboutActivity.createIntent(this.getActivity()));
                 break;
             case R.id.logout_menu_item:
-                viewModel.logout();
+                viewModel.logout()
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            Intent newIntent = SplashActivity.createIntent(getActivity());
+                            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(newIntent);
+                        });;
                 break;
         }
         return false;
@@ -152,12 +174,12 @@ public class ProfileFragment extends MainTabFragment {
             case ADD_SOCIOTYPE_REQ_CODE:
             case EDIT_ACCOUNTS_REQ_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    viewModel.refresh();
+                    refresh();
                 }
                 break;
             case EDIT_PHOTOS_REQ_CODE:
             case EDIT_USER_REQ_CODE:
-                viewModel.refresh();
+                refresh();
                 break;
         }
     }

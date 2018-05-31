@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
+import retrofit2.HttpException;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
@@ -81,5 +82,25 @@ public class ServiceException extends RuntimeException {
         }
         Converter<ResponseBody, T> converter = retrofit.responseBodyConverter(type, new Annotation[0]);
         return converter.convert(response.errorBody());
+    }
+
+    public boolean isUnauthorized() {
+        return getResponse() != null && getResponse().code() == 401;
+    }
+
+    public static ServiceException fromThrowable(Throwable throwable, Retrofit retrofit) {
+        // We had non-200 http error
+        if (throwable instanceof HttpException) {
+            HttpException httpException = (HttpException) throwable;
+            Response response = httpException.response();
+            return ServiceException.httpError(response.raw().request().url().toString(), response, retrofit);
+        }
+        // A network error happened
+        if (throwable instanceof IOException) {
+            return ServiceException.networkError((IOException) throwable);
+        }
+
+        // We don't know what happened. We need to simply convert to an unknown error
+        return ServiceException.unexpectedError(throwable);
     }
 }

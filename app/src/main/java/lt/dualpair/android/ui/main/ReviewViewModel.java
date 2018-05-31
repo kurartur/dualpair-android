@@ -21,6 +21,7 @@ import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
+import lt.dualpair.android.ui.Resource;
 
 public class ReviewViewModel extends ViewModel {
 
@@ -29,7 +30,7 @@ public class ReviewViewModel extends ViewModel {
     private final UserPrincipalRepository userPrincipalRepository;
     private final UserRepository userRepository;
 
-    private MutableLiveData<UserForView> userToReview;
+    private MutableLiveData<Resource<UserForView>> userToReview;
 
     private LiveData<LocationSettingsResult> locationSettingsResult;
     private LiveData<Location> location;
@@ -47,11 +48,12 @@ public class ReviewViewModel extends ViewModel {
         lastStoredLocation = userPrincipalRepository.getLastStoredLocation();
     }
 
-    public LiveData<UserForView> getUserToReview() {
+    public LiveData<Resource<UserForView>> getUserToReview() {
         return userToReview;
     }
 
     public void loadNext() {
+        userToReview.setValue(Resource.loading());
         if (isLocationUpdateRequired()) {
             updateLocation();
         } else {
@@ -100,6 +102,7 @@ public class ReviewViewModel extends ViewModel {
                     @Override
                     public void accept(Throwable throwable) {
                         Log.e(TAG, throwable.getMessage(), throwable);
+                        userToReview.setValue(Resource.error(throwable));
                     }
                 });
     }
@@ -118,42 +121,34 @@ public class ReviewViewModel extends ViewModel {
                 .subscribe(new Consumer<UserForView>() {
                     @Override
                     public void accept(UserForView user) {
-                        userToReview.setValue(user);
+                        userToReview.setValue(Resource.success(user));
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable e) {
-                        userToReview.setValue(null);
                         Log.e("Review", e.getMessage(), e);
+                        userToReview.setValue(Resource.error(e));
                     }
                 });
     }
 
-    private void onUserReviewed() {
-        loadNext();
-    }
-
     public void respondWithYes() {
-        userRepository.respondWithYes(userToReview.getValue().getReference())
+        userRepository.respondWithYes(userToReview.getValue().getData().getReference())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(disposable -> userToReview.setValue(Resource.loading()))
                 .subscribe(onRespondCompleteAction);
     }
 
     public void respondWithNo() {
-        userRepository.respondWithNo(userToReview.getValue().getReference())
+        userRepository.respondWithNo(userToReview.getValue().getData().getReference())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(disposable -> userToReview.setValue(Resource.loading()))
                 .subscribe(onRespondCompleteAction);
     }
 
-    private Action onRespondCompleteAction = new Action() {
-        @Override
-        public void run() {
-            userToReview.setValue(null);
-            onUserReviewed();
-        }
-    };
+    private Action onRespondCompleteAction = () -> loadNext();
 
     public void retry() {
         loadNext();

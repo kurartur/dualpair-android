@@ -47,6 +47,7 @@ import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
+import lt.dualpair.android.ui.Resource;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.OpponentUserView;
 import lt.dualpair.android.ui.user.UserViewActionBarViewHolder;
@@ -126,15 +127,20 @@ public class ReviewFragment extends MainTabFragment {
     }
 
     private void subscribeUi() {
-        viewModel.getUserToReview().observe(this, new Observer<UserForView>() {
+        viewModel.getUserToReview().observe(this, new Observer<Resource<UserForView>>() {
             @Override
-            public void onChanged(@Nullable UserForView userForView) {
-                if (userForView == null) {
+            public void onChanged(@Nullable Resource<UserForView> userForView) {
+                if (userForView.isLoading()) {
                     showLoading();
-                } else if (userForView.getReference() == null) {
-                    showNoMatches();
-                } else {
-                    renderReview(userForView);
+                } else if (userForView.isError()) {
+                    showError(userForView.getError().getMessage());
+                } else if (userForView.isSuccess()) {
+                    UserForView data = userForView.getData();
+                    if (data.getReference() == null) {
+                        showNoMatches();
+                    } else {
+                        renderReview(data);
+                    }
                 }
             }
         });
@@ -194,6 +200,13 @@ public class ReviewFragment extends MainTabFragment {
     public void showNoMatches() {
         progressLayout.setVisibility(View.VISIBLE);
         progressText.setText(getResources().getString(R.string.no_matches_found));
+        progressBar.setVisibility(View.GONE);
+        retryButton.setVisibility(View.VISIBLE);
+    }
+
+    public void showError(String error) {
+        progressLayout.setVisibility(View.VISIBLE);
+        progressText.setText(error);
         progressBar.setVisibility(View.GONE);
         retryButton.setVisibility(View.VISIBLE);
     }

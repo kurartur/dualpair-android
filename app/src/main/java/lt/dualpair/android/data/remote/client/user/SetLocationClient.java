@@ -1,13 +1,11 @@
 package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Completable;
-import io.reactivex.Observable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import lt.dualpair.android.data.resource.Location;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class SetLocationClient extends BaseClient<Response<Void>> {
+public class SetLocationClient extends CompletableClient {
 
     private Long userId;
     private Location location;
@@ -15,11 +13,6 @@ public class SetLocationClient extends BaseClient<Response<Void>> {
     public SetLocationClient(Long userId, Location location) {
         this.userId = userId;
         this.location = location;
-    }
-
-    @Override
-    protected Observable<Response<Void>> getApiObserable(Retrofit retrofit) {
-        return null;
     }
 
     @Override

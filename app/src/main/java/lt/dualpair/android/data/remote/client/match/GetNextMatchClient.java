@@ -1,11 +1,11 @@
 package lt.dualpair.android.data.remote.client.match;
 
 import io.reactivex.Observable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.ObservableClient;
 import lt.dualpair.android.data.resource.Match;
 import retrofit2.Retrofit;
 
-public class GetNextMatchClient extends BaseClient<Match> {
+public class GetNextMatchClient extends ObservableClient<Match> {
 
     private Integer minAge;
     private Integer maxAge;

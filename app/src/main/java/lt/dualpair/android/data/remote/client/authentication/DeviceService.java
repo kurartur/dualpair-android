@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.remote.client.device;
+package lt.dualpair.android.data.remote.client.authentication;
 
 import io.reactivex.Completable;
 import retrofit2.http.Field;

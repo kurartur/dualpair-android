@@ -9,12 +9,13 @@ import android.arch.persistence.room.Transaction;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 
@@ -22,7 +23,7 @@ import lt.dualpair.android.data.local.entity.UserSociotype;
 public abstract class UserDao {
 
     @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
-    public abstract Flowable<User> getUserFlowable(Long id);
+    public abstract LiveData<User> getUserLive(Long id);
 
     @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
     public abstract Maybe<User> getUserMaybe(Long id);
@@ -31,13 +32,13 @@ public abstract class UserDao {
     public abstract User getUser(Long id);
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
-    public abstract Flowable<List<UserSociotype>> getUserSociotypesFlowable(Long userId);
-
-    @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract Maybe<List<UserSociotype>> getUserSociotypesMaybe(Long userId);
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract List<UserSociotype> getUserSociotypes(Long userId);
+
+    @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
+    public abstract LiveData<List<FullUserSociotype>> getFullUserSociotypesLive(Long userId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void saveUser(User user);
@@ -48,12 +49,14 @@ public abstract class UserDao {
     @Insert
     public abstract void saveUserSociotype(UserSociotype sociotypeSet);
 
-    @Insert
-    public abstract void save(UserAccount userAccount);
+    @Transaction
+    public void replaceUserSociotypes(Long userId, List<UserSociotype> userSociotypes) {
+        deleteUserSociotypes(userId);
+        saveUserSociotypes(userSociotypes);
+    }
 
-
-    @Query("select * from users")
-    public abstract LiveData<List<User>> getUsers();
+    @Query("DELETE FROM user_sociotypes WHERE user_id = :userId")
+    protected abstract void deleteUserSociotypes(Long userId);
 
     @Insert
     public abstract void saveUserAccounts(List<UserAccount> userAccounts);
@@ -79,9 +82,6 @@ public abstract class UserDao {
     @Query("DELETE FROM user_photos where user_id = :userId")
     protected abstract void deleteUserPhotos(Long userId);
 
-    @Insert
-    public abstract void saveUserLocation(UserLocation userLocation);
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void saveUserSearchParameters(UserSearchParameters userSearchParameters);
 
@@ -90,4 +90,46 @@ public abstract class UserDao {
 
     @Query("SELECT * FROM user_locations WHERE user_id = :userId ORDER BY id DESC LIMIT 1")
     public abstract LiveData<UserLocation> getLastLocation(Long userId);
+
+    @Query("SELECT * FROM user_accounts WHERE user_id = :userId")
+    public abstract List<UserAccount> getUserAccounts(Long userId);
+
+    @Query("SELECT * FROM user_accounts WHERE user_id = :userId")
+    public abstract LiveData<List<UserAccount>> getUserAccountsLive(Long userId);
+
+    @Query("SELECT * FROM user_photos WHERE user_id = :userId")
+    public abstract List<UserPhoto> getUserPhotos(Long userId);
+
+    @Query("SELECT * FROM user_photos WHERE user_id = :userId")
+    public abstract LiveData<List<UserPhoto>> getUserPhotosLive(Long userId);
+
+    @Query("SELECT * FROM user_purposes_of_being WHERE user_id = :userId")
+    public abstract LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive(Long userId);
+
+    @Insert
+    public abstract void saveUserPurposesOfBeing(List<UserPurposeOfBeing> userPurposesOfBeing);
+
+    @Query("DELETE FROM user_purposes_of_being WHERE user_id = :userId")
+    public abstract void deleteUserPurposesOfBeing(Long userId);
+
+    @Transaction
+    public void replaceUserPurposesOfBeing(Long userId, List<UserPurposeOfBeing> userPurposesOfBeing) {
+        deleteUserPurposesOfBeing(userId);
+        saveUserPurposesOfBeing(userPurposesOfBeing);
+    }
+
+    @Transaction
+    public void replaceUserLocations(Long userId, List<UserLocation> userLocations) {
+        deleteUserLocations(userId);
+        saveUserLocations(userLocations);
+    }
+
+    @Insert
+    protected abstract void saveUserLocations(List<UserLocation> userLocations);
+
+    @Query("DELETE FROM user_locations WHERE user_id = :userId")
+    protected abstract void deleteUserLocations(Long userId);
+
+    @Insert
+    public abstract void saveUserLocation(UserLocation userLocation);
 }

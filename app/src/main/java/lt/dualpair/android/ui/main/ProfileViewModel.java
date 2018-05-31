@@ -2,7 +2,6 @@ package lt.dualpair.android.ui.main;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
@@ -10,10 +9,6 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.Logouter;
 import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.User;
@@ -26,111 +21,48 @@ public class ProfileViewModel extends ViewModel {
 
     private UserPrincipalRepository userPrincipalRepository;
     private Logouter logouter;
-    private final MutableLiveData<User> user;
-    private final MutableLiveData<List<FullUserSociotype>> userSociotypes;
-    private final MutableLiveData<List<UserAccount>> userAccounts;
-    private final MutableLiveData<List<UserPhoto>> userPhotos;
-    private final MutableLiveData<List<UserPurposeOfBeing>> purposesOfBeing;
-    private final MutableLiveData<Boolean> isLoggedOut;
+    private final LiveData<User> userLive;
+    private final LiveData<List<FullUserSociotype>> userSociotypesLive;
+    private final LiveData<List<UserAccount>> userAccountsLive;
+    private final LiveData<List<UserPhoto>> userPhotosLive;
+    private final LiveData<List<UserPurposeOfBeing>> purposesOfBeingLive;
 
     public ProfileViewModel(UserPrincipalRepository userPrincipalRepository, Logouter logouter) {
         this.userPrincipalRepository = userPrincipalRepository;
         this.logouter = logouter;
-        user = new MutableLiveData<>();
-        userSociotypes = new MutableLiveData<>();
-        userAccounts = new MutableLiveData<>();
-        userPhotos = new MutableLiveData<>();
-        purposesOfBeing = new MutableLiveData<>();
-        isLoggedOut = new MutableLiveData<>();
-        load();
+        userLive = userPrincipalRepository.getUserLive();
+        userSociotypesLive = userPrincipalRepository.getFullUserSociotypesLive();
+        userAccountsLive = userPrincipalRepository.getUserAccountsLive();
+        userPhotosLive = userPrincipalRepository.getUserPhotosLive();
+        purposesOfBeingLive = userPrincipalRepository.getUserPurposesOfBeingLive();
     }
 
-    public LiveData<User> getUser() {
-        return user;
+    public LiveData<User> getUserLive() {
+        return userLive;
     }
 
-    public LiveData<List<FullUserSociotype>> getUserSociotypes() {
-        return userSociotypes;
+    public LiveData<List<FullUserSociotype>> getUserSociotypesLive() {
+        return userSociotypesLive;
     }
 
-    public MutableLiveData<List<UserAccount>> getUserAccounts() {
-        return userAccounts;
+    public LiveData<List<UserAccount>> getUserAccountsLive() {
+        return userAccountsLive;
     }
 
-    public MutableLiveData<List<UserPhoto>> getUserPhotos() {
-        return userPhotos;
+    public LiveData<List<UserPhoto>> getUserPhotosLive() {
+        return userPhotosLive;
     }
 
-    public MutableLiveData<List<UserPurposeOfBeing>> getPurposesOfBeing() {
-        return purposesOfBeing;
+    public LiveData<List<UserPurposeOfBeing>> getPurposesOfBeingLive() {
+        return purposesOfBeingLive;
     }
 
-    private void load() {
-        userPrincipalRepository.getUser()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<User>() {
-                    @Override
-                    public void accept(User u) {
-                        user.setValue(u);
-                    }
-                });
-        userPrincipalRepository.getFullUserSociotypes()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<List<FullUserSociotype>>() {
-                    @Override
-                    public void accept(List<FullUserSociotype> us) {
-                        userSociotypes.setValue(us);
-                    }
-                });
-        userPrincipalRepository.getUserAccounts()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<List<UserAccount>>() {
-                    @Override
-                    public void accept(List<UserAccount> ua) {
-                        userAccounts.setValue(ua);
-                    }
-                });
-        userPrincipalRepository.getPhotos()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<List<UserPhoto>>() {
-                    @Override
-                    public void accept(List<UserPhoto> up) {
-                        userPhotos.setValue(up);
-                    }
-                });
-        userPrincipalRepository.getUserPurposesOfBeing()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<List<UserPurposeOfBeing>>() {
-                    @Override
-                    public void accept(List<UserPurposeOfBeing> pob) {
-                        purposesOfBeing.setValue(pob);
-                    }
-                });
+    public Completable refresh() {
+        return userPrincipalRepository.loadFromApiIfTime();
     }
 
-    public LiveData<Boolean> isLoggedOut() {
-        return isLoggedOut;
-    }
-
-    public void refresh() {
-        load();
-    }
-
-    public void logout() {
-        Completable.mergeArray(userPrincipalRepository.logout(), logouter.logout())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action() {
-                    @Override
-                    public void run() {
-                        isLoggedOut.setValue(true);
-                    }
-                });
+    public Completable logout() {
+        return Completable.mergeArray(userPrincipalRepository.logout(), logouter.logout());
     }
 
     public static class Factory extends ViewModelProvider.AndroidViewModelFactory {

@@ -10,25 +10,28 @@ import android.support.annotation.NonNull;
 
 import java.util.concurrent.Executors;
 
+import lt.dualpair.android.data.local.dao.MatchDao;
 import lt.dualpair.android.data.local.dao.SociotypeDao;
 import lt.dualpair.android.data.local.dao.SwipeDao;
 import lt.dualpair.android.data.local.dao.UserDao;
+import lt.dualpair.android.data.local.entity.Match;
 import lt.dualpair.android.data.local.entity.Sociotype;
 import lt.dualpair.android.data.local.entity.Swipe;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 
 @Database(entities = {
         User.class, UserSociotype.class, UserAccount.class,
-        Swipe.class, UserPhoto.class, Sociotype.class,
-        UserSearchParameters.class, UserLocation.class
+        Swipe.class, UserPhoto.class, Sociotype.class, UserPurposeOfBeing.class,
+        UserSearchParameters.class, UserLocation.class, Match.class
 }, version = 2, exportSchema = false)
 @TypeConverters({
-        DateTypeConverter.class, RelationshipStatusConverter.class
+        DateTypeConverter.class, RelationshipStatusConverter.class, PurposeOfBeingConverter.class
 })
 public abstract class DualPairRoomDatabase extends RoomDatabase {
 
@@ -39,6 +42,8 @@ public abstract class DualPairRoomDatabase extends RoomDatabase {
     public abstract SwipeDao swipeDao();
 
     public abstract SociotypeDao sociotypeDao();
+
+    public abstract MatchDao matchDao();
 
     private static DualPairRoomDatabase INSTANCE;
 

@@ -3,6 +3,7 @@ package lt.dualpair.android.ui.accounts;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,8 +15,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.TokenProvider;
 import lt.dualpair.android.accounts.AccountConstants;
+import lt.dualpair.android.data.remote.client.TokenProvider;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
 import lt.dualpair.android.data.resource.Token;
 import lt.dualpair.android.data.resource.User;
@@ -58,41 +59,39 @@ public class TokenRequestObserver implements Observer<Token> {
 
     @Override
     public void onNext(final Token token) {
-        TokenProvider.getInstance().storeToken(token.getAccessToken());
-        new GetUserPrincipalClient().observable()
+        new GetUserPrincipalClient(token.getAccessToken()).observable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<User>() {
                     @Override
                     public void accept(User user) {
 
-                        Log.d(TAG, "START endAuth");
+                        final String accountName = user.getName();
+                        final String accountType = AccountConstants.ACCOUNT_TYPE;
+                        final String authToken = token.getAccessToken();
+                        final String password = token.getRefreshToken();
 
-                        String accountName = user.getName() + " (" + user.getId() + ")";
-                        Account account = new Account(accountName, AccountConstants.ACCOUNT_TYPE);
+                        final Intent res = new Intent();
+                        res.putExtra(AccountManager.KEY_ACCOUNT_NAME, accountName);
+                        res.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType);
+                        res.putExtra(AccountManager.KEY_AUTHTOKEN, authToken);
+
+                        Account account = new Account(accountName, accountType);
+
                         Bundle userData = new Bundle();
                         userData.putString(AccountConstants.ARG_USER_ID, user.getId().toString());
                         userData.putString(AccountConstants.ARG_USER_NAME, user.getName());
 
-                        accountManager.addAccountExplicitly(account, token.getRefreshToken(), userData);
-                        accountManager.setAuthToken(account, AccountConstants.ACCOUNT_TYPE, token.getAccessToken());
+                        accountManager.addAccountExplicitly(account, password, userData);
+                        accountManager.setAuthToken(account, accountType, authToken);
 
-                        Bundle result = new Bundle();
-                        result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-                        result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-                        result.putString(AccountManager.KEY_AUTHTOKEN, token.getAccessToken());
+                        loginActivity.setAccountAuthenticatorResult(res.getExtras());
+                        loginActivity.setResult(Activity.RESULT_OK, res);
+                        loginActivity.finish();
 
-                        accountManager.setPassword(account, token.getRefreshToken());
-
-                        TokenProvider.getInstance().storeToken(token.getAccessToken());
-
-                        loginActivity.setAccountAuthenticatorResult(result);
-                        loginActivity.setResult(Activity.RESULT_OK);
-
-                        Log.d(TAG, "END endAuth");
+                        TokenProvider.getInstance().publishToken();
 
                         disposable.dispose();
-                        loginActivity.finish();
                     }
                 });
     }

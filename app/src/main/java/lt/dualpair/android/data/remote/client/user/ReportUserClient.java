@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import retrofit2.Retrofit;
 
-public class ReportUserClient extends BaseClient<Void> {
+public class ReportUserClient extends CompletableClient {
 
     private Long userId;
 

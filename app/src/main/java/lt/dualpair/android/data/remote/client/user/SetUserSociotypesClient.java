@@ -3,10 +3,10 @@ package lt.dualpair.android.data.remote.client.user;
 import java.util.Set;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import retrofit2.Retrofit;
 
-public class SetUserSociotypesClient extends BaseClient<Void> {
+public class SetUserSociotypesClient extends CompletableClient {
 
     private Set<String> codes;
     private Long userId;

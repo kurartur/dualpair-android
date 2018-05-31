@@ -1,11 +1,11 @@
 package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import lt.dualpair.android.data.resource.SearchParameters;
 import retrofit2.Retrofit;
 
-public class SetSearchParametersClient extends BaseClient<Void> {
+public class SetSearchParametersClient extends CompletableClient {
 
     private Long userId;
     private SearchParameters searchParameters;

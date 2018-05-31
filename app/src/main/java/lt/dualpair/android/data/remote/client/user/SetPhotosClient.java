@@ -3,11 +3,11 @@ package lt.dualpair.android.data.remote.client.user;
 import java.util.List;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import lt.dualpair.android.data.resource.Photo;
 import retrofit2.Retrofit;
 
-public class SetPhotosClient extends BaseClient<Void> {
+public class SetPhotosClient extends CompletableClient {
 
     private Long userId;
     private List<Photo> photos;

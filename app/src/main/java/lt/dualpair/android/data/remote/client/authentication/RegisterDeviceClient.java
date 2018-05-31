@@ -1,10 +1,10 @@
-package lt.dualpair.android.data.remote.client.device;
+package lt.dualpair.android.data.remote.client.authentication;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import retrofit2.Retrofit;
 
-public class RegisterDeviceClient extends BaseClient<Void> {
+public class RegisterDeviceClient extends CompletableClient {
 
     private String token;
 

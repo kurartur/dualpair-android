@@ -187,13 +187,13 @@ public class EditAccountsActivity extends BaseActivity {
         @Override
         public void onResult(VKAccessToken res) {
             new ConnectAccountClient("vkontakte", res.accessToken, null, null)
-                    .observable()
+                    .completable()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
-                    .doOnComplete(() -> {
+                    .subscribe(() -> {
                         Log.d(TAG, "onCompleted");
                         activity.onAccountAdded();
-                    }).subscribe();
+                    });
         }
 
         @Override

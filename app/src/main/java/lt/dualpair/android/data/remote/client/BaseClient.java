@@ -6,10 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Completable;
-import io.reactivex.Observable;
 import lt.dualpair.android.BuildConfig;
-import lt.dualpair.android.TokenProvider;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -20,9 +17,9 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-public abstract class BaseClient<K> {
+public abstract class BaseClient {
 
-    private Retrofit getRetrofit() {
+    protected Retrofit getRetrofit() {
         OkHttpClient.Builder okHttpClientBuilder =
                 new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor(HttpLoggingInterceptor.Level.BODY))
                 .addInterceptor(authorizationInterceptor())
@@ -33,27 +30,10 @@ public abstract class BaseClient<K> {
         Retrofit.Builder retrofitBuilder =
                 new Retrofit.Builder().baseUrl(BuildConfig.SERVER_HOST)
                         .client(okHttpClientBuilder.build())
-                        //.addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create()) // TODO
                         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .addConverterFactory(ScalarsConverterFactory.create())
                         .addConverterFactory(GsonConverterFactory.create(createGson()));
         return retrofitBuilder.build();
-    }
-
-    public Observable<K> observable() {
-        return getApiObserable(getRetrofit());
-    }
-
-    protected  Observable<K> getApiObserable(Retrofit retrofit) {
-        throw new UnsupportedOperationException("Not implemented"); // TODO should be abstract
-    }
-
-    public Completable completable() {
-        return getApiCompletable(getRetrofit());
-    }
-
-    protected Completable getApiCompletable(Retrofit retrofit) {
-        throw new UnsupportedOperationException("Not implemented"); // TODO should be abstract
     }
 
     private HttpLoggingInterceptor httpLoggingInterceptor(HttpLoggingInterceptor.Level logLevel) {
@@ -72,10 +52,13 @@ public abstract class BaseClient<K> {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
-                String token = TokenProvider.getInstance().getToken();
-                if (token == null) {
-                    return chain.proceed(chain.request());
-                }
+                String token = getAuthToken();
+
+                // Aassume that we always have token
+                //if (token == null) {
+                //    return chain.proceed(chain.request());
+                //}
+
                 Request original = chain.request();
                 Request.Builder requestBuilder = original.newBuilder()
                         .header("Accept", "application/json")
@@ -86,6 +69,10 @@ public abstract class BaseClient<K> {
                 return chain.proceed(request);
             }
         };
+    }
+
+    protected String getAuthToken() {
+        return TokenProvider.getInstance().getAuthToken().blockingFirst();
     }
 
 }

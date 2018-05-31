@@ -6,7 +6,7 @@ import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import retrofit2.http.Url;
 
-public class SimpleGetUrlClient<T> extends BaseClient<T> {
+public class SimpleGetUrlClient<T> extends ObservableClient<T> {
 
     private String url;
 

@@ -18,7 +18,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.local.entity.Match;
+import lt.dualpair.android.data.local.entity.MatchForListView;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserPhoto;
@@ -28,13 +28,13 @@ import lt.dualpair.android.utils.SocialUtils;
 
 public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecyclerAdapter.MatchViewHolder> {
 
-    final private List<Match> matchList;
+    final private List<MatchForListView> matchList;
 
     public MatchListRecyclerAdapter() {
         matchList = new ArrayList<>();
     }
 
-    public MatchListRecyclerAdapter(List<Match> matches) {
+    public MatchListRecyclerAdapter(List<MatchForListView> matches) {
         matchList = matches;
     }
 
@@ -81,7 +81,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
 
     @Override
     public void onBindViewHolder(final MatchViewHolder holder, int position) {
-        final Match match = matchList.get(position);
+        final MatchForListView match = matchList.get(position);
         loadPhoto(holder.context, match.getOpponentPhotos(), holder.picture);
         final User opponent = match.getOpponent();
         holder.name.setText(opponent.getName());
@@ -90,7 +90,7 @@ public class MatchListRecyclerAdapter extends RecyclerView.Adapter<MatchListRecy
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.context.startActivity(UserActivity.createIntent(holder.context, match.getId()));
+                holder.context.startActivity(UserActivity.createIntent(holder.context, match.getMatch().getId()));
             }
         });
     }

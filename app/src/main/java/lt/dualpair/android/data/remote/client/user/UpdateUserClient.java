@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.Completable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import lt.dualpair.android.data.resource.User;
 import retrofit2.Retrofit;
 
-public class UpdateUserClient extends BaseClient<Void> {
+public class UpdateUserClient extends CompletableClient {
 
     private User user;
 

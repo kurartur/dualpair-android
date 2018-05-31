@@ -5,14 +5,14 @@ import android.util.Base64;
 import java.io.IOException;
 
 import io.reactivex.Observable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.ObservableClient;
 import lt.dualpair.android.data.resource.Token;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 
-public class RequestTokenClient extends BaseClient<Token> {
+public class RequestTokenClient extends ObservableClient<Token> {
 
     private static final String SOCIAL_GRANT_TYPE = "social";
     private static final String REFRESH_TOKEN_GRANT_TYPE = "refresh_token";

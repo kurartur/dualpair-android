@@ -3,12 +3,12 @@ package lt.dualpair.android.data.remote.client.match;
 import java.util.Date;
 
 import io.reactivex.Observable;
-import lt.dualpair.android.data.remote.client.BaseClient;
+import lt.dualpair.android.data.remote.client.ObservableClient;
 import lt.dualpair.android.data.resource.Match;
 import lt.dualpair.android.data.resource.ResourceCollection;
 import retrofit2.Retrofit;
 
-public class GetUserMatchListClient extends BaseClient<ResourceCollection<Match>> {
+public class GetUserMatchListClient extends ObservableClient<ResourceCollection<Match>> {
 
     public static final int MUTUAL = 1;
     public static final int REVIEWED = 2;

@@ -71,6 +71,10 @@ public abstract class UserListFragment extends MainTabFragment implements SwipeR
         refresh();
     }
 
+    protected void onRefreshed() {
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
     protected abstract void refresh();
 
     protected abstract String getEmptyViewText();
