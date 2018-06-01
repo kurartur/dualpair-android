@@ -6,7 +6,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.ui.accounts.AccountType;
 
 public class AvailablePhotosFragmentPageAdapter extends FragmentPagerAdapter {
 
@@ -21,7 +22,7 @@ public class AvailablePhotosFragmentPageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return AvailableProviderPhotosFragment.getInstance(userAccounts.get(position).getAccountType(), onPhotoSelectedListener);
+        return AvailableProviderPhotosFragment.getInstance(AccountType.valueOf(userAccounts.get(position).getAccountType()), onPhotoSelectedListener);
     }
 
     @Override
@@ -30,10 +31,10 @@ public class AvailablePhotosFragmentPageAdapter extends FragmentPagerAdapter {
     }
 
     public Integer getIconId(int position) {
-        return userAccounts.get(position).getAccountType().getIcon();
+        return AccountType.valueOf(userAccounts.get(position).getAccountType()).getIcon();
     }
 
     public String getTitle(int position) {
-        return userAccounts.get(position).getAccountType().name();
+        return userAccounts.get(position).getAccountType();
     }
 }

@@ -8,15 +8,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.trello.rxlifecycle.ActivityEvent;
-import com.trello.rxlifecycle.ActivityLifecycleProvider;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.trello.rxlifecycle2.LifecycleTransformer;
+import com.trello.rxlifecycle2.RxLifecycle;
+import com.trello.rxlifecycle2.android.ActivityEvent;
+import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 import lt.dualpair.android.R;
-import rx.Observable;
-import rx.subjects.BehaviorSubject;
 
-public class BaseActivity extends AppCompatActivity implements ActivityLifecycleProvider {
+public class BaseActivity extends AppCompatActivity implements LifecycleProvider<ActivityEvent> {
 
     private final BehaviorSubject<ActivityEvent> lifecycleSubject = BehaviorSubject.create();
 
@@ -55,19 +57,20 @@ public class BaseActivity extends AppCompatActivity implements ActivityLifecycle
     }
 
     @Override
-    public final Observable<ActivityEvent> lifecycle() {
-        return lifecycleSubject.asObservable();
+    public Observable<ActivityEvent> lifecycle() {
+        return lifecycleSubject;
     }
 
     @Override
-    public final <T> Observable.Transformer<T, T> bindUntilEvent(ActivityEvent event) {
+    public <T> LifecycleTransformer<T> bindUntilEvent(ActivityEvent event) {
         return RxLifecycle.bindUntilEvent(lifecycleSubject, event);
     }
 
     @Override
-    public final <T> Observable.Transformer<T, T> bindToLifecycle() {
-        return RxLifecycle.bindActivity(lifecycleSubject);
+    public <T> LifecycleTransformer<T> bindToLifecycle() {
+        return RxLifecycleAndroid.bindActivity(lifecycleSubject);
     }
+
 
     @Override
     @CallSuper

@@ -2,12 +2,12 @@ package lt.dualpair.android.data.remote.client.user;
 
 import java.util.List;
 
-import lt.dualpair.android.data.remote.client.BaseClient;
+import io.reactivex.Completable;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import lt.dualpair.android.data.resource.Photo;
 import retrofit2.Retrofit;
-import rx.Observable;
 
-public class SetPhotosClient extends BaseClient<Void> {
+public class SetPhotosClient extends CompletableClient {
 
     private Long userId;
     private List<Photo> photos;
@@ -18,7 +18,7 @@ public class SetPhotosClient extends BaseClient<Void> {
     }
 
     @Override
-    protected Observable<Void> getApiObserable(Retrofit retrofit) {
+    protected Completable getApiCompletable(Retrofit retrofit) {
         return retrofit.create(UserService.class).setPhotos(userId, photos);
     }
 }

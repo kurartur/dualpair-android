@@ -2,13 +2,13 @@ package lt.dualpair.android.data.remote.client.user;
 
 import java.util.List;
 
-import lt.dualpair.android.data.remote.client.BaseClient;
+import io.reactivex.Observable;
+import lt.dualpair.android.data.remote.client.ObservableClient;
 import lt.dualpair.android.data.resource.Photo;
 import lt.dualpair.android.ui.accounts.AccountType;
 import retrofit2.Retrofit;
-import rx.Observable;
 
-public class GetAvailablePhotosClient extends BaseClient<List<Photo>> {
+public class GetAvailablePhotosClient extends ObservableClient<List<Photo>> {
 
     private Long userId;
     private AccountType accountType;

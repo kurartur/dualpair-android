@@ -1,36 +1,24 @@
 package lt.dualpair.android.bus;
 
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.subjects.PublishSubject;
-import rx.subjects.SerializedSubject;
-import rx.subjects.Subject;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
 public class RxBus {
 
     private static final RxBus INSTANCE = new RxBus();
 
-    private final Subject<Object, Object> mBusSubject = new SerializedSubject<>(PublishSubject.create());
+    private final Subject<Object> mBusSubject = PublishSubject.create();
 
     public static RxBus getInstance() {
         return INSTANCE;
     }
 
-    public <T extends Event> Subscription register(final Class<T> eventClass, Action1<T> onNext) {
+    public <T extends Event> Disposable register(final Class<T> eventClass, Consumer<T> onNext) {
         return mBusSubject
-                .filter(new Func1<Object, Boolean>() {
-                    @Override
-                    public Boolean call(Object event) {
-                        return event.getClass().equals(eventClass);
-                    }
-                })
-                .map(new Func1<Object, T>() {
-                    @Override
-                    public T call(Object o) {
-                        return (T) o;
-                    }
-                })
+                .filter(event -> event.getClass().equals(eventClass))
+                .map(o -> (T) o)
                 .subscribe(onNext);
     }
 

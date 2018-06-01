@@ -8,10 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.AccountTypeListDialog;
@@ -58,15 +59,15 @@ public class AccountGridAdapter extends BaseAdapter {
         UserAccount account = (UserAccount) getItem(position);
         LayoutInflater layoutInflater = activity.getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.account_grid_item, parent, false);
-        ImageView icon = (ImageView)view.findViewById(R.id.account_icon);
-        icon.setImageResource(account.getAccountType().getIcon());
+        ImageView icon = view.findViewById(R.id.account_icon);
+        icon.setImageResource(AccountType.valueOf(account.getAccountType()).getIcon());
         return view;
     }
 
     private View getAddButtonView(int position, View convertView, ViewGroup parent) {
         LayoutInflater layoutInflater = activity.getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.account_grid_item, parent, false);
-        ImageView icon = (ImageView)view.findViewById(R.id.account_icon);
+        ImageView icon = view.findViewById(R.id.account_icon);
         icon.setImageResource(R.drawable.square_add);
         view.setPadding(20, 20, 20, 20);
         view.setOnClickListener(new View.OnClickListener() {
@@ -80,12 +81,9 @@ public class AccountGridAdapter extends BaseAdapter {
     }
 
     private List<AccountType> getNotLinkedAccountTypes(List<UserAccount> userAccounts) {
-        List<AccountType> accountTypes = new ArrayList<>();
-        for (AccountType accountType : AccountType.values()) {
-            accountTypes.add(accountType);
-        }
+        List<AccountType> accountTypes = new ArrayList<>(Arrays.asList(AccountType.values()));
         for (UserAccount userAccount : userAccounts) {
-            accountTypes.remove(accountTypes.indexOf(userAccount.getAccountType()));
+            accountTypes.remove(accountTypes.indexOf(AccountType.valueOf(userAccount.getAccountType())));
         }
         return accountTypes;
     }

@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Match;
+import lt.dualpair.android.data.local.entity.History;
 
 public class ReviewHistoryFragment extends UserListFragment {
 
@@ -23,13 +23,13 @@ public class ReviewHistoryFragment extends UserListFragment {
     }
 
     private void subscribeUi() {
-        viewModel.getReviewHistory().observe(this, new Observer<List<Match>>() {
+        viewModel.getReviewHistory().observe(this, new Observer<List<History>>() {
             @Override
-            public void onChanged(@Nullable List<Match> matches) {
-                if (matches.isEmpty()) {
+            public void onChanged(@Nullable List<History> history) {
+                if (history.isEmpty()) {
                     showEmpty();
                 } else {
-                    setAdapter(new MatchListRecyclerAdapter(matches));
+                    matchesView.setAdapter(new HistoryListRecyclerAdapter(history));
                     showList();
                 }
             }

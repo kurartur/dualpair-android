@@ -2,30 +2,31 @@ package lt.dualpair.android.ui.user;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.ui.user.EditPhotosViewModel.PhotoEditingData;
 import lt.dualpair.android.utils.DrawableUtils;
 
 
 public class EditPhotosActivity extends BaseActivity implements EditPhotosRecyclerAdapter.OnStartDragListener,
                                                                 AvailablePhotosSheetDialog.OnPhotoSelectedListener {
 
-    private static final String TAG = "EditPhotosActivity";
+    private static final String TAG = EditPhotosActivity.class.getName();
 
     private static final int MENU_ITEM_SAVE = 1;
     private static final int MENU_ITEM_HELP = 2;
@@ -41,9 +42,9 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     private MenuItem menuItemSave;
 
-    private static EditPhotosPresenter presenter;
-
     private AvailablePhotosSheetDialog dialog;
+
+    private EditPhotosViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,31 +74,32 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
                 3  /*Three columns*/ ,
                 1f  /*We want our items to be 1:1 ratio*/ ));
 
-        presenter = new EditPhotosPresenter(this);
-        presenter.onTakeView(this);
+        viewModel = ViewModelProviders.of(this, new EditPhotosViewModel.Factory(getApplication())).get(EditPhotosViewModel.class);
+        subscribeUi();
+    }
+
+    private void subscribeUi() {
+        viewModel.getData().observe(this, new Observer<PhotoEditingData>() {
+            @Override
+            public void onChanged(@Nullable PhotoEditingData data) {
+                render(data);
+            }
+        });
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.onTakeView(null);
-        if (!isChangingConfigurations())
-            presenter = null;
-    }
-
-    @Override
-    public void onPhotoSelected(Photo photo) {
+    public void onPhotoSelected(UserPhoto photo) {
         photo.setPosition(adapter.getItemCount() - 1);
         adapter.addPhoto(photo);
         dialog.dismiss();
     }
 
-    public void render(final User user) {
+    public void render(final PhotoEditingData data) {
 
-        adapter = new EditPhotosRecyclerAdapter(user.getPhotos(), new EditPhotosRecyclerAdapter.OnAddClickListener() {
+        adapter = new EditPhotosRecyclerAdapter(data.getPhotos(), new EditPhotosRecyclerAdapter.OnAddClickListener() {
             @Override
             public void onAddClick() {
-                dialog = AvailablePhotosSheetDialog.getInstance(user);
+                dialog = AvailablePhotosSheetDialog.getInstance(data.getUserAccounts());
                 dialog.setOnPhotoSelectedListener(EditPhotosActivity.this);
                 dialog.show(getSupportFragmentManager(), "AvailablePhotosSheetDialog");
             }
@@ -161,15 +163,12 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     }
 
     private void save() {
-        presenter.onSave(this, adapter.getPhotos());
+        viewModel.save(adapter.getPhotos())
+                .subscribe(() -> onSaved());
     }
 
     public void onSaved() {
-        Intent resultData = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(PHOTOS_KEY, new ArrayList<>(adapter.getPhotos()));
-        resultData.putExtra(RESULT_BUNDLE_KEY, bundle);
-        setResult(Activity.RESULT_OK, resultData);
+        setResult(Activity.RESULT_OK);
         finish();
     }
 

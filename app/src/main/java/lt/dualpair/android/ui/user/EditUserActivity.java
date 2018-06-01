@@ -1,33 +1,40 @@
 package lt.dualpair.android.ui.user;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.PurposeOfBeing;
-import lt.dualpair.android.data.resource.RelationshipStatus;
+import lt.dualpair.android.data.local.entity.PurposeOfBeing;
+import lt.dualpair.android.data.local.entity.RelationshipStatus;
+import lt.dualpair.android.data.local.entity.User;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LabelUtils;
-import lt.dualpair.android.utils.ToastUtils;
 
-public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdapter.OnPurposeListChangeListener {
+public class EditUserActivity extends BaseActivity {
 
-    private static final String TAG = "EditUserActivity";
+    private static final String TAG = EditUserActivity.class.getName();
     private static final int MENU_ITEM_SAVE = 1;
 
     @Bind(R.id.name) EditText name;
@@ -38,11 +45,16 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.main_layout) View mainLayout;
 
-    private static EditUserPresenter presenter;
-
     private MenuItem saveMenuItem;
 
     private PurposeOfBeingAdapter purposeOfBeingAdapter;
+
+    private EditUserViewModel viewModel;
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+    private RelationshipStatus selectedRelationshipStatus;
+    private List<PurposeOfBeing> selectedPurposesOfBeing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,39 +63,79 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
         setContentView(R.layout.edit_user_layout);
         ButterKnife.bind(this);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(DrawableUtils.getActionBarIcon(this, R.drawable.ic_close_black_30dp));
-        }
+        showProgress();
 
+        setupRelationshipStatusControl();
+        setupPurposeOfBeingControl();
+
+        viewModel = ViewModelProviders.of(this, new EditUserViewModel.Factory(getApplication())).get(EditUserViewModel.class);
+        subscribeUi();
+    }
+
+    private void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+        mainLayout.setVisibility(View.GONE);
+    }
+
+    private void showMain() {
+        progressBar.setVisibility(View.GONE);
+        mainLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void setupPurposeOfBeingControl() {
+        purposeOfBeingAdapter = new PurposeOfBeingAdapter(this, new PurposeOfBeingAdapter.OnPurposeListChangeListener() {
+            @Override
+            public void onChange(List<PurposeOfBeing> purposes) {
+                selectedPurposesOfBeing = purposes;
+            }
+        });
+        purposesOfBeing.setAdapter(purposeOfBeingAdapter);
+    }
+
+    private void setupRelationshipStatusControl() {
         relationshipStatus.setAdapter(new RelationshipStatusAdapter(this, this, R.layout.text_view_layout, RelationshipStatus.values()));
         relationshipStatus.setKeyListener(null);
-        relationshipStatus.setOnTouchListener(new View.OnTouchListener(){
+        relationshipStatus.setOnTouchListener((v, event) -> {
+            ((AutoCompleteTextView) v).showDropDown();
+            return false;
+        });
+        relationshipStatus.setOnItemClickListener((parent, view, position, id) -> {
+            RelationshipStatus relStatus = (RelationshipStatus)parent.getItemAtPosition(position);
+            relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(EditUserActivity.this, relStatus));
+            selectedRelationshipStatus = relStatus;
+        });
+    }
+
+    private void subscribeUi() {
+        viewModel.getData().observe(this, new Observer<EditUserViewModel.UserData>() {
             @Override
-            public boolean onTouch(View v, MotionEvent event){
-                ((AutoCompleteTextView) v).showDropDown();
-                return false;
+            public void onChanged(@Nullable EditUserViewModel.UserData userData) {
+                renderUser(userData.getUser());
+                renderPurposesOfBeing(userData.getPurposeOfBeings());
+                showMain();
+                saveMenuItem.setVisible(true);
             }
         });
-        relationshipStatus.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                RelationshipStatus relStatus = (RelationshipStatus)parent.getItemAtPosition(position);
-                relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(EditUserActivity.this, relStatus));
-                presenter.setRelationshipStatus(relStatus);
+    }
+
+    private void renderUser(User u) {
+        this.name.setText(u.getName());
+        this.dateOfBirth.setText(DATE_FORMAT.format(u.getDateOfBirth()));
+        this.description.setText(u.getDescription());
+        RelationshipStatus relationshipStatus = u.getRelationshipStatus();
+        selectedRelationshipStatus = relationshipStatus;
+        this.relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(this, relationshipStatus));
+    }
+
+    public void renderPurposesOfBeing(List<UserPurposeOfBeing> userPurposesOfBeing) {
+        if (userPurposesOfBeing != null) {
+            List<PurposeOfBeing> purposesOfBeings = new ArrayList<>();
+            for (UserPurposeOfBeing userPurposeOfBeing : userPurposesOfBeing) {
+                purposesOfBeings.add(userPurposeOfBeing.getPurpose());
             }
-        });
-
-        purposeOfBeingAdapter = new PurposeOfBeingAdapter(this, this);
-        purposesOfBeing.setAdapter(purposeOfBeingAdapter);
-
-        if (presenter == null || savedInstanceState == null) {
-            presenter = new EditUserPresenter(this);
-        } else {
-            presenter = new EditUserPresenter(savedInstanceState);
+            this.selectedPurposesOfBeing = purposesOfBeings;
+            this.purposeOfBeingAdapter.setCheckedPurposes(purposesOfBeings);
         }
-        presenter.onTakeView(this);
-
     }
 
     public void onSaved() {
@@ -91,56 +143,12 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
         finish();
     }
 
-    public void render(String name,
-                       String dateOfBirth,
-                       RelationshipStatus relStatus,
-                       String description,
-                       Set<PurposeOfBeing> purposesOfBeing) {
-
-        progressBar.setVisibility(View.GONE);
-        mainLayout.setVisibility(View.VISIBLE);
-        this.name.setText(name);
-        this.dateOfBirth.setText(dateOfBirth);
-        this.description.setText(description);
-        if (relStatus != null) {
-            relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(this, relStatus));
-        }
-        if (purposesOfBeing != null) {
-            this.purposeOfBeingAdapter.setCheckedPurposes(purposesOfBeing);
-        }
-    }
-
-    public void render(String error) {
-        progressBar.setVisibility(View.GONE);
-        mainLayout.setVisibility(View.VISIBLE);
-        saveMenuItem.setActionView(null);
-        ToastUtils.show(this, error);
-    }
-
-    @Override
-    public void onChange(Set<PurposeOfBeing> purposes) {
-        presenter.setPurposesOfBeing(purposes);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        presenter.onSave(outState);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.onTakeView(null);
-        if (!isChangingConfigurations())
-            presenter = null;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         saveMenuItem = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
         saveMenuItem.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
         saveMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        saveMenuItem.setVisible(false);
         return true;
     }
 
@@ -150,9 +158,25 @@ public class EditUserActivity extends BaseActivity implements PurposeOfBeingAdap
         switch (item.getItemId()) {
             case MENU_ITEM_SAVE:
                 saveMenuItem.setActionView(R.layout.action_progressbar);
-                presenter.save(name.getText().toString(),
-                               dateOfBirth.getText().toString(),
-                               description.getText().toString());
+                try {
+                    viewModel.save(
+                                name.getText().toString(),
+                                DATE_FORMAT.parse(dateOfBirth.getText().toString()),
+                                description.getText().toString(),
+                                selectedRelationshipStatus,
+                                selectedPurposesOfBeing
+                            )
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(new Action() {
+                                @Override
+                                public void run() {
+                                    onSaved();
+                                }
+                            });
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
                 return true;
         }
         return false;

@@ -2,68 +2,67 @@ package lt.dualpair.android.ui.main;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
+import io.reactivex.Completable;
 import lt.dualpair.android.accounts.Logouter;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.resource.User;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import lt.dualpair.android.data.local.entity.FullUserSociotype;
+import lt.dualpair.android.data.local.entity.User;
+import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
+import lt.dualpair.android.data.repository.UserPrincipalRepository;
 
 public class ProfileViewModel extends ViewModel {
 
-    private UserDataManager userDataManager;
+    private UserPrincipalRepository userPrincipalRepository;
     private Logouter logouter;
-    private final MutableLiveData<User> user;
-    private final MutableLiveData<Boolean> isLoggedOut;
+    private final LiveData<User> userLive;
+    private final LiveData<List<FullUserSociotype>> userSociotypesLive;
+    private final LiveData<List<UserAccount>> userAccountsLive;
+    private final LiveData<List<UserPhoto>> userPhotosLive;
+    private final LiveData<List<UserPurposeOfBeing>> purposesOfBeingLive;
 
-    public ProfileViewModel(UserDataManager userDataManager, Logouter logouter) {
-        this.userDataManager = userDataManager;
+    public ProfileViewModel(UserPrincipalRepository userPrincipalRepository, Logouter logouter) {
+        this.userPrincipalRepository = userPrincipalRepository;
         this.logouter = logouter;
-        user = new MutableLiveData<>();
-        isLoggedOut = new MutableLiveData<>();
-        load();
+        userLive = userPrincipalRepository.getUserLive();
+        userSociotypesLive = userPrincipalRepository.getFullUserSociotypesLive();
+        userAccountsLive = userPrincipalRepository.getUserAccountsLive();
+        userPhotosLive = userPrincipalRepository.getUserPhotosLive();
+        purposesOfBeingLive = userPrincipalRepository.getUserPurposesOfBeingLive();
     }
 
-    public LiveData<User> getUser() {
-        return user;
+    public LiveData<User> getUserLive() {
+        return userLive;
     }
 
-    private void load() {
-        userDataManager.getUser(true)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<User>() {
-                    @Override
-                    public void onNext(User u) {
-                        user.setValue(u);
-                    }
-                });
+    public LiveData<List<FullUserSociotype>> getUserSociotypesLive() {
+        return userSociotypesLive;
     }
 
-    public LiveData<Boolean> isLoggedOut() {
-        return isLoggedOut;
+    public LiveData<List<UserAccount>> getUserAccountsLive() {
+        return userAccountsLive;
     }
 
-    public void refresh() {
-        load();
+    public LiveData<List<UserPhoto>> getUserPhotosLive() {
+        return userPhotosLive;
     }
 
-    public void logout() {
-        userDataManager.logout()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new EmptySubscriber<Void>() {
-                    @Override
-                    public void onNext(Void v) {
-                        logouter.logout();
-                        isLoggedOut.setValue(true);
-                    }
-                });
+    public LiveData<List<UserPurposeOfBeing>> getPurposesOfBeingLive() {
+        return purposesOfBeingLive;
+    }
+
+    public Completable refresh() {
+        return userPrincipalRepository.loadFromApiIfTime();
+    }
+
+    public Completable logout() {
+        return Completable.mergeArray(userPrincipalRepository.logout(), logouter.logout());
     }
 
     public static class Factory extends ViewModelProvider.AndroidViewModelFactory {
@@ -76,7 +75,7 @@ public class ProfileViewModel extends ViewModel {
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(ProfileViewModel.class)) {
-                return (T) new ProfileViewModel(new UserDataManager(application), new Logouter(application));
+                return (T) new ProfileViewModel(new UserPrincipalRepository(application), new Logouter(application));
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

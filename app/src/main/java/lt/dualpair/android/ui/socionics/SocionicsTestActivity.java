@@ -27,11 +27,12 @@ import lt.dualpair.android.utils.ToastUtils;
 
 public class SocionicsTestActivity extends BaseActivity {
 
+    private static final String TAG = SocionicsTestActivity.class.getName();
+
     private static final int MENU_ITEM_SUBMIT = 1;
     private static final int MENU_ITEM_HELP = 2;
     private static final int MENU_ITEM_RANDOM = 3;
 
-    private static final String TAG = "SocionicsTestActivity";
 
     @Bind(R.id.choices) RecyclerView choicesView;
     TextView leftPairsCounterText;
@@ -161,7 +162,7 @@ public class SocionicsTestActivity extends BaseActivity {
             case MENU_ITEM_SUBMIT:
                 if (selectedItems == totalItems) {
                     submitMenuItem.setActionView(R.layout.action_progressbar);
-                    presenter.submitTest(this);
+                    presenter.submitTest();
                 }
                 return true;
             case MENU_ITEM_HELP:

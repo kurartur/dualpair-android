@@ -1,10 +1,11 @@
 package lt.dualpair.android.data.remote.client.authentication;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import lt.dualpair.android.data.resource.Token;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-import rx.Observable;
 
 public interface OAuthService {
 
@@ -22,6 +23,6 @@ public interface OAuthService {
     Observable<Token> getToken(@Field("refresh_token") String refreshToken, @Field("grant_type") String grantType);
 
     @POST("/api/logout")
-    Observable<Void> logout();
+    Completable logout();
 
 }

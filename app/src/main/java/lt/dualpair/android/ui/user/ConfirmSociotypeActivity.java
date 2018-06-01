@@ -1,30 +1,20 @@
 package lt.dualpair.android.ui.user;
 
 import android.app.Activity;
-import android.app.Application;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.disposables.CompositeDisposable;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.local.entity.Sociotype;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.DrawableUtils;
 
@@ -38,28 +28,35 @@ public class ConfirmSociotypeActivity extends BaseActivity {
     TextView link;
 
     private ConfirmSociotypeViewModel viewModel;
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_confirm_sociotype);
 
-        Sociotype sociotype = (Sociotype)getIntent().getSerializableExtra(PARAM_SOCIOTYPE);
+        String sociotypeCode = getIntent().getStringExtra(PARAM_SOCIOTYPE);
 
-        String title = sociotype.getCode1() + " - ";
-        title += getString(getResources().getIdentifier(sociotype.getCode1().toLowerCase() + "_title", "string", getPackageName()));
+        String title = sociotypeCode + " - ";
+        title += getString(getResources().getIdentifier(sociotypeCode.toLowerCase() + "_title", "string", getPackageName()));
 
         setupActionBar(true, title);
 
         ButterKnife.bind(this);
 
-        ConfirmSociotypeViewModelFactory factory = new ConfirmSociotypeViewModelFactory(getApplication(), sociotype);
+        ConfirmSociotypeViewModel.ConfirmSociotypeViewModelFactory factory = new ConfirmSociotypeViewModel.ConfirmSociotypeViewModelFactory(getApplication());
         viewModel = ViewModelProviders.of(this, factory).get(ConfirmSociotypeViewModel.class);
-        subscribeUi();
+        subscribeUi(sociotypeCode);
     }
 
-    private void subscribeUi() {
-        loadSociotype(viewModel.getSociotype());
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disposable.clear();
+    }
+
+    private void subscribeUi(String sociotypeCode) {
+        viewModel.getSociotype(sociotypeCode).observe(this, this::loadSociotype);
     }
 
     private void loadSociotype(Sociotype sociotype) {
@@ -86,64 +83,26 @@ public class ConfirmSociotypeActivity extends BaseActivity {
         if (super.onOptionsItemSelected(item)) return true;
         switch (item.getItemId()) {
             case MENU_ITEM_OK:
-                checkAndUpdateUserSociotypes();
+                updateUserSociotypes();
                 return true;
         }
         return false;
     }
 
-    private void checkAndUpdateUserSociotypes() {
-        final Sociotype sociotype = viewModel.getSociotype();
-        viewModel.getCurrentSociotypes().observe(this, new Observer<Set<Sociotype>>() {
-            @Override
-            public void onChanged(@Nullable Set<Sociotype> currentSociotypes) {
-                if (currentSociotypes.size() > 1) {
-                    if (currentSociotypes.contains(sociotype)) {
-                        // TODO you already have this sociotype, leave only this one?
-                    } else {
-                        // TODO leave only this one?
-                    }
-                } else if (currentSociotypes.size() == 1 && currentSociotypes.contains(sociotype)) {
-                    // TODO already have this
-                } else {
-                    Set<Sociotype> newSociotypes = new HashSet<>();
-                    newSociotypes.add(sociotype);
-                    viewModel.saveSociotypes(newSociotypes).subscribe(new EmptySubscriber() {
-                        @Override
-                        public void onCompleted() {
-                            setResult(Activity.RESULT_OK);
-                            finish();
-                        }
-                    });
-                }
-            }
-        });
+    private void updateUserSociotypes() {
+        String sociotypeCode = getIntent().getStringExtra(PARAM_SOCIOTYPE);
+        disposable.add(
+                viewModel.saveSociotype(sociotypeCode).subscribe(() -> {
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                })
+        );
     }
 
-    public static Intent createIntent(Activity activity, Sociotype sociotype) {
+    public static Intent createIntent(Activity activity, String code1) {
         Intent intent = new Intent(activity, ConfirmSociotypeActivity.class);
-        intent.putExtra(PARAM_SOCIOTYPE, sociotype);
+        intent.putExtra(PARAM_SOCIOTYPE, code1);
         return intent;
     }
 
-    private static class ConfirmSociotypeViewModelFactory extends ViewModelProvider.AndroidViewModelFactory {
-
-        private Application application;
-        private Sociotype sociotype;
-
-        public ConfirmSociotypeViewModelFactory(@NonNull Application application, Sociotype sociotype) {
-            super(application);
-            this.application = application;
-            this.sociotype = sociotype;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            if (modelClass.isAssignableFrom(ConfirmSociotypeViewModel.class)) {
-                return (T) new ConfirmSociotypeViewModel(new UserDataManager(application), sociotype);
-            }
-            throw new IllegalArgumentException("Unknown ViewModel class");
-        }
-    }
 }

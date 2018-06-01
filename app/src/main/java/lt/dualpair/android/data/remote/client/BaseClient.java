@@ -7,21 +7,19 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import lt.dualpair.android.BuildConfig;
-import lt.dualpair.android.TokenProvider;
-import lt.dualpair.android.data.RxErrorHandlingCallAdapterFactory;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
-import rx.Observable;
 
-public abstract class BaseClient<K> {
+public abstract class BaseClient {
 
-    private Retrofit getRetrofit() {
+    protected Retrofit getRetrofit() {
         OkHttpClient.Builder okHttpClientBuilder =
                 new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor(HttpLoggingInterceptor.Level.BODY))
                 .addInterceptor(authorizationInterceptor())
@@ -32,17 +30,11 @@ public abstract class BaseClient<K> {
         Retrofit.Builder retrofitBuilder =
                 new Retrofit.Builder().baseUrl(BuildConfig.SERVER_HOST)
                         .client(okHttpClientBuilder.build())
-                        .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .addConverterFactory(ScalarsConverterFactory.create())
                         .addConverterFactory(GsonConverterFactory.create(createGson()));
         return retrofitBuilder.build();
     }
-
-    public Observable<K> observable() {
-        return getApiObserable(getRetrofit());
-    }
-
-    protected abstract Observable<K> getApiObserable(Retrofit retrofit);
 
     private HttpLoggingInterceptor httpLoggingInterceptor(HttpLoggingInterceptor.Level logLevel) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -60,10 +52,13 @@ public abstract class BaseClient<K> {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
-                String token = TokenProvider.getInstance().getToken();
-                if (token == null) {
-                    return chain.proceed(chain.request());
-                }
+                String token = getAuthToken();
+
+                // Aassume that we always have token
+                //if (token == null) {
+                //    return chain.proceed(chain.request());
+                //}
+
                 Request original = chain.request();
                 Request.Builder requestBuilder = original.newBuilder()
                         .header("Accept", "application/json")
@@ -74,6 +69,10 @@ public abstract class BaseClient<K> {
                 return chain.proceed(request);
             }
         };
+    }
+
+    protected String getAuthToken() {
+        return TokenProvider.getInstance().getAuthToken().blockingFirst();
     }
 
 }

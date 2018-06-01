@@ -2,12 +2,12 @@ package lt.dualpair.android.data.remote.client.socionics;
 
 import java.util.Map;
 
-import lt.dualpair.android.data.remote.client.BaseClient;
+import io.reactivex.Observable;
+import lt.dualpair.android.data.remote.client.ObservableClient;
 import lt.dualpair.android.data.resource.Sociotype;
 import retrofit2.Retrofit;
-import rx.Observable;
 
-public class EvaluateTestClient extends BaseClient<Sociotype> {
+public class EvaluateTestClient extends ObservableClient<Sociotype> {
 
     private Map<String, String> choices;
 

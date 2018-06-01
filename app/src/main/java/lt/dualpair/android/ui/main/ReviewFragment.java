@@ -42,14 +42,15 @@ import butterknife.OnClick;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.LocationLiveData;
 import lt.dualpair.android.data.LocationSettingsLiveData;
-import lt.dualpair.android.data.manager.MatchDataManager;
-import lt.dualpair.android.data.manager.UserDataManager;
-import lt.dualpair.android.data.resource.Location;
-import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.local.entity.User;
+import lt.dualpair.android.data.local.entity.UserForView;
+import lt.dualpair.android.data.local.entity.UserLocation;
+import lt.dualpair.android.data.repository.UserPrincipalRepository;
+import lt.dualpair.android.data.repository.UserRepository;
+import lt.dualpair.android.ui.Resource;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.OpponentUserView;
+import lt.dualpair.android.ui.user.UserViewActionBarViewHolder;
 import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LocationUtil;
 
@@ -72,9 +73,12 @@ public class ReviewFragment extends MainTabFragment {
 
     @Bind(R.id.opponent_user_view) OpponentUserView opponentUserView;
 
-    private ActionBarViewHolder actionBarViewHolder;
+    private UserViewActionBarViewHolder actionBarViewHolder;
 
     private ReviewViewModel viewModel;
+
+    private UserLocation lastPrincipalLocation;
+    private UserLocation lastReviewedUserLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,9 +95,7 @@ public class ReviewFragment extends MainTabFragment {
 
         showLoading();
 
-        actionBarViewHolder = new ActionBarViewHolder();
-        actionBarViewHolder.actionBarView = getLayoutInflater(savedInstanceState).inflate(R.layout.review_action_bar_layout, null);
-        ButterKnife.bind(actionBarViewHolder, actionBarViewHolder.actionBarView);
+        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.review_action_bar_layout, null), getContext());
 
         return view;
     }
@@ -102,18 +104,8 @@ public class ReviewFragment extends MainTabFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         opponentUserView.setPhotoOverlay(R.layout.review_buttons);
-        ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.yes();
-            }
-        });
-        ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.no();
-            }
-        });
+        ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(v -> viewModel.respondWithYes());
+        ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(v -> viewModel.respondWithNo());
     }
 
     @Override
@@ -135,16 +127,28 @@ public class ReviewFragment extends MainTabFragment {
     }
 
     private void subscribeUi() {
-        viewModel.getUserToReview().observe(this, new Observer<Match>() {
+        viewModel.getUserToReview().observe(this, new Observer<Resource<UserForView>>() {
             @Override
-            public void onChanged(@Nullable Match match) {
-                if (match == null) {
+            public void onChanged(@Nullable Resource<UserForView> userForView) {
+                if (userForView.isLoading()) {
                     showLoading();
-                } else if (match.getId() == null) {
-                    showNoMatches();
-                } else {
-                    renderReview(match);
+                } else if (userForView.isError()) {
+                    showError(userForView.getError().getMessage());
+                } else if (userForView.isSuccess()) {
+                    UserForView data = userForView.getData();
+                    if (data.getReference() == null) {
+                        showNoMatches();
+                    } else {
+                        renderReview(data);
+                    }
                 }
+            }
+        });
+        viewModel.getLastStoredLocation().observe(this, new Observer<UserLocation>() {
+            @Override
+            public void onChanged(@Nullable UserLocation userLocation) {
+                lastPrincipalLocation = userLocation;
+                actionBarViewHolder.setLocation(userLocation, lastReviewedUserLocation);
             }
         });
     }
@@ -167,27 +171,21 @@ public class ReviewFragment extends MainTabFragment {
         return actionBarViewHolder.actionBarView;
     }
 
-    public void renderReview(Match match) {
-        User opponentUser = match.getOpponent().getUser();
+    public void renderReview(UserForView userForView) {
+        User opponentUser = userForView.getUser();
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
 
-        actionBarViewHolder.name.setText(opponentUser.getName());
-        actionBarViewHolder.age.setText(getString(R.string.review_age, opponentUser.getAge()));
-        Location location = opponentUser.getFirstLocation();
-        if (location != null) {
-            actionBarViewHolder.city.setText(getString(R.string.review_city, location.getCity(), match.getDistance() / 1000));
-        }
-        StringBuilder sb = new StringBuilder();
-        String prefix = "";
-        for (Sociotype sociotype : opponentUser.getSociotypes()) {
-            sb.append(prefix);
-            prefix = ", ";
-            String code = sociotype.getCode1();
-            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getActivity().getPackageName());
-            sb.append(getString(titleId) + " (" + sociotype.getCode1() + ")");
-        }
-        opponentUserView.setUser(opponentUser);
+        lastReviewedUserLocation = userForView.getLastLocation();
+        actionBarViewHolder.setUserData(opponentUser);
+        actionBarViewHolder.setLocation(lastPrincipalLocation, lastReviewedUserLocation);
+        opponentUserView.setData(
+                userForView.getSociotypes(),
+                userForView.getUser().getDescription(),
+                userForView.getPhotos(),
+                userForView.getUser().getRelationshipStatus(),
+                userForView.getPurposesOfBeing()
+        );
     }
 
     public void showLoading() {
@@ -202,6 +200,13 @@ public class ReviewFragment extends MainTabFragment {
     public void showNoMatches() {
         progressLayout.setVisibility(View.VISIBLE);
         progressText.setText(getResources().getString(R.string.no_matches_found));
+        progressBar.setVisibility(View.GONE);
+        retryButton.setVisibility(View.VISIBLE);
+    }
+
+    public void showError(String error) {
+        progressLayout.setVisibility(View.VISIBLE);
+        progressText.setText(error);
         progressBar.setVisibility(View.GONE);
         retryButton.setVisibility(View.VISIBLE);
     }
@@ -357,16 +362,6 @@ public class ReviewFragment extends MainTabFragment {
         return LocationUtil.createLocationRequest();
     }
 
-    protected static class ActionBarViewHolder {
-
-        View actionBarView;
-
-        @Bind(R.id.name) TextView name;
-        @Bind(R.id.age) TextView age;
-        @Bind(R.id.city) TextView city;
-
-    }
-
     private static class ReviewViewModelFactory extends ViewModelProvider.AndroidViewModelFactory {
 
         private Application application;
@@ -381,9 +376,10 @@ public class ReviewFragment extends MainTabFragment {
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(ReviewViewModel.class)) {
                 LocationSettingsLiveData locationSettingsLiveData = new LocationSettingsLiveData(application, createLocationRequest());
-                MatchDataManager matchDataManager = new MatchDataManager(application);
+                UserPrincipalRepository userPrincipalRepository = new UserPrincipalRepository(application);
+                UserRepository userRepository = new UserRepository(application);
                 LiveData<android.location.Location> location = new LocationLiveData(application);
-                return (T) new ReviewViewModel(new UserDataManager(application), matchDataManager, locationSettingsLiveData, location);
+                return (T) new ReviewViewModel(userPrincipalRepository, userRepository, locationSettingsLiveData, location);
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

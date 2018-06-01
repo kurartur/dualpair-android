@@ -1,13 +1,13 @@
 package lt.dualpair.android.data.remote.client.authentication;
 
-import lt.dualpair.android.data.remote.client.BaseClient;
+import io.reactivex.Completable;
+import lt.dualpair.android.data.remote.client.CompletableClient;
 import retrofit2.Retrofit;
-import rx.Observable;
 
-public class LogoutClient extends BaseClient<Void> {
+public class LogoutClient extends CompletableClient {
 
     @Override
-    protected Observable<Void> getApiObserable(Retrofit retrofit) {
+    protected Completable getApiCompletable(Retrofit retrofit) {
         return retrofit.create(OAuthService.class).logout();
     }
 }

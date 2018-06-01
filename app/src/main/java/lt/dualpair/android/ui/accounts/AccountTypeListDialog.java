@@ -31,7 +31,7 @@ public class AccountTypeListDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = getActivity().getLayoutInflater().inflate(R.layout.account_type_list_dialog_layout, null);
-        ListView accountTypesListView = (ListView)v.findViewById(R.id.account_types);
+        ListView accountTypesListView = v.findViewById(R.id.account_types);
         AccountTypeAdapter accountTypeAdapter = new AccountTypeAdapter(getActivity(), accountTypes, onAccountTypeClickListener);
         accountTypesListView.setAdapter(accountTypeAdapter);
         return v;

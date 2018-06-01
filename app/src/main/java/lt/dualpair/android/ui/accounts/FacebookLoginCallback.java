@@ -7,10 +7,10 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.OAuthConstants;
 import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class FacebookLoginCallback implements FacebookCallback<LoginResult> {
 
@@ -31,7 +31,7 @@ public class FacebookLoginCallback implements FacebookCallback<LoginResult> {
             .observable()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
-            .subscribe(new TokenRequestSubscriber(loginActivity));
+            .subscribe(new TokenRequestObserver(loginActivity));
     }
 
     @Override

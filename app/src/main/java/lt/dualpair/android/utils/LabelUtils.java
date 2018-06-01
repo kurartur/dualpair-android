@@ -2,8 +2,8 @@ package lt.dualpair.android.utils;
 
 import android.content.Context;
 
-import lt.dualpair.android.data.resource.PurposeOfBeing;
-import lt.dualpair.android.data.resource.RelationshipStatus;
+import lt.dualpair.android.data.local.entity.PurposeOfBeing;
+import lt.dualpair.android.data.local.entity.RelationshipStatus;
 
 public class LabelUtils {
 

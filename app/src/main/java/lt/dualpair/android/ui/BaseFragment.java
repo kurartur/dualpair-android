@@ -10,14 +10,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.trello.rxlifecycle.FragmentEvent;
-import com.trello.rxlifecycle.FragmentLifecycleProvider;
-import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.trello.rxlifecycle2.LifecycleTransformer;
+import com.trello.rxlifecycle2.RxLifecycle;
+import com.trello.rxlifecycle2.android.FragmentEvent;
+import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
-import rx.Observable;
-import rx.subjects.BehaviorSubject;
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 
-public class BaseFragment extends Fragment implements FragmentLifecycleProvider {
+public class BaseFragment extends Fragment implements LifecycleProvider<FragmentEvent> {
 
     private final BehaviorSubject<FragmentEvent> lifecycleSubject = BehaviorSubject.create();
 
@@ -30,19 +32,19 @@ public class BaseFragment extends Fragment implements FragmentLifecycleProvider 
     @NonNull
     @Override
     public Observable<FragmentEvent> lifecycle() {
-        return lifecycleSubject.asObservable();
+        return lifecycleSubject;
     }
 
     @NonNull
     @Override
-    public <T> Observable.Transformer<T, T> bindUntilEvent(@NonNull FragmentEvent event) {
+    public <T> LifecycleTransformer<T> bindUntilEvent(@NonNull FragmentEvent event) {
         return RxLifecycle.bindUntilEvent(lifecycleSubject, event);
     }
 
     @NonNull
     @Override
-    public <T> Observable.Transformer<T, T> bindToLifecycle() {
-        return RxLifecycle.bindFragment(lifecycleSubject);
+    public <T> LifecycleTransformer<T> bindToLifecycle() {
+        return RxLifecycleAndroid.bindFragment(lifecycleSubject);
     }
 
     @Override

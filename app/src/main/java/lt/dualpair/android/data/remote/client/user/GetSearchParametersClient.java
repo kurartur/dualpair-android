@@ -1,11 +1,11 @@
 package lt.dualpair.android.data.remote.client.user;
 
-import lt.dualpair.android.data.remote.client.BaseClient;
+import io.reactivex.Observable;
+import lt.dualpair.android.data.remote.client.ObservableClient;
 import lt.dualpair.android.data.resource.SearchParameters;
 import retrofit2.Retrofit;
-import rx.Observable;
 
-public class GetSearchParametersClient extends BaseClient<SearchParameters> {
+public class GetSearchParametersClient extends ObservableClient<SearchParameters> {
 
     private Long userId;
 

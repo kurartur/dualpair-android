@@ -122,87 +122,6 @@
         <p>made by <b>Artur</b></p>
     </string>
     <string name="admin_email">kur.artur@gmail.com</string>
-
-    <string name="create_db"><![CDATA[
-
-        DROP TABLE IF EXISTS users;
-        CREATE TABLE IF NOT EXISTS users (
-            _id BIGINT,
-            description TEXT NULL,
-            date_of_birth DATE NULL,
-            age INT NULL,
-            name VARCHAR(128) NULL,
-            status SMALLINT NOT NULL DEFAULT 0,
-            gender VARCHAR(1) NULL,
-            update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            relationship_status VARCHAR(2),
-            purpose_of_being VARCHAR(4),
-            PRIMARY KEY (_id));
-
-        DROP TABLE IF EXISTS user_purposes_of_being;
-        CREATE TABLE IF NOT EXISTS user_purposes_of_being (
-          user_id BIGINT NOT NULL,
-          purpose VARCHAR(4) NOT NULL,
-          PRIMARY KEY (user_id, purpose));
-
-        DROP TABLE IF EXISTS search_parameters;
-        CREATE TABLE IF NOT EXISTS search_parameters (
-            _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            min_age INT NULL,
-            max_age INT NULL,
-            search_female VARCHAR(1) NULL,
-            search_male VARCHAR(1) NULL,
-            sync_status VARCHAR(1) NOT NULL DEFAULT \'C\');
-
-        DROP TABLE IF EXISTS user_sociotypes;
-        CREATE TABLE IF NOT EXISTS user_sociotypes (
-          _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-          user_id BIGINT NOT NULL,
-          code1 VARCHAR(45) NOT NULL,
-          code2 VARCHAR(45) NOT NULL);
-
-        DROP TABLE IF EXISTS matches;
-        CREATE TABLE IF NOT EXISTS matches (
-          _id BIGINT NOT NULL,
-          distance INT NOT NULL,
-          create_time TIMESTAMP NOT NULL,
-          PRIMARY KEY (_id));
-
-        DROP TABLE IF EXISTS user_accounts;
-        CREATE TABLE IF NOT EXISTS user_accounts (
-          _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-          user_id BIGINT NOT NULL,
-          account_id TEXT NOT NULL,
-          account_type VARCHAR(2) NOT NULL);
-
-        DROP TABLE IF EXISTS user_locations;
-        CREATE TABLE IF NOT EXISTS user_locations (
-          _id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-          user_id BIGINT NOT NULL,
-          latitude DOUBLE NULL,
-          longitude DOUBLE NULL,
-          country_code VARCHAR(2) NOT NULL,
-          city VARCHAR(128) NOT NULL);
-
-        DROP TABLE IF EXISTS user_photos;
-        CREATE TABLE IF NOT EXISTS user_photos (
-          _id BIGINT PRIMARY KEY NOT NULL,
-          user_id BIGINT NOT NULL,
-          account_type VARCHAR(2) NOT NULL,
-          id_on_account VARCHAR(45) NULL,
-          source_link TEXT NULL,
-          position SMALLINT NOT NULL DEFAULT 0);
-
-        DROP TABLE IF EXISTS match_parties;
-        CREATE TABLE IF NOT EXISTS match_parties (
-          _id BIGINT NOT NULL,
-          match_id BIGINT NOT NULL,
-          user_id BIGINT NOT NULL,
-          response VARCHAR NULL,
-          sync_status VARCHAR(1) NOT NULL DEFAULT \'C\',
-          PRIMARY KEY (_id));
-
-    ]]></string>
     <string name="choose_sociotype">Choose sociotype</string>
     <string name="empty_history">You didn\'t review anything yet</string>
     <string name="sociotype">Sociotype</string>
@@ -228,7 +147,7 @@
     <string name="date_of_birth_warning">Date of birth will be used to calculate your age. It will not be disclosed to other users.</string>
     <string name="about_you">About you</string>
     <string name="review_age">, %1$d</string>
-    <string name="review_city">%1$s (%2$dkm)</string>
+    <string name="review_city">%1$s</string>
     <string name="age_range">Age range</string>
     <string name="help">Help</string>
     <string name="how_to">How to</string>
@@ -266,4 +185,6 @@
     <string name="open_app_settings">Open app settings</string>
     <string name="location_permission_denied_explanation_message">You have denied permission to access location. You can allow this app to access location in app settings.</string>
     <string name="close_app">Close app</string>
+    <string name="no_server_connection">Couldn\'t connect to server</string>
+    <string name="review_distance">(%1$dkm)</string>
 </resources>

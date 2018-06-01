@@ -17,7 +17,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Photo;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 
 public class ImageSwipe extends LinearLayout {
 
@@ -49,8 +49,8 @@ public class ImageSwipe extends LinearLayout {
     private void initView() {
         View view = inflate(getContext(), R.layout.image_swipe_layout, null);
 
-        photoPager = (ViewPager) view.findViewById(R.id.photo_pager);
-        photoDots = (LinearLayout) view.findViewById(R.id.photo_dots);
+        photoPager = view.findViewById(R.id.photo_pager);
+        photoDots = view.findViewById(R.id.photo_dots);
 
         photoPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -65,7 +65,7 @@ public class ImageSwipe extends LinearLayout {
         addView(view);
     }
 
-    public void setPhotos(List<Photo> photos) {
+    public void setPhotos(List<UserPhoto> photos) {
         photoPager.setAdapter(new ImagePagerAdapter(getContext(), photos));
         photoDots.removeAllViews();
         dotImages = new ImageView[photos.size()];
@@ -88,9 +88,9 @@ public class ImageSwipe extends LinearLayout {
     public static class ImagePagerAdapter extends PagerAdapter {
 
         private Context context;
-        private List<Photo> userPhotos;
+        private List<UserPhoto> userPhotos;
 
-        public ImagePagerAdapter(Context context, List<Photo> userPhotos) {
+        public ImagePagerAdapter(Context context, List<UserPhoto> userPhotos) {
             this.context = context;
             this.userPhotos = userPhotos;
         }
@@ -121,10 +121,10 @@ public class ImageSwipe extends LinearLayout {
             LayoutInflater inflater = (LayoutInflater) container.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.image_swipe_image_layout,null);
             container.addView(view);
-            final ImageView photo = (ImageView) view.findViewById(R.id.picture);
-            final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+            final ImageView photo = view.findViewById(R.id.picture);
+            final ProgressBar progressBar = view.findViewById(R.id.progress_bar);
             Picasso.with(context)
-                    .load(userPhotos.get(position).getSourceUrl())
+                    .load(userPhotos.get(position).getSourceLink())
                     .error(R.drawable.image_not_found)
                     .into(photo, new Callback() {
                         @Override

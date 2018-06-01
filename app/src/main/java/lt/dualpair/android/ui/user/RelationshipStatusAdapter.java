@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
 
-import lt.dualpair.android.data.resource.RelationshipStatus;
+import lt.dualpair.android.data.local.entity.RelationshipStatus;
 import lt.dualpair.android.utils.LabelUtils;
 
 class RelationshipStatusAdapter extends ArrayAdapter<RelationshipStatus> {

@@ -49,15 +49,13 @@
         <activity android:name=".ui.socionics.SocionicsTestActivity"/>
         <activity android:name=".ui.search.SearchParametersActivity"/>
         <activity android:name=".ui.AboutActivity"/>
-        <activity android:name=".ui.match.MatchActivity"/>
-        <activity android:name=".ui.match.MutualMatchActivity"/>
+        <activity android:name=".ui.match.UserActivity"/>
         <activity android:name=".ui.match.NewMatchActivity" android:theme="@style/AppTheme.NewMatchWindow"/>
         <activity android:name=".ui.main.ReviewHistoryActivity"/>
         <activity android:name=".ui.user.EditUserActivity"
             android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".ui.user.EditPhotosActivity"/>
         <activity android:name=".ui.accounts.EditAccountsActivity"/>
-        <activity android:name=".ui.accounts.LinkAccountActivity"/>
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
                 "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -75,6 +73,10 @@
         <activity android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent"/>
+
+        <activity android:name=".ui.splash.ToyActivity">
+
+        </activity>
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>

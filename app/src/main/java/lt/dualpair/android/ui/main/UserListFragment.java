@@ -20,7 +20,7 @@ public abstract class UserListFragment extends MainTabFragment implements SwipeR
     private static final String TAG = "MatchListFragment";
 
     private ScrollSwipeRefreshLayout swipeRefreshLayout;
-    @Bind(R.id.mutual_matches) RecyclerView matchesView;
+    @Bind(R.id.mutual_matches) protected RecyclerView matchesView;
     @Bind(android.R.id.empty) View emptyView;
     @Bind(R.id.no_matches_text) TextView emptyText;
 
@@ -69,6 +69,10 @@ public abstract class UserListFragment extends MainTabFragment implements SwipeR
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         refresh();
+    }
+
+    protected void onRefreshed() {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     protected abstract void refresh();

@@ -15,19 +15,16 @@ import android.widget.ProgressBar;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.EmptySubscriber;
-import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.DrawableUtils;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class SearchParametersActivity extends BaseActivity {
 
     private static final String TAG = SearchParametersActivity.class.getName();
-    public static final String RESULT_BUNDLE_KEY = "RESULT_BUNDLE";
-    public static final String SEARCH_PARAMETERS_KEY = "SEARCH_PARAMETERS";
     private static final String WITH_HOME_BUTTON = "WITH_HOME_BUTTON";
     private static final int MENU_ITEM_OK = 1;
 
@@ -82,15 +79,15 @@ public class SearchParametersActivity extends BaseActivity {
     }
 
     private void subscribeUi() {
-        viewModel.getSearchParameters().observe(this, new Observer<SearchParameters>() {
+        viewModel.getSearchParameters().observe(this, new Observer<UserSearchParameters>() {
             @Override
-            public void onChanged(@Nullable SearchParameters searchParameters) {
+            public void onChanged(@Nullable UserSearchParameters searchParameters) {
                 render(searchParameters);
             }
         });
     }
 
-    public void render(SearchParameters searchParameters) {
+    public void render(UserSearchParameters searchParameters) {
         this.searchMale.setChecked(searchParameters.getSearchMale());
         this.searchFemale.setChecked(searchParameters.getSearchFemale());
         minAgePicker.setValue(searchParameters.getMinAge());
@@ -99,17 +96,13 @@ public class SearchParametersActivity extends BaseActivity {
         mainLayout.setVisibility(View.VISIBLE);
     }
 
-    public void onSaved(SearchParameters searchParameters) {
-        Intent resultData = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(SEARCH_PARAMETERS_KEY, searchParameters);
-        resultData.putExtra(RESULT_BUNDLE_KEY, bundle);
-        setResult(Activity.RESULT_OK, resultData);
+    public void onSaved() {
+        setResult(Activity.RESULT_OK);
         finish();
     }
 
     private void save() {
-        SearchParameters searchParameters = new SearchParameters();
+        UserSearchParameters searchParameters = new UserSearchParameters();
         searchParameters.setSearchMale(searchMale.isChecked());
         searchParameters.setSearchFemale(searchFemale.isChecked());
         searchParameters.setMinAge(minAgePicker.getValue());
@@ -117,12 +110,7 @@ public class SearchParametersActivity extends BaseActivity {
         viewModel.save(searchParameters)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new EmptySubscriber<SearchParameters>() {
-                    @Override
-                    public void onNext(SearchParameters sp) {
-                        onSaved(sp);
-                    }
-                });
+                .subscribe(this::onSaved);
     }
 
     @Override

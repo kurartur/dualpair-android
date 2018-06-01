@@ -46,8 +46,8 @@ public class AccountTypeAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final AccountType accountType = (AccountType)getItem(position);
         View view = LayoutInflater.from(context).inflate(R.layout.account_type_list_item, null);
-        ImageView icon = (ImageView)view.findViewById(R.id.icon);
-        TextView name = (TextView)view.findViewById(R.id.name);
+        ImageView icon = view.findViewById(R.id.icon);
+        TextView name = view.findViewById(R.id.name);
         icon.setImageResource(accountType.getIcon());
         name.setText(context.getResources().getString(context.getResources().getIdentifier(accountType.name(), "string", context.getPackageName())));
 

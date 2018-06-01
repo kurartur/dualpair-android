@@ -1,6 +1,6 @@
 package lt.dualpair.android.ui.accounts;
 
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.local.entity.UserAccount;
 
 public class SocialAccountItem {
 

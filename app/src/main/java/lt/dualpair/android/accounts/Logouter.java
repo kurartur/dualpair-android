@@ -3,8 +3,9 @@ package lt.dualpair.android.accounts;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import lt.dualpair.android.TokenProvider;
-import lt.dualpair.android.data.repo.DatabaseHelper;
+import io.reactivex.Completable;
+import io.reactivex.functions.Action;
+import lt.dualpair.android.data.local.DualPairRoomDatabase;
 
 public class Logouter {
 
@@ -14,10 +15,14 @@ public class Logouter {
         this.context = context;
     }
 
-    public void logout() {
-        TokenProvider.getInstance().storeToken(null);
-        DatabaseHelper.reset(context);
-        AccountUtils.removeAccount(AccountManager.get(context));
+    public Completable logout() {
+        return Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                DualPairRoomDatabase.reset();
+                AccountUtils.removeAccount(AccountManager.get(context));
+            }
+        });
     }
 
 }
