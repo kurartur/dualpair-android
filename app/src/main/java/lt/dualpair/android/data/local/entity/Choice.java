@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.resource;
+package lt.dualpair.android.data.local.entity;
 
 public enum Choice {
 
@@ -30,6 +30,5 @@ public enum Choice {
     ORIENTED_TO_OUTSIDE_WORLD, ORIENTED_INWARD,
     SPEAK_ALOUD, LIVE_THROUGH,
     BRAVE,       COLD_BLOODED
-
 
 }

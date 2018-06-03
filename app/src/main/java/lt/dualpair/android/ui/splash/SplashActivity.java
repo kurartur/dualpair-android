@@ -15,7 +15,7 @@ import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.main.MainActivity;
-import lt.dualpair.android.ui.user.AddSociotypeActivity;
+import lt.dualpair.android.ui.socionics.SetSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
 
 public class SplashActivity extends BaseActivity {
@@ -50,7 +50,7 @@ public class SplashActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(sociotypeList -> {
                     if (sociotypeList.isEmpty()) {
-                        startActivityForResult(AddSociotypeActivity.createIntent(SplashActivity.this, false), ADD_SOCIOTYPE_REQUEST_CODE);
+                        startActivityForResult(SetSociotypeActivity.createIntent(SplashActivity.this, true), ADD_SOCIOTYPE_REQUEST_CODE);
                     } else {
                         checkDateOfBirth();
                     }

@@ -15,4 +15,9 @@ public class LabelUtils {
         return context.getResources().getString(context.getResources().getIdentifier("pob_" + purpose.name().toLowerCase(), "string", context.getPackageName()));
     }
 
+    public static String getSociotypeTitle(Context context, String code1) {
+        int titleId = context.getResources().getIdentifier(code1.toLowerCase() + "_title", "string", context.getPackageName());
+        return context.getString(titleId);
+    }
+
 }

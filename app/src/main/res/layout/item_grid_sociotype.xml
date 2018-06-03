@@ -1,30 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimaryLight"
-    android:padding="5dp"
-    android:layout_margin="1dp"
-    android:layout_gravity="fill"
-    android:gravity="center"
-    android:minHeight="60dp">
+    android:gravity="center">
 
-        <TextView
-            android:id="@+id/sociotype_code"
+        <lt.dualpair.android.ui.SquareLinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="sample"
-            android:textColor="@color/colorPrimaryText"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <TextView
-            android:id="@+id/sociotype_title"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="10dp"
-            android:text="sample"
-            android:textColor="@color/colorPrimaryText"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal">
+
+                        <TextView
+                            android:id="@+id/code1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/sample"
+                            android:textSize="30sp"
+                            android:textColor="@color/colorPrimaryText"/>
+
+                        <TextView
+                            android:id="@+id/code2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/sample"
+                            android:textSize="17sp"
+                            android:textColor="@color/colorPrimaryText"
+                            android:layout_marginLeft="5dp"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:text="@string/sample"
+                    android:textColor="@color/colorPrimaryText"/>
+
+        </lt.dualpair.android.ui.SquareLinearLayout>
 
 </LinearLayout>

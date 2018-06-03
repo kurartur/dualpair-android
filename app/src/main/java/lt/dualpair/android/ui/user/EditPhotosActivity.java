@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
@@ -16,6 +15,9 @@ import android.view.MenuItem;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.ui.BaseActivity;
@@ -40,9 +42,11 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     private ItemTouchHelper itemTouchHelper;
 
-    private MenuItem menuItemSave;
+    private boolean isSaving = false;
 
     private AvailablePhotosSheetDialog dialog;
+
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     private EditPhotosViewModel viewModel;
 
@@ -52,11 +56,6 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         setContentView(R.layout.edit_photos_layout);
 
         setupActionBar(true, getResources().getString(R.string.photos));
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(DrawableUtils.getActionBarIcon(this, R.drawable.ic_close_black_30dp));
-        }
 
         ButterKnife.bind(this);
 
@@ -99,8 +98,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         adapter = new EditPhotosRecyclerAdapter(data.getPhotos(), new EditPhotosRecyclerAdapter.OnAddClickListener() {
             @Override
             public void onAddClick() {
-                dialog = AvailablePhotosSheetDialog.getInstance(data.getUserAccounts());
-                dialog.setOnPhotoSelectedListener(EditPhotosActivity.this);
+                dialog = AvailablePhotosSheetDialog.getInstance(data.getUserAccounts(), EditPhotosActivity.this);
                 dialog.show(getSupportFragmentManager(), "AvailablePhotosSheetDialog");
             }
         }, this);
@@ -116,19 +114,21 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         itemTouchHelper.startDrag(viewHolder);
     }
-
-    public static Intent createIntent(Activity activity) {
-        return new Intent(activity, EditPhotosActivity.class);
-    }
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
         MenuItem menuItemHelp = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
         menuItemHelp.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_help_black_48dp));
         menuItemHelp.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menuItemSave = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
-        menuItemSave.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
-        menuItemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if (!isSaving) {
+            MenuItem menuItemSave = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
+            menuItemSave.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
+            menuItemSave.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        } else {
+            MenuItem saving = menu.add(Menu.NONE, 0, Menu.NONE, "");
+            saving.setActionView(R.layout.action_progressbar);
+            saving.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
         return true;
     }
 
@@ -139,7 +139,6 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         }
         switch (item.getItemId()) {
             case MENU_ITEM_SAVE:
-                menuItemSave.setActionView(R.layout.action_progressbar);
                 save();
                 return true;
             case MENU_ITEM_HELP:
@@ -147,6 +146,12 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
                 return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disposable.clear();
     }
 
     private void showHelp() {
@@ -163,18 +168,23 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     }
 
     private void save() {
-        viewModel.save(adapter.getPhotos())
-                .subscribe(() -> onSaved());
+        isSaving = true;
+        invalidateOptionsMenu();
+        disposable.add(
+                viewModel.save(adapter.getPhotos())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(() -> {
+                        setResult(Activity.RESULT_OK);
+                        finish();
+                        isSaving = false;
+                    })
+        );
     }
 
-    public void onSaved() {
-        setResult(Activity.RESULT_OK);
-        finish();
+    public static Intent createIntent(Activity activity) {
+        return new Intent(activity, EditPhotosActivity.class);
     }
 
-    @Override
-    public void onBackPressed() {
-        save();
-        super.onBackPressed();
-    }
+
 }

@@ -43,10 +43,7 @@
             android:launchMode="singleTop"/>
         <activity android:name=".ui.main.MainActivity"
             android:windowSoftInputMode="adjustNothing"/>
-        <activity android:name=".ui.user.AddSociotypeActivity"/>
-        <activity android:name=".ui.user.ConfirmSociotypeActivity"/>
         <activity android:name=".ui.user.SetDateOfBirthActivity"/>
-        <activity android:name=".ui.socionics.SocionicsTestActivity"/>
         <activity android:name=".ui.search.SearchParametersActivity"/>
         <activity android:name=".ui.AboutActivity"/>
         <activity android:name=".ui.match.UserActivity"/>
@@ -75,8 +72,9 @@
             android:theme="@style/VK.Transparent"/>
 
         <activity android:name=".ui.splash.ToyActivity">
-
         </activity>
+        <activity android:name=".ui.socionics.SetSociotypeActivity" />
+        <activity android:name=".ui.socionics.ViewSociotypeActivity" />
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>

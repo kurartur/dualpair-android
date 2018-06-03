@@ -70,13 +70,10 @@ public class AvailablePhotosSheetDialog extends BottomSheetDialogFragment {
 
     };
 
-    public void setOnPhotoSelectedListener(OnPhotoSelectedListener onPhotoSelectedListener) {
-        this.onPhotoSelectedListener = onPhotoSelectedListener;
-    }
-
-    public static AvailablePhotosSheetDialog getInstance(List<UserAccount> accounts) {
+    public static AvailablePhotosSheetDialog getInstance(List<UserAccount> accounts, AvailablePhotosSheetDialog.OnPhotoSelectedListener listener) {
         AvailablePhotosSheetDialog dialog = new AvailablePhotosSheetDialog();
         dialog.accounts = accounts;
+        dialog.onPhotoSelectedListener = listener;
         return dialog;
     }
 

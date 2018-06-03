@@ -187,4 +187,10 @@
     <string name="close_app">Close app</string>
     <string name="no_server_connection">Couldn\'t connect to server</string>
     <string name="review_distance">(%1$dkm)</string>
+    <string name="unable_to_save_user">Unable to save user</string>
+    <string name="name_cant_be_empty">Name can\'t be empty</string>
+    <string name="name_is_too_long">Name is too long</string>
+    <string name="some_out_of_some">%1$d / %2$d</string>
+    <string name="sample">Sample</string>
+    <string name="more">More</string>
 </resources>

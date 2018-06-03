@@ -2,9 +2,9 @@ package lt.dualpair.android.data.repository;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.Set;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.AccountUtils;
@@ -34,6 +34,7 @@ import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 import lt.dualpair.android.data.mapper.UserResourceMapper;
 import lt.dualpair.android.data.remote.client.authentication.LogoutClient;
+import lt.dualpair.android.data.remote.client.user.GetAvailablePhotosClient;
 import lt.dualpair.android.data.remote.client.user.GetSearchParametersClient;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
 import lt.dualpair.android.data.remote.client.user.SetLocationClient;
@@ -67,36 +68,17 @@ public class UserPrincipalRepository {
 
     public Single<User> getUser() {
         Maybe<User> localUser = userDao.getUserMaybe(userId);
-        Single<User> remoteUser = new GetUserPrincipalClient().observable()
-                .subscribeOn(Schedulers.io())
-                .map(new Function<lt.dualpair.android.data.resource.User, User>() {
-                    @Override
-                    public User apply(lt.dualpair.android.data.resource.User userResource) {
-                        UserResourceMapper.Result mappingResult = saveUserResource(userResource);
-                        return mappingResult.getUser();
-                    }
-                }).singleOrError();
+        Single<User> remoteUser = userPrincipalFromApiObservable()
+                .map(user -> new UserResourceMapper(sociotypeDao).map(user).getUser()).singleOrError();
         return Maybe.concat(localUser, remoteUser.toMaybe()).firstElement().toSingle();
     }
 
     public Single<List<UserSociotype>> getSociotypes() {
         Maybe<List<UserSociotype>> local = userDao.getUserSociotypesMaybe(userId)
-                .filter(list -> !list.isEmpty())
-                .doOnSuccess(new Consumer<List<UserSociotype>>() {
-            @Override
-            public void accept(List<UserSociotype> sociotypes) {
-                Log.d(TAG, sociotypes.size() + "");
-            }
-        });
+                .filter(list -> !list.isEmpty());
         Single<List<UserSociotype>> remote = new GetUserPrincipalClient().observable()
                 .subscribeOn(Schedulers.io())
-                .map(new Function<lt.dualpair.android.data.resource.User, List<UserSociotype>>() {
-                    @Override
-                    public List<UserSociotype> apply(lt.dualpair.android.data.resource.User userResource) {
-                        UserResourceMapper.Result mappingResult = saveUserResource(userResource);
-                        return mappingResult.getUserSociotypes();
-                    }
-                }).singleOrError();
+                .map(user -> new UserResourceMapper(sociotypeDao).map(user).getUserSociotypes()).singleOrError();
         return Maybe.concat(local, remote.toMaybe()).firstElement().toSingle();
     }
 
@@ -122,8 +104,7 @@ public class UserPrincipalRepository {
                     UserSociotype userSociotype = new UserSociotype();
                     userSociotype.setUserId(userId);
                     userSociotype.setSociotypeId(sociotype.getId());
-                    userDao.saveUserSociotype(userSociotype);
-                    userDao.getUserSociotypes(userId);
+                    userDao.replaceUserSociotypes(userId, Arrays.asList(userSociotype));
                 });
     }
 
@@ -187,7 +168,29 @@ public class UserPrincipalRepository {
         userResource.setDescription(description);
         userResource.setRelationshipStatus(relationshipStatus.getCode());
         userResource.setPurposesOfBeing(extractCodes(purposesOfBeing));
-        return new UpdateUserClient(userResource).completable();
+        return new UpdateUserClient(userResource).completable()
+                .doOnComplete(() -> {
+                    database.runInTransaction(new Runnable() {
+                        @Override
+                        public void run() {
+                            User user = userDao.getUser(userId);
+                            user.setName(name);
+                            user.setDateOfBirth(dateOfBirth);
+                            user.setDescription(description);
+                            user.setRelationshipStatus(relationshipStatus);
+                            userDao.saveUser(user);
+
+                            List<UserPurposeOfBeing> userPurposesOfBeing = new ArrayList<>();
+                            for (PurposeOfBeing purposeOfBeing : purposesOfBeing) {
+                                UserPurposeOfBeing userPurposeOfBeing = new UserPurposeOfBeing();
+                                userPurposeOfBeing.setUserId(userId);
+                                userPurposeOfBeing.setPurpose(purposeOfBeing);
+                                userPurposesOfBeing.add(userPurposeOfBeing);
+                                userDao.replaceUserPurposesOfBeing(userId, userPurposesOfBeing);
+                            }
+                        }
+                    });
+                });
     }
 
     private Set<String> extractCodes(List<PurposeOfBeing> purposesOfBeing) {
@@ -220,7 +223,13 @@ public class UserPrincipalRepository {
             photoResource.setSourceUrl(userPhoto.getSourceLink());
             photoResources.add(photoResource);
         }
-        return new SetPhotosClient(userId, photoResources).completable();
+        return new SetPhotosClient(userId, photoResources).completable()
+                .doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        userDao.replaceUserPhotos(userId, photos);
+                    }
+                });
     }
 
     public Single<List<UserAccount>> getUserAccounts() {
@@ -251,11 +260,15 @@ public class UserPrincipalRepository {
         return userDao.getLastLocation(userId);
     }
 
-    public Completable loadFromApi() {
+    private Observable<lt.dualpair.android.data.resource.User> userPrincipalFromApiObservable() {
         return new GetUserPrincipalClient().observable()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(userResource -> saveUserResource(userResource))
-                .doOnComplete(() -> lastPrincipalApiRequest = System.currentTimeMillis()).ignoreElements();
+                .doOnComplete(() -> lastPrincipalApiRequest = System.currentTimeMillis());
+    }
+
+    public Completable loadFromApi() {
+        return userPrincipalFromApiObservable().ignoreElements();
     }
 
     public Completable loadFromApiIfTime() {
@@ -284,5 +297,21 @@ public class UserPrincipalRepository {
 
     public LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive() {
         return userDao.getUserPurposesOfBeingLive(userId);
+    }
+
+    public Observable<List<UserPhoto>> getAvailableUserPhotos(AccountType accountType) {
+        return new GetAvailablePhotosClient(userId, accountType).observable()
+                .map(photos -> {
+                    List<UserPhoto> userPhotos = new ArrayList<>();
+                    for(Photo photoResource : photos) {
+                        UserPhoto userPhoto = new UserPhoto();
+                        userPhoto.setUserId(userId);
+                        userPhoto.setAccountType(photoResource.getAccountType().toString());
+                        userPhoto.setIdOnAccount(photoResource.getIdOnAccount());
+                        userPhoto.setSourceLink(photoResource.getSourceUrl());
+                        userPhotos.add(userPhoto);
+                    }
+                    return userPhotos;
+                });
     }
 }

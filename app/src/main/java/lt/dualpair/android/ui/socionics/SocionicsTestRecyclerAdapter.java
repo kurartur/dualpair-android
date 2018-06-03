@@ -15,8 +15,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.Choice;
-import lt.dualpair.android.data.resource.ChoicePair;
+import lt.dualpair.android.data.local.entity.Choice;
+import lt.dualpair.android.data.local.entity.ChoicePair;
 
 public class SocionicsTestRecyclerAdapter extends RecyclerView.Adapter<SocionicsTestRecyclerAdapter.ChoiceViewHolder> {
 
@@ -48,14 +48,6 @@ public class SocionicsTestRecyclerAdapter extends RecyclerView.Adapter<Socionics
     @Override
     public int getItemCount() {
         return items.size();
-    }
-
-    public void notifyItemChanged(String id) {
-        for (int i=0; i<items.size(); i++) {
-            if (items.get(i).getId().equals(id)) {
-                notifyItemChanged(i);
-            }
-        }
     }
 
     public static class ChoiceViewHolder extends RecyclerView.ViewHolder {

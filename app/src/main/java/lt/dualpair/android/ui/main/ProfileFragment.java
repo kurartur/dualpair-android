@@ -41,8 +41,9 @@ import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
+import lt.dualpair.android.ui.socionics.SetSociotypeActivity;
+import lt.dualpair.android.ui.socionics.ViewSociotypeActivity;
 import lt.dualpair.android.ui.splash.SplashActivity;
-import lt.dualpair.android.ui.user.AddSociotypeActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
 import lt.dualpair.android.ui.user.EditUserActivity;
 import lt.dualpair.android.utils.LabelUtils;
@@ -94,7 +95,7 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     @OnClick(R.id.sociotypes_header) void onSociotypesHeaderClick(View v) {
-        startActivityForResult(AddSociotypeActivity.createIntent(getActivity(), true), ADD_SOCIOTYPE_REQ_CODE);
+        startActivityForResult(SetSociotypeActivity.createIntent(getActivity(), false), ADD_SOCIOTYPE_REQ_CODE);
     }
 
     @OnClick(R.id.accounts_header) void onAccountsHeaderClick(View v) {
@@ -274,7 +275,7 @@ public class ProfileFragment extends MainTabFragment {
             firstSociotypeInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ToastUtils.show(getActivity(), "Info activity...");
+                    startActivity(ViewSociotypeActivity.createIntent(getActivity(), firstSociotype));
                 }
             });
             firstSociotypeCode.setText(firstSociotype.getCode1() + " (" + firstSociotype.getCode2() + ")");

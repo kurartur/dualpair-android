@@ -27,17 +27,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/name"
-                    style="@style/InputLabel"/>
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/name"
+                        android:layout_alignParentLeft="true"
+                        style="@style/InputLabel"/>
+
+                    <TextView
+                        android:id="@+id/name_length"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        style="@style/InputLabel"
+                        android:visibility="gone"/>
+
+                </RelativeLayout>
+
 
                 <EditText
                     android:id="@id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLength="100"/>
+                    android:maxLength="@integer/name_length"/>
 
             </LinearLayout>
 
@@ -47,12 +63,26 @@
                 android:layout_marginTop="30dp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/description_label"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/about_you"
-                    style="@style/InputLabel"/>
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/description_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_you"
+                        style="@style/InputLabel"/>
+
+                    <TextView
+                        android:id="@+id/description_length"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        style="@style/InputLabel"
+                        android:visibility="gone"/>
+
+                </RelativeLayout>
 
                 <EditText
                     android:id="@+id/description"
@@ -88,7 +118,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="date"
-                        android:maxLines="1"/>
+                        android:maxLines="1"
+                        android:textIsSelectable="false"
+                        android:focusable="false"/>
 
                 </LinearLayout>
 

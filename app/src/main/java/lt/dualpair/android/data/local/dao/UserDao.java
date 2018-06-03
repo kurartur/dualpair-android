@@ -109,6 +109,9 @@ public abstract class UserDao {
     @Insert
     public abstract void saveUserPurposesOfBeing(List<UserPurposeOfBeing> userPurposesOfBeing);
 
+    @Query("SELECT * FROM user_purposes_of_being WHERE user_id = :userId")
+    public abstract List<UserPurposeOfBeing> getUserPurposesOfBeing(Long userId);
+
     @Query("DELETE FROM user_purposes_of_being WHERE user_id = :userId")
     public abstract void deleteUserPurposesOfBeing(Long userId);
 

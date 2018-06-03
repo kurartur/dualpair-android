@@ -7,9 +7,12 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -19,11 +22,13 @@ import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
+import lt.dualpair.android.ui.accounts.AccountType;
 
 public class EditPhotosViewModel extends ViewModel {
 
     private UserPrincipalRepository userPrincipalRepository;
     private final MutableLiveData<PhotoEditingData> data;
+    private final Map<AccountType, List<UserPhoto>> availablePhotos = new HashMap<>();
 
     public EditPhotosViewModel(UserPrincipalRepository userPrincipalRepository) {
         this.userPrincipalRepository = userPrincipalRepository;
@@ -50,7 +55,6 @@ public class EditPhotosViewModel extends ViewModel {
                     data.setValue(photoEditingData);
                 }
             });
-
     }
 
     public LiveData<PhotoEditingData> getData() {
@@ -58,9 +62,21 @@ public class EditPhotosViewModel extends ViewModel {
     }
 
     public Completable save(List<UserPhoto> photos) {
-        return userPrincipalRepository.savePhotos(photos)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io());
+        return userPrincipalRepository.savePhotos(photos);
+    }
+
+    public Observable<List<UserPhoto>> getAvailablePhotos(AccountType accountType) {
+        if (availablePhotos.containsKey(accountType)) {
+            return Observable.just(availablePhotos.get(accountType));
+        } else {
+            return userPrincipalRepository.getAvailableUserPhotos(accountType)
+                    .doOnNext(new Consumer<List<UserPhoto>>() {
+                        @Override
+                        public void accept(List<UserPhoto> userPhotos) throws Exception {
+                            availablePhotos.put(accountType, userPhotos);
+                        }
+                    });
+        }
     }
 
     public static class PhotoEditingData {

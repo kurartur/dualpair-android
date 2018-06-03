@@ -4,8 +4,10 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
+
 @Entity(tableName = "sociotypes")
-public class Sociotype {
+public class Sociotype implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
