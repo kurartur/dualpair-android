@@ -1,7 +1,9 @@
 package lt.dualpair.android.ui.accounts;
 
 import android.app.Application;
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.core.util.Function;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
@@ -10,30 +12,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Completable;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 
 public class EditAccountsViewModel extends ViewModel {
 
     private UserPrincipalRepository userPrincipalRepository;
-    private final MutableLiveData<List<SocialAccountItem>> accountsLiveData = new MutableLiveData<>();
+    private final LiveData<List<SocialAccountItem>> accountsLive;
 
     public EditAccountsViewModel(UserPrincipalRepository userPrincipalRepository) {
         this.userPrincipalRepository = userPrincipalRepository;
-        load();
+        accountsLive = Transformations.map(userPrincipalRepository.getUserAccountsLive(), new Function<List<UserAccount>, List<SocialAccountItem>>() {
+            @Override
+            public List<SocialAccountItem> apply(List<UserAccount> input) {
+                return buildItems(input);
+            }
+        });
     }
 
-    private void load() {
-        userPrincipalRepository.getUserAccounts()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(accounts -> accountsLiveData.setValue(buildItems(accounts)));
-    }
-
-    public MutableLiveData<List<SocialAccountItem>> getAccounts() {
-        return accountsLiveData;
+    public LiveData<List<SocialAccountItem>> getAccounts() {
+        return accountsLive;
     }
 
     private List<SocialAccountItem> buildItems(List<UserAccount> userAccounts) {
@@ -49,8 +48,8 @@ public class EditAccountsViewModel extends ViewModel {
         return items;
     }
 
-    public void reloadAccounts() {
-        load();
+    public Completable reloadAccounts() {
+        return userPrincipalRepository.loadFromApi();
     }
 
     public static class Factory implements ViewModelProvider.Factory {

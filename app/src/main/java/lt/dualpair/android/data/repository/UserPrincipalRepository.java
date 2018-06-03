@@ -202,15 +202,10 @@ public class UserPrincipalRepository {
     }
 
     public Single<List<UserPhoto>> getPhotos() {
-        return new GetUserPrincipalClient().observable()
-                .subscribeOn(Schedulers.io())
-                .map(new Function<lt.dualpair.android.data.resource.User, List<UserPhoto>>() {
-                    @Override
-                    public List<UserPhoto> apply(lt.dualpair.android.data.resource.User userResource) {
-                        UserResourceMapper.Result mappingResult = saveUserResource(userResource);
-                        return mappingResult.getUserPhotos();
-                    }
-                }).singleOrError();
+        Maybe<List<UserPhoto>> local = userDao.getUserPhotosMaybe(userId);
+        Single<List<UserPhoto>> remote = userPrincipalFromApiObservable()
+                .map(user -> new UserResourceMapper(sociotypeDao).map(user).getUserPhotos()).singleOrError();
+        return Maybe.concat(local, remote.toMaybe()).firstElement().toSingle();
     }
 
     public Completable savePhotos(List<UserPhoto> photos) {
@@ -233,27 +228,17 @@ public class UserPrincipalRepository {
     }
 
     public Single<List<UserAccount>> getUserAccounts() {
-        return new GetUserPrincipalClient().observable()
-                .subscribeOn(Schedulers.io())
-                .map(new Function<lt.dualpair.android.data.resource.User, List<UserAccount>>() {
-                    @Override
-                    public List<UserAccount> apply(lt.dualpair.android.data.resource.User userResource) {
-                        UserResourceMapper.Result mappingResult = saveUserResource(userResource);
-                        return mappingResult.getUserAccounts();
-                    }
-                }).singleOrError();
+        Maybe<List<UserAccount>> local = userDao.getUserAccountsMaybe(userId);
+        Single<List<UserAccount>> remote = userPrincipalFromApiObservable()
+                .map(user -> new UserResourceMapper(sociotypeDao).map(user).getUserAccounts()).singleOrError();
+        return Maybe.concat(local, remote.toMaybe()).firstElement().toSingle();
     }
 
     public Single<List<UserPurposeOfBeing>> getUserPurposesOfBeing() {
-        return new GetUserPrincipalClient().observable()
-                .subscribeOn(Schedulers.io())
-                .map(new Function<lt.dualpair.android.data.resource.User, List<UserPurposeOfBeing>>() {
-                    @Override
-                    public List<UserPurposeOfBeing> apply(lt.dualpair.android.data.resource.User userResource) {
-                        UserResourceMapper.Result mappingResult = saveUserResource(userResource);
-                        return mappingResult.getUserPurposesOfBeing();
-                    }
-                }).singleOrError();
+        Maybe<List<UserPurposeOfBeing>> local = userDao.getUserPurposesOfBeingMaybe(userId);
+        Single<List<UserPurposeOfBeing>> remote = userPrincipalFromApiObservable()
+                .map(user -> new UserResourceMapper(sociotypeDao).map(user).getUserPurposesOfBeing()).singleOrError();
+        return Maybe.concat(local, remote.toMaybe()).firstElement().toSingle();
     }
 
     public LiveData<UserLocation> getLastStoredLocation() {

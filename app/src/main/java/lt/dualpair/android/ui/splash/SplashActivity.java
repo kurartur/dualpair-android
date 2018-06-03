@@ -17,6 +17,7 @@ import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.main.MainActivity;
 import lt.dualpair.android.ui.socionics.SetSociotypeActivity;
 import lt.dualpair.android.ui.user.SetDateOfBirthActivity;
+import lt.dualpair.android.utils.ToastUtils;
 
 public class SplashActivity extends BaseActivity {
 
@@ -54,7 +55,10 @@ public class SplashActivity extends BaseActivity {
                     } else {
                         checkDateOfBirth();
                     }
-                }, e -> Log.e(TAG, e.getMessage(), e)));
+                }, e -> {
+                    ToastUtils.show(this, e.getMessage());
+                    Log.e(TAG, e.getMessage(), e);
+                }));
     }
 
     private void checkDateOfBirth() {
@@ -67,7 +71,10 @@ public class SplashActivity extends BaseActivity {
                     } else {
                         startMain();
                     }
-                }, e -> Log.e(TAG, e.getMessage(), e)));
+                }, e -> {
+                    ToastUtils.show(this, e.getMessage());
+                    Log.e(TAG, e.getMessage(), e);
+                }));
     }
 
     @Override

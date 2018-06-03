@@ -57,8 +57,8 @@ public class ProfileViewModel extends ViewModel {
         return purposesOfBeingLive;
     }
 
-    public Completable refresh() {
-        return userPrincipalRepository.loadFromApiIfTime();
+    public Completable refresh(boolean force) {
+        return force ? userPrincipalRepository.loadFromApi() : userPrincipalRepository.loadFromApiIfTime();
     }
 
     public Completable logout() {

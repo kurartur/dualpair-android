@@ -53,10 +53,7 @@ public class ProfileFragment extends MainTabFragment {
 
     private static final String LOG_TAG = "ProfileFragment";
 
-    private static final int ADD_SOCIOTYPE_REQ_CODE = 1;
     private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
-    private static final int EDIT_PHOTOS_REQ_CODE = 3;
-    private static final int EDIT_USER_REQ_CODE = 4;
 
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
@@ -87,19 +84,19 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     @OnClick(R.id.user_layout) void onUserLayoutClick(View v) {
-        startActivityForResult(EditUserActivity.createIntent(getActivity()), EDIT_USER_REQ_CODE);
+        startActivity(EditUserActivity.createIntent(getActivity()));
     }
 
     @OnClick(R.id.photos_section) void onPhotosSectionClick(View v) {
-        startActivityForResult(EditPhotosActivity.createIntent(getActivity()), EDIT_PHOTOS_REQ_CODE);
+        startActivity(EditPhotosActivity.createIntent(getActivity()));
     }
 
     @OnClick(R.id.sociotypes_header) void onSociotypesHeaderClick(View v) {
-        startActivityForResult(SetSociotypeActivity.createIntent(getActivity(), false), ADD_SOCIOTYPE_REQ_CODE);
+        startActivity(SetSociotypeActivity.createIntent(getActivity(), false));
     }
 
     @OnClick(R.id.accounts_header) void onAccountsHeaderClick(View v) {
-        startActivityForResult(EditAccountsActivity.createIntent(getActivity()), EDIT_ACCOUNTS_REQ_CODE);
+        startActivity(EditAccountsActivity.createIntent(getActivity()));
     }
 
     @Nullable
@@ -115,12 +112,12 @@ public class ProfileFragment extends MainTabFragment {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(this, new ProfileViewModel.Factory(getActivity().getApplication())).get(ProfileViewModel.class);
         subscribeUi();
-        refresh();
+        refresh(false);
     }
 
-    private void refresh() {
+    private void refresh(boolean force) {
         disposable.add(
-                viewModel.refresh()
+                viewModel.refresh(force)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {}, throwable -> ToastUtils.show(getActivity(), throwable.getMessage())));
@@ -172,16 +169,10 @@ public class ProfileFragment extends MainTabFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case ADD_SOCIOTYPE_REQ_CODE:
             case EDIT_ACCOUNTS_REQ_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    refresh();
+                    refresh(true);
                 }
-                break;
-            case EDIT_PHOTOS_REQ_CODE:
-            case EDIT_USER_REQ_CODE:
-                refresh();
-                break;
         }
     }
 

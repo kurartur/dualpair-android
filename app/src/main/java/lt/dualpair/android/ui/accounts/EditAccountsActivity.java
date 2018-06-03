@@ -27,6 +27,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -46,6 +47,8 @@ public class EditAccountsActivity extends BaseActivity {
     private CallbackManager callbackManager = CallbackManager.Factory.create();
 
     private EditAccountsViewModel viewModel;
+
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +84,6 @@ public class EditAccountsActivity extends BaseActivity {
         }));
     }
 
-
     public void linkAccount(AccountType accountType) {
         switch (accountType) {
             case FB:
@@ -96,10 +98,13 @@ public class EditAccountsActivity extends BaseActivity {
 
     public void onAccountAdded() {
         if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {
-            setResult(Activity.RESULT_OK);
+            setResult(Activity.RESULT_OK, getIntent());
             finish();
         } else {
-            viewModel.reloadAccounts();
+            disposable.add(viewModel.reloadAccounts()
+                .subscribe(() -> {
+                }, throwable -> ToastUtils.show(EditAccountsActivity.this, throwable.getMessage()))
+            );
         }
     }
 
@@ -149,6 +154,7 @@ public class EditAccountsActivity extends BaseActivity {
                     .completable()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
+                    .compose(activity.bindToLifecycle())
                     .subscribe(new Action() {
                         @Override
                         public void run() {
@@ -190,10 +196,11 @@ public class EditAccountsActivity extends BaseActivity {
                     .completable()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
+                    .compose(activity.bindToLifecycle())
                     .subscribe(() -> {
                         Log.d(TAG, "onCompleted");
                         activity.onAccountAdded();
-                    });
+                    }, throwable -> activity.onError(throwable.getMessage()));
         }
 
         @Override
@@ -204,5 +211,9 @@ public class EditAccountsActivity extends BaseActivity {
                 activity.onError(error.errorMessage);
             }
         }
+    }
+
+    public interface OnCallbackSuccess {
+        void onSuccess(String providerId, String accessToken, Long expiresIn, String scope);
     }
 }

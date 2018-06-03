@@ -97,14 +97,23 @@ public abstract class UserDao {
     @Query("SELECT * FROM user_accounts WHERE user_id = :userId")
     public abstract LiveData<List<UserAccount>> getUserAccountsLive(Long userId);
 
+    @Query("SELECT * FROM user_accounts WHERE user_id = :userId")
+    public abstract Maybe<List<UserAccount>> getUserAccountsMaybe(Long userId);
+
     @Query("SELECT * FROM user_photos WHERE user_id = :userId")
     public abstract List<UserPhoto> getUserPhotos(Long userId);
+
+    @Query("SELECT * FROM user_photos WHERE user_id = :userId")
+    public abstract Maybe<List<UserPhoto>> getUserPhotosMaybe(Long userId);
 
     @Query("SELECT * FROM user_photos WHERE user_id = :userId")
     public abstract LiveData<List<UserPhoto>> getUserPhotosLive(Long userId);
 
     @Query("SELECT * FROM user_purposes_of_being WHERE user_id = :userId")
     public abstract LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive(Long userId);
+
+    @Query("SELECT * FROM user_purposes_of_being WHERE user_id = :userId")
+    public abstract Maybe<List<UserPurposeOfBeing>> getUserPurposesOfBeingMaybe(Long userId);
 
     @Insert
     public abstract void saveUserPurposesOfBeing(List<UserPurposeOfBeing> userPurposesOfBeing);
