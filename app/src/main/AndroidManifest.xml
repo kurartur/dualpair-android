@@ -46,8 +46,7 @@
         <activity android:name=".ui.user.SetDateOfBirthActivity"/>
         <activity android:name=".ui.search.SearchParametersActivity"/>
         <activity android:name=".ui.AboutActivity"/>
-        <activity android:name=".ui.match.UserActivity"/>
-        <activity android:name=".ui.match.NewMatchActivity" android:theme="@style/AppTheme.NewMatchWindow"/>
+        <activity android:name=".ui.user.UserActivity"/>
         <activity android:name=".ui.main.ReviewHistoryActivity"/>
         <activity android:name=".ui.user.EditUserActivity"
             android:windowSoftInputMode="stateHidden"/>
@@ -75,6 +74,7 @@
         </activity>
         <activity android:name=".ui.socionics.SetSociotypeActivity" />
         <activity android:name=".ui.socionics.ViewSociotypeActivity" />
+        <activity android:name=".ui.main.NewMatchActivity" />
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>

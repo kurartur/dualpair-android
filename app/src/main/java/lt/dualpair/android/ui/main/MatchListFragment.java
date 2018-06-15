@@ -11,7 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.local.entity.MatchForListView;
+import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class MatchListFragment extends UserListFragment {
@@ -23,20 +23,24 @@ public class MatchListFragment extends UserListFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(this, new MatchListViewModel.Factory(getActivity().getApplication())).get(MatchListViewModel.class);
+        viewModel = ViewModelProviders.of(getActivity(), new MatchListViewModel.Factory(getActivity().getApplication())).get(MatchListViewModel.class);
         subscribeUi();
-        refresh();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disposable.clear();
     }
 
     private void subscribeUi() {
-        viewModel.getMatchList().observe(this, new Observer<List<MatchForListView>>() {
+        viewModel.getMatchList().observe(this, new Observer<List<UserListItem>>() {
             @Override
-            public void onChanged(@Nullable List<MatchForListView> matches) {
-                if (matches.isEmpty()) {
-                    setAdapter(new MatchListRecyclerAdapter());
+            public void onChanged(@Nullable List<UserListItem> items) {
+                if (items.isEmpty()) {
                     showEmpty();
                 } else {
-                    setAdapter(new MatchListRecyclerAdapter(matches));
+                    matchesView.setAdapter(new UserListRecyclerAdapter<>(items, (UserListRecyclerAdapter.OnItemClickListener)getActivity()));
                     showList();
                 }
             }
@@ -62,13 +66,7 @@ public class MatchListFragment extends UserListFragment {
     }
 
     @Override
-    protected String getActionBarTitle() {
+    public String getActionBarTitle() {
         return getResources().getString(R.string.my_matches);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        disposable.clear();
     }
 }

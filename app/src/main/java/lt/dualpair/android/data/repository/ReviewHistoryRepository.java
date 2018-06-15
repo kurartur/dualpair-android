@@ -1,110 +1,98 @@
 package lt.dualpair.android.data.repository;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.functions.Function;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.local.DualPairRoomDatabase;
+import lt.dualpair.android.data.local.dao.MatchDao;
 import lt.dualpair.android.data.local.dao.SwipeDao;
 import lt.dualpair.android.data.local.dao.UserDao;
-import lt.dualpair.android.data.local.entity.History;
-import lt.dualpair.android.data.local.entity.RelationshipStatus;
 import lt.dualpair.android.data.local.entity.Swipe;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
+import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.mapper.MatchResourceMapper;
+import lt.dualpair.android.data.mapper.UserResourceMapper;
 import lt.dualpair.android.data.remote.client.match.GetUserMatchListClient;
-import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.ResourceCollection;
+import lt.dualpair.android.data.remote.resource.Match;
+import lt.dualpair.android.data.remote.resource.ResourceCollection;
 
 public class ReviewHistoryRepository {
 
-    private LiveData<List<History>> historyLiveData;
     private SwipeDao swipeDao;
     private UserDao userDao;
-    private Long userId;
-    DualPairRoomDatabase database;
+    private MatchDao matchDao;
+    private Long userPrincipalId;
+    private MatchResourceMapper matchResourceMapper;
+    private DualPairRoomDatabase database;
 
     public ReviewHistoryRepository(Application application) {
+        userPrincipalId = AccountUtils.getUserId(application);
         database = DualPairRoomDatabase.getDatabase(application);
         swipeDao = database.swipeDao();
         userDao = database.userDao();
-        historyLiveData = swipeDao.getHistory();
-        userId = AccountUtils.getUserId(application);
-        loadHistory();
+        matchDao = database.matchDao();
+        matchResourceMapper = new MatchResourceMapper(userPrincipalId, new UserResourceMapper(database.sociotypeDao()));
     }
 
-    private void loadHistory() {
-        new GetUserMatchListClient(userId, GetUserMatchListClient.REVIEWED).observable()
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<ResourceCollection<Match>>() {
+    public Flowable<List<UserListItem>> getReviewedUsers() {
+        return swipeDao.getSwipesFlowable()
+                .map(new Function<List<Swipe>, List<UserListItem>>() {
                     @Override
-                    public void accept(ResourceCollection<Match> matchResourceCollection) {
-                        for (Match match : matchResourceCollection.getContent()) {
-                            User user = mapUser(new User(), match.getOpponent().getUser());
-                            List<UserAccount> userAccounts = new ArrayList<>();
-                            if (match.getOpponent().getUser().getAccounts() != null) {
-                                for (lt.dualpair.android.data.resource.UserAccount account : match.getOpponent().getUser().getAccounts()) {
-                                    UserAccount userAccount = new UserAccount();
-                                    userAccount.setUserId(user.getId());
-                                    userAccount.setAccountId(account.getAccountId());
-                                    userAccount.setAccountType(account.getAccountType().name());
-                                    userAccounts.add(userAccount);
-                                }
-                            }
-                            List<UserPhoto> userPhotos = new ArrayList<>();
-                            for (Photo photo : match.getOpponent().getUser().getPhotos()) {
-                                UserPhoto userPhoto = new UserPhoto();
-                                userPhoto.setUserId(user.getId());
-                                userPhoto.setAccountType(photo.getAccountType().name());
-                                userPhoto.setIdOnAccount(photo.getIdOnAccount());
-                                userPhoto.setPosition(photo.getPosition());
-                                userPhoto.setSourceLink(photo.getSourceUrl());
-                                userPhotos.add(userPhoto);
-                            }
-                            Swipe swipe = new Swipe();
-                            swipe.setId(match.getId());
-                            swipe.setUserId(userId);
-                            swipe.setWho(user.getId());
-                            swipe.setType(match.getUser().getResponse().toString());
-                            database.runInTransaction(() -> {
-                                userDao.saveUser(user);
-                                userDao.replaceUserAccounts(user.getId(), userAccounts);
-                                userDao.replaceUserPhotos(user.getId(), userPhotos);
-                                swipeDao.save(swipe);
-                            });
+                    public List<UserListItem> apply(List<Swipe> swipes) throws Exception {
+                        List<UserListItem> items = new ArrayList<>();
+                        for (Swipe swipe : swipes) {
+                            Long userId = swipe.getWho();
+                            Long reference = swipe.getId();
+                            User user = userDao.getUser(userId);
+                            List<UserAccount> accounts = userDao.getUserAccounts(userId);
+                            UserPhoto photo = userDao.getUserPhotos(userId).get(0);
+                            items.add(new UserListItem(reference, user, accounts, photo));
                         }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) {
-                        Log.d(ReviewHistoryRepository.class.getName(), throwable.getMessage(), throwable);
+                        return items;
                     }
                 });
     }
 
-    private User mapUser(User to, lt.dualpair.android.data.resource.User from) {
-        to.setId(from.getId());
-        to.setName(from.getName());
-        to.setDateOfBirth(from.getDateOfBirth());
-        to.setAge(from.getAge());
-        to.setDescription(from.getDescription());
-        to.setRelationshipStatus(RelationshipStatus.fromCode(from.getRelationshipStatus()));
-        return to;
+    public Completable loadFromApi() {
+        return new GetUserMatchListClient(userPrincipalId, GetUserMatchListClient.REVIEWED).observable()
+                .doOnNext(new Consumer<ResourceCollection<Match>>() {
+                    @Override
+                    public void accept(ResourceCollection<Match> matchResourceCollection) throws Exception {
+                        for (Match matchResource : matchResourceCollection.getContent()) {
+                            saveResource(matchResource);
+                        }
+                    }
+                }).ignoreElements();
     }
 
-    public LiveData<List<History>> getHistory() {
-        return historyLiveData;
+    private void saveResource(lt.dualpair.android.data.remote.resource.Match matchResource) {
+        MatchResourceMapper.Result mappingResult = matchResourceMapper.map(matchResource);
+        UserResourceMapper.Result userMappingResult = mappingResult.getUserMappingResult();
+        Long opponentUserId = userMappingResult.getUser().getId();
+        database.runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                userDao.saveUser(userMappingResult.getUser());
+                userDao.replaceUserAccounts(opponentUserId, userMappingResult.getUserAccounts());
+                userDao.replaceUserPhotos(opponentUserId, userMappingResult.getUserPhotos());
+                userDao.replaceUserSociotypes(opponentUserId, userMappingResult.getUserSociotypes());
+                userDao.replaceUserLocations(opponentUserId, userMappingResult.getUserLocations());
+                userDao.replaceUserPurposesOfBeing(opponentUserId, userMappingResult.getUserPurposesOfBeing());
+                swipeDao.save(mappingResult.getSwipe());
+                if (mappingResult.getMatch() != null) {
+                    matchDao.saveMatch(mappingResult.getMatch());
+                }
+            }
+        });
     }
 
-    public void reload() {
-        loadHistory();
-    }
 }

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.resource.UserAccount;
+import lt.dualpair.android.data.remote.resource.UserAccount;
 
 public class AccountListAdapter extends BaseAdapter {
 

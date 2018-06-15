@@ -1,4 +1,4 @@
-package lt.dualpair.android.data.resource;
+package lt.dualpair.android.data.remote.resource;
 
 import android.text.TextUtils;
 

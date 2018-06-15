@@ -4,7 +4,7 @@ import java.util.Map;
 
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.ObservableClient;
-import lt.dualpair.android.data.resource.Sociotype;
+import lt.dualpair.android.data.remote.resource.Sociotype;
 import retrofit2.Retrofit;
 
 public class EvaluateTestClient extends ObservableClient<Sociotype> {

@@ -11,10 +11,10 @@ import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.local.entity.UserSociotype;
-import lt.dualpair.android.data.resource.Location;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.Sociotype;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.remote.resource.Location;
+import lt.dualpair.android.data.remote.resource.Photo;
+import lt.dualpair.android.data.remote.resource.Sociotype;
+import lt.dualpair.android.data.remote.resource.User;
 
 public class UserResourceMapper {
 
@@ -29,7 +29,7 @@ public class UserResourceMapper {
         List<UserAccount> userAccounts = new ArrayList<>();
         Long userId = user.getId();
         if (userResource.getAccounts() != null) {
-            for (lt.dualpair.android.data.resource.UserAccount account : userResource.getAccounts()) {
+            for (lt.dualpair.android.data.remote.resource.UserAccount account : userResource.getAccounts()) {
                 UserAccount userAccount = new UserAccount();
                 userAccount.setUserId(userId);
                 userAccount.setAccountId(account.getAccountId());
@@ -80,7 +80,7 @@ public class UserResourceMapper {
         return new Result(user, userAccounts, userPhotos, userSociotypes, userPurposesOfBeing, userLocations);
     }
 
-    private lt.dualpair.android.data.local.entity.User mapUser(lt.dualpair.android.data.local.entity.User to, lt.dualpair.android.data.resource.User from) {
+    private lt.dualpair.android.data.local.entity.User mapUser(lt.dualpair.android.data.local.entity.User to, lt.dualpair.android.data.remote.resource.User from) {
         to.setId(from.getId());
         to.setName(from.getName());
         to.setDateOfBirth(from.getDateOfBirth());

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import io.reactivex.Completable;
 import lt.dualpair.android.data.remote.client.CompletableClient;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.remote.resource.User;
 import retrofit2.Retrofit;
 
 public class UpdateUserClient extends CompletableClient {

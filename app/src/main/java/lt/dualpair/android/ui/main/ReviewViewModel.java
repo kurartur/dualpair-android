@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.google.android.gms.location.LocationSettingsResult;
 
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
@@ -53,7 +54,7 @@ public class ReviewViewModel extends ViewModel {
     }
 
     public void loadNext() {
-        userToReview.setValue(Resource.loading());
+        userToReview.postValue(Resource.loading());
         if (isLocationUpdateRequired()) {
             updateLocation();
         } else {
@@ -74,7 +75,7 @@ public class ReviewViewModel extends ViewModel {
             @Override
             public void onChanged(@Nullable Location loc) {
                 saveLocation(loc);
-                location.removeObserver(this);
+                location.removeObserver(this); // TODO cannot remove on background thread
             }
 
         });
@@ -132,23 +133,15 @@ public class ReviewViewModel extends ViewModel {
                 });
     }
 
-    public void respondWithYes() {
-        userRepository.respondWithYes(userToReview.getValue().getData().getReference())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(disposable -> userToReview.setValue(Resource.loading()))
-                .subscribe(onRespondCompleteAction);
+    public Completable respondWithYes() {
+        return userRepository.respondWithYes(userToReview.getValue().getData().getSwipe().getId())
+                .doOnComplete(this::loadNext);
     }
 
-    public void respondWithNo() {
-        userRepository.respondWithNo(userToReview.getValue().getData().getReference())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(disposable -> userToReview.setValue(Resource.loading()))
-                .subscribe(onRespondCompleteAction);
+    public Completable respondWithNo() {
+        return userRepository.respondWithNo(userToReview.getValue().getData().getSwipe().getId())
+                .doOnComplete(this::loadNext);
     }
-
-    private Action onRespondCompleteAction = () -> loadNext();
 
     public void retry() {
         loadNext();

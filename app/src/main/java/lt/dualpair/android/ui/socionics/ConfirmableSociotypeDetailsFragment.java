@@ -80,7 +80,4 @@ public class ConfirmableSociotypeDetailsFragment extends SociotypeDetailsFragmen
         return f;
     }
 
-    public interface OnSaveClickListener {
-        void onSave(Sociotype sociotype);
-    }
 }

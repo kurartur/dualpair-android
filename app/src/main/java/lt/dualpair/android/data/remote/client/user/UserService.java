@@ -6,10 +6,10 @@ import java.util.Set;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import lt.dualpair.android.data.resource.Location;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.SearchParameters;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.remote.resource.Location;
+import lt.dualpair.android.data.remote.resource.Photo;
+import lt.dualpair.android.data.remote.resource.SearchParameters;
+import lt.dualpair.android.data.remote.resource.User;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;

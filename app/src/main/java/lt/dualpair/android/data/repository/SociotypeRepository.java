@@ -38,9 +38,9 @@ public class SociotypeRepository {
 
     public Observable<Sociotype> evaluateTest(Map<String, ChoicePair> choicePairs) {
         return new EvaluateTestClient(convertChoicesToStrings(collectChoices(choicePairs))).observable()
-                .map(new Function<lt.dualpair.android.data.resource.Sociotype, Sociotype>() {
+                .map(new Function<lt.dualpair.android.data.remote.resource.Sociotype, Sociotype>() {
                     @Override
-                    public Sociotype apply(lt.dualpair.android.data.resource.Sociotype sociotypeResource) throws Exception {
+                    public Sociotype apply(lt.dualpair.android.data.remote.resource.Sociotype sociotypeResource) throws Exception {
                         return sociotypeDao.getSociotype(sociotypeResource.getCode1());
                     }
                 });

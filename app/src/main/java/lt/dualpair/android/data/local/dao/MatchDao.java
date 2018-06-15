@@ -25,4 +25,10 @@ public interface MatchDao {
     @Query("DELETE from matches WHERE id NOT IN (:ids)")
     void deleteNotIn(String ids);
 
+    @Query("SELECT * FROM matches WHERE id = :matchId")
+    Match getMatch(Long matchId);
+
+    @Query("SELECT * FROM matches WHERE opponent_id = :opponentId")
+    Match getMatchByOpponent(Long opponentId);
+
 }

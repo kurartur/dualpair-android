@@ -9,6 +9,7 @@ import android.arch.persistence.room.Transaction;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
 import lt.dualpair.android.data.local.entity.History;
 import lt.dualpair.android.data.local.entity.Swipe;
 
@@ -27,4 +28,12 @@ public abstract class SwipeDao {
     @Transaction
     public abstract LiveData<List<History>> getHistory();
 
+    @Query("SELECT * FROM swipes")
+    public abstract Flowable<List<Swipe>> getSwipesFlowable();
+
+    @Query("SELECT * FROM swipes WHERE id = :id")
+    public abstract Swipe getSwipe(Long id);
+
+    @Query("SELECT * FROM swipes WHERE who = :opponentId")
+    public abstract Swipe getSwipeByOpponent(Long opponentId);
 }

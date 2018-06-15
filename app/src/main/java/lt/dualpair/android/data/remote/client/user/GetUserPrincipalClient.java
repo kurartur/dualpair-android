@@ -2,7 +2,7 @@ package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.ObservableClient;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.remote.resource.User;
 import retrofit2.Retrofit;
 
 public class GetUserPrincipalClient extends ObservableClient<User> {

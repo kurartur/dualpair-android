@@ -52,6 +52,10 @@ public class EditAccountsViewModel extends ViewModel {
         return userPrincipalRepository.loadFromApi();
     }
 
+    public Completable connectAccount(String providerId, String accessToken, Long expiresIn, String scope) {
+        return userPrincipalRepository.connectAccount(providerId, accessToken, expiresIn, scope);
+    }
+
     public static class Factory implements ViewModelProvider.Factory {
         private Application application;
         public Factory(Application application) {

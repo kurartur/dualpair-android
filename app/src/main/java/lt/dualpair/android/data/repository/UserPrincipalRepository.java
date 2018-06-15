@@ -34,6 +34,7 @@ import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 import lt.dualpair.android.data.mapper.UserResourceMapper;
 import lt.dualpair.android.data.remote.client.authentication.LogoutClient;
+import lt.dualpair.android.data.remote.client.user.ConnectAccountClient;
 import lt.dualpair.android.data.remote.client.user.GetAvailablePhotosClient;
 import lt.dualpair.android.data.remote.client.user.GetSearchParametersClient;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
@@ -42,9 +43,9 @@ import lt.dualpair.android.data.remote.client.user.SetPhotosClient;
 import lt.dualpair.android.data.remote.client.user.SetSearchParametersClient;
 import lt.dualpair.android.data.remote.client.user.SetUserSociotypesClient;
 import lt.dualpair.android.data.remote.client.user.UpdateUserClient;
-import lt.dualpair.android.data.resource.Location;
-import lt.dualpair.android.data.resource.Photo;
-import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.remote.resource.Location;
+import lt.dualpair.android.data.remote.resource.Photo;
+import lt.dualpair.android.data.remote.resource.SearchParameters;
 import lt.dualpair.android.ui.accounts.AccountType;
 
 public class UserPrincipalRepository {
@@ -57,7 +58,7 @@ public class UserPrincipalRepository {
     private DualPairRoomDatabase database;
 
     private static long lastPrincipalApiRequest;
-    private static final long INTERVAL = 1000 * 60 * 1; // one request per minute
+    private static final long INTERVAL = 1000 * 60; // one request per minute
 
     public UserPrincipalRepository(Application application) {
         database = DualPairRoomDatabase.getDatabase(application);
@@ -82,7 +83,7 @@ public class UserPrincipalRepository {
         return Maybe.concat(local, remote.toMaybe()).firstElement().toSingle();
     }
 
-    private UserResourceMapper.Result saveUserResource(lt.dualpair.android.data.resource.User userResource) {
+    private UserResourceMapper.Result saveUserResource(lt.dualpair.android.data.remote.resource.User userResource) {
         UserResourceMapper.Result mappingResult = new UserResourceMapper(sociotypeDao).map(userResource);
         database.runInTransaction(() -> {
             userDao.saveUser(mappingResult.getUser());
@@ -161,7 +162,7 @@ public class UserPrincipalRepository {
     }
 
     public Completable updateUser(String name, Date dateOfBirth, String description, RelationshipStatus relationshipStatus, List<PurposeOfBeing> purposesOfBeing) {
-        lt.dualpair.android.data.resource.User userResource = new lt.dualpair.android.data.resource.User();
+        lt.dualpair.android.data.remote.resource.User userResource = new lt.dualpair.android.data.remote.resource.User();
         userResource.setId(userId);
         userResource.setName(name);
         userResource.setDateOfBirth(dateOfBirth);
@@ -242,10 +243,10 @@ public class UserPrincipalRepository {
     }
 
     public LiveData<UserLocation> getLastStoredLocation() {
-        return userDao.getLastLocation(userId);
+        return userDao.getLastLocationLiveData(userId);
     }
 
-    private Observable<lt.dualpair.android.data.resource.User> userPrincipalFromApiObservable() {
+    private Observable<lt.dualpair.android.data.remote.resource.User> userPrincipalFromApiObservable() {
         return new GetUserPrincipalClient().observable()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(userResource -> saveUserResource(userResource))
@@ -298,5 +299,10 @@ public class UserPrincipalRepository {
                     }
                     return userPhotos;
                 });
+    }
+
+    public Completable connectAccount(String providerId, String accessToken, Long expiresIn, String scope) {
+        return new ConnectAccountClient(providerId, accessToken, expiresIn, scope).completable()
+                .andThen(loadFromApi());
     }
 }

@@ -25,7 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,6 +39,9 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.LocationLiveData;
 import lt.dualpair.android.data.LocationSettingsLiveData;
@@ -47,7 +50,9 @@ import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
+import lt.dualpair.android.ui.ErrorConverter;
 import lt.dualpair.android.ui.Resource;
+import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
 import lt.dualpair.android.ui.user.OpponentUserView;
 import lt.dualpair.android.ui.user.UserViewActionBarViewHolder;
@@ -69,7 +74,7 @@ public class ReviewFragment extends MainTabFragment {
     @Bind(R.id.progress_layout) LinearLayout progressLayout;
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.progress_text) TextView progressText;
-    @Bind(R.id.retry_button) Button retryButton;
+    @Bind(R.id.retry_button) ImageView retryButton;
 
     @Bind(R.id.opponent_user_view) OpponentUserView opponentUserView;
 
@@ -79,6 +84,8 @@ public class ReviewFragment extends MainTabFragment {
 
     private UserLocation lastPrincipalLocation;
     private UserLocation lastReviewedUserLocation;
+
+    private CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,16 +103,27 @@ public class ReviewFragment extends MainTabFragment {
         showLoading();
 
         actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.review_action_bar_layout, null), getContext());
+        opponentUserView.setPhotoOverlay(R.layout.review_buttons);
+        ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(v -> {
+            disposable.add(
+                viewModel.respondWithYes()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> {
+                    }, new UserFriendlyErrorConsumer(this))
+            );
+        });
+        ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(v -> {
+            disposable.add(
+                viewModel.respondWithNo()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> {
+                    }, new UserFriendlyErrorConsumer(this))
+            );
+        });
 
         return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        opponentUserView.setPhotoOverlay(R.layout.review_buttons);
-        ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(v -> viewModel.respondWithYes());
-        ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(v -> viewModel.respondWithNo());
     }
 
     @Override
@@ -133,10 +151,10 @@ public class ReviewFragment extends MainTabFragment {
                 if (userForView.isLoading()) {
                     showLoading();
                 } else if (userForView.isError()) {
-                    showError(userForView.getError().getMessage());
+                    showError(new ErrorConverter(ReviewFragment.this).convert(userForView.getError()));
                 } else if (userForView.isSuccess()) {
                     UserForView data = userForView.getData();
-                    if (data.getReference() == null) {
+                    if (data.getUser() == null) {
                         showNoMatches();
                     } else {
                         renderReview(data);
@@ -167,7 +185,7 @@ public class ReviewFragment extends MainTabFragment {
     }
 
     @Override
-    protected View getActionBarView() {
+    public View getActionBarView() {
         return actionBarViewHolder.actionBarView;
     }
 

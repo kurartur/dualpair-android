@@ -2,7 +2,7 @@ package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Completable;
 import lt.dualpair.android.data.remote.client.CompletableClient;
-import lt.dualpair.android.data.resource.Location;
+import lt.dualpair.android.data.remote.resource.Location;
 import retrofit2.Retrofit;
 
 public class SetLocationClient extends CompletableClient {

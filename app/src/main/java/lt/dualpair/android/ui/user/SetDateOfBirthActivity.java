@@ -19,7 +19,7 @@ import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.remote.client.user.SetDateOfBirthClient;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.remote.resource.User;
 import lt.dualpair.android.ui.BaseActivity;
 
 public class SetDateOfBirthActivity extends BaseActivity {

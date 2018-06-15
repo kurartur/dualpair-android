@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.main;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,25 +16,22 @@ import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
 
 public abstract class UserListFragment extends MainTabFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String TAG = "MatchListFragment";
-
     private ScrollSwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.mutual_matches) protected RecyclerView matchesView;
     @Bind(android.R.id.empty) View emptyView;
     @Bind(R.id.no_matches_text) TextView emptyText;
 
-    protected final MatchListRecyclerAdapter adapter = new MatchListRecyclerAdapter();
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.match_list_layout, container, false);
+        View view = inflater.inflate(R.layout.user_list_layout, container, false);
         swipeRefreshLayout = (ScrollSwipeRefreshLayout)view;
         ButterKnife.bind(this, view);
         emptyText.setText(getEmptyViewText());
@@ -49,10 +45,6 @@ public abstract class UserListFragment extends MainTabFragment implements SwipeR
         super.onActivityCreated(savedInstanceState);
         emptyText.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(true);
-    }
-
-    public void setAdapter(MatchListRecyclerAdapter adapter) {
-        matchesView.setAdapter(adapter);
     }
 
     public void showEmpty() {

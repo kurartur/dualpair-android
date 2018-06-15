@@ -11,7 +11,7 @@ import android.text.TextUtils;
 
 import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.remote.client.authentication.RequestTokenClient;
-import lt.dualpair.android.data.resource.Token;
+import lt.dualpair.android.data.remote.resource.Token;
 import lt.dualpair.android.ui.accounts.LoginActivity;
 
 import static android.accounts.AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE;

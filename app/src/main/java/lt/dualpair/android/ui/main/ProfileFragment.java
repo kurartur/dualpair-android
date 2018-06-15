@@ -1,6 +1,5 @@
 package lt.dualpair.android.ui.main;
 
-import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,8 +51,6 @@ import lt.dualpair.android.utils.ToastUtils;
 public class ProfileFragment extends MainTabFragment {
 
     private static final String LOG_TAG = "ProfileFragment";
-
-    private static final int EDIT_ACCOUNTS_REQ_CODE = 2;
 
     @Bind(R.id.main_picture) ImageView mainPicture;
     @Bind(R.id.name) TextView name;
@@ -166,16 +163,6 @@ public class ProfileFragment extends MainTabFragment {
         return false;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case EDIT_ACCOUNTS_REQ_CODE:
-                if (resultCode == Activity.RESULT_OK) {
-                    refresh(true);
-                }
-        }
-    }
-
     private void renderUser(User user) {
         name.setText(user.getName());
         age.setText(user.getAge().toString());
@@ -239,7 +226,7 @@ public class ProfileFragment extends MainTabFragment {
         AccountGridAdapter accountGridAdapter = new AccountGridAdapter(getActivity(), userAccounts, new AccountTypeAdapter.OnAccountTypeClickListener() {
             @Override
             public void onClick(AccountType accountType) {
-                startActivityForResult(EditAccountsActivity.createIntent(getActivity(), accountType), EDIT_ACCOUNTS_REQ_CODE);
+                startActivity(EditAccountsActivity.createIntent(getActivity(), accountType));
             }
         });
         accountsGridView.setAdapter(accountGridAdapter);
@@ -275,7 +262,7 @@ public class ProfileFragment extends MainTabFragment {
     }
 
     @Override
-    protected String getActionBarTitle() {
+    public String getActionBarTitle() {
         return getResources().getString(R.string.profile);
     }
 }

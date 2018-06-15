@@ -1,11 +1,10 @@
-package lt.dualpair.android.ui.match;
+package lt.dualpair.android.ui.main;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +18,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
@@ -26,6 +27,7 @@ import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.accounts.AccountType;
+import lt.dualpair.android.ui.user.UserActivity;
 import lt.dualpair.android.utils.SocialUtils;
 
 public class NewMatchActivity extends BaseActivity {
@@ -38,8 +40,6 @@ public class NewMatchActivity extends BaseActivity {
     @Bind(R.id.forward) protected ImageView forward;
     @Bind(R.id.facebook_button) protected View facebookButton;
     @Bind(R.id.vkontakte_button) protected View vkontakteButton;
-
-    private Long matchId;
 
     private NewMatchViewModel viewModel;
 
@@ -54,27 +54,19 @@ public class NewMatchActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
-        matchId = getIntent().getLongExtra(MATCH_ID, -1);
-
-        forward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(UserActivity.createIntent(NewMatchActivity.this, matchId));
-                finish();
-            }
-        });
+        Long matchId = getIntent().getLongExtra(MATCH_ID, -1);
 
         viewModel = ViewModelProviders.of(this, new NewMatchViewModel.Factory(getApplication(), matchId)).get(NewMatchViewModel.class);
         subscribeUi();
     }
 
+    @SuppressLint("CheckResult")
     private void subscribeUi() {
-        viewModel.getUser().observe(this, new Observer<UserForView>() {
-            @Override
-            public void onChanged(@Nullable UserForView userForView) {
-                render(userForView);
-            }
-        });
+        viewModel.getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycle())
+                .subscribe(this::render);
     }
 
     @OnClick(R.id.close) void onCloseClick(View v) {
@@ -110,6 +102,14 @@ public class NewMatchActivity extends BaseActivity {
                 }
             });
         }
+
+        forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(UserActivity.createIntent(NewMatchActivity.this, user.getUser().getId()));
+                finish();
+            }
+        });
 
     }
 

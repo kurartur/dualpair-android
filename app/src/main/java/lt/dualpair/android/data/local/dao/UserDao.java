@@ -9,6 +9,7 @@ import android.arch.persistence.room.Transaction;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.User;
@@ -22,20 +23,26 @@ import lt.dualpair.android.data.local.entity.UserSociotype;
 @Dao
 public abstract class UserDao {
 
-    @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM users WHERE id = :id")
     public abstract LiveData<User> getUserLive(Long id);
 
-    @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM users WHERE id = :id")
     public abstract Maybe<User> getUserMaybe(Long id);
 
-    @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM users WHERE id = :id")
     public abstract User getUser(Long id);
+
+    @Query("SELECT * FROM users WHERE id = :userId")
+    public abstract Flowable<User> getUserFlowable(Long userId);
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract Maybe<List<UserSociotype>> getUserSociotypesMaybe(Long userId);
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract List<UserSociotype> getUserSociotypes(Long userId);
+
+    @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
+    public abstract List<FullUserSociotype> getFullUserSociotypes(Long userId);
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract LiveData<List<FullUserSociotype>> getFullUserSociotypesLive(Long userId);
@@ -89,7 +96,10 @@ public abstract class UserDao {
     public abstract Maybe<UserSearchParameters> getSearchParametersMaybe(Long userId);
 
     @Query("SELECT * FROM user_locations WHERE user_id = :userId ORDER BY id DESC LIMIT 1")
-    public abstract LiveData<UserLocation> getLastLocation(Long userId);
+    public abstract UserLocation getLastLocation(Long userId);
+
+    @Query("SELECT * FROM user_locations WHERE user_id = :userId ORDER BY id DESC LIMIT 1")
+    public abstract LiveData<UserLocation> getLastLocationLiveData(Long userId);
 
     @Query("SELECT * FROM user_accounts WHERE user_id = :userId")
     public abstract List<UserAccount> getUserAccounts(Long userId);
@@ -100,7 +110,7 @@ public abstract class UserDao {
     @Query("SELECT * FROM user_accounts WHERE user_id = :userId")
     public abstract Maybe<List<UserAccount>> getUserAccountsMaybe(Long userId);
 
-    @Query("SELECT * FROM user_photos WHERE user_id = :userId")
+    @Query("SELECT * FROM user_photos WHERE user_id = :userId ORDER BY position ASC")
     public abstract List<UserPhoto> getUserPhotos(Long userId);
 
     @Query("SELECT * FROM user_photos WHERE user_id = :userId")

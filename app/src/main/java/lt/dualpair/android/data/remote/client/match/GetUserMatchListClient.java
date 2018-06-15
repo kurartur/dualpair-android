@@ -4,8 +4,8 @@ import java.util.Date;
 
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.ObservableClient;
-import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.ResourceCollection;
+import lt.dualpair.android.data.remote.resource.Match;
+import lt.dualpair.android.data.remote.resource.ResourceCollection;
 import retrofit2.Retrofit;
 
 public class GetUserMatchListClient extends ObservableClient<ResourceCollection<Match>> {

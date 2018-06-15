@@ -2,7 +2,7 @@ package lt.dualpair.android.data.remote.client.authentication;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import lt.dualpair.android.data.resource.Token;
+import lt.dualpair.android.data.remote.resource.Token;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;

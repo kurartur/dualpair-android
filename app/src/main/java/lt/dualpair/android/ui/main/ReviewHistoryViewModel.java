@@ -1,32 +1,39 @@
 package lt.dualpair.android.ui.main;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
 import java.util.List;
 
-import lt.dualpair.android.data.local.entity.History;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
+import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.data.repository.ReviewHistoryRepository;
+import lt.dualpair.android.data.repository.UserPrincipalRepository;
 
 public class ReviewHistoryViewModel extends ViewModel {
 
-    private final LiveData<List<History>> reviewHistory;
+    private final Flowable<List<UserListItem>> reviewedUsers;
     private ReviewHistoryRepository reviewHistoryRepository;
 
-    public ReviewHistoryViewModel(ReviewHistoryRepository reviewHistoryRepository) {
+    public ReviewHistoryViewModel(ReviewHistoryRepository reviewHistoryRepository, UserPrincipalRepository userPrincipalRepository) {
         this.reviewHistoryRepository = reviewHistoryRepository;
-        reviewHistory = reviewHistoryRepository.getHistory();
+        reviewedUsers = reviewHistoryRepository.getReviewedUsers();
+
+        refresh()
+                .subscribeOn(Schedulers.io())
+                .subscribe(() -> {}, e -> {});
     }
 
-    public LiveData<List<History>> getReviewHistory() {
-        return reviewHistory;
+    public Flowable<List<UserListItem>> getReviewedUsers() {
+        return reviewedUsers;
     }
 
-    public void refresh() {
-        reviewHistoryRepository.reload();
+    public Completable refresh() {
+        return reviewHistoryRepository.loadFromApi();
     }
 
     public static class Factory extends ViewModelProvider.AndroidViewModelFactory {
@@ -41,7 +48,7 @@ public class ReviewHistoryViewModel extends ViewModel {
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(ReviewHistoryViewModel.class)) {
-                return (T) new ReviewHistoryViewModel(new ReviewHistoryRepository(application));
+                return (T) new ReviewHistoryViewModel(new ReviewHistoryRepository(application), new UserPrincipalRepository(application));
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

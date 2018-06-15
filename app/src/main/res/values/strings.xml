@@ -158,7 +158,7 @@
     <string name="move">Move</string>
     <string name="delete">Delete</string>
     <string name="photo_edit_help">Are you stupid?</string>
-    <string name="my_matches">My matches</string>
+    <string name="my_matches">Matches</string>
     <string name="logging_in">Logging in</string>
     <string name="waiting_for_location">Waiting for location</string>
     <string name="error">Error</string>
@@ -193,4 +193,5 @@
     <string name="some_out_of_some">%1$d / %2$d</string>
     <string name="sample">Sample</string>
     <string name="more">More</string>
+    <string name="check_internet_connection">No internet connection. Please check your internet connection and try again.</string>
 </resources>

@@ -2,7 +2,7 @@ package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.ObservableClient;
-import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.remote.resource.SearchParameters;
 import retrofit2.Retrofit;
 
 public class GetSearchParametersClient extends ObservableClient<SearchParameters> {

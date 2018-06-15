@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.ObservableClient;
-import lt.dualpair.android.data.resource.Token;
+import lt.dualpair.android.data.remote.resource.Token;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;

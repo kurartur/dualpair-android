@@ -1,8 +1,8 @@
 package lt.dualpair.android.data.remote.client.match;
 
 import io.reactivex.Observable;
-import lt.dualpair.android.data.resource.Match;
-import lt.dualpair.android.data.resource.ResourceCollection;
+import lt.dualpair.android.data.remote.resource.Match;
+import lt.dualpair.android.data.remote.resource.ResourceCollection;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;

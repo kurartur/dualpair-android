@@ -15,16 +15,6 @@ public class ActionBarUtils {
         }
     }
 
-    public static void enableHome(Activity activity) {
-        if (activity instanceof AppCompatActivity) {
-            ActionBar actionBar = ((AppCompatActivity)activity).getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setHomeButtonEnabled(true);
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
-        }
-    }
-
     public static void setHomeButtonEnabled(Activity activity, boolean value) {
         if (activity instanceof AppCompatActivity) {
             ActionBar actionBar = ((AppCompatActivity)activity).getSupportActionBar();

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -26,18 +25,14 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.SocialConstants;
-import lt.dualpair.android.data.remote.client.user.ConnectAccountClient;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.ToastUtils;
 
-public class EditAccountsActivity extends BaseActivity {
+public class EditAccountsActivity extends BaseActivity implements CommonOnLoginCallback {
 
     private static final String TAG = "EditAccountsActivity";
     private static final String ACCOUNT_TYPE_KEY = "ACCOUNT_TYPE";
@@ -62,6 +57,12 @@ public class EditAccountsActivity extends BaseActivity {
         }
         viewModel = ViewModelProviders.of(this, new EditAccountsViewModel.Factory(getApplication())).get(EditAccountsViewModel.class);
         subscribeUi();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        VKSdk.onActivityResult(requestCode, resultCode, data, new VKontakteLoginCallback(this));
     }
 
     private void subscribeUi() {
@@ -100,18 +101,6 @@ public class EditAccountsActivity extends BaseActivity {
         if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {
             setResult(Activity.RESULT_OK, getIntent());
             finish();
-        } else {
-            disposable.add(viewModel.reloadAccounts()
-                .subscribe(() -> {
-                }, throwable -> ToastUtils.show(EditAccountsActivity.this, throwable.getMessage()))
-            );
-        }
-    }
-
-    public void onError(String text) {
-        ToastUtils.show(this, text);
-        if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {
-            finish();
         }
     }
 
@@ -122,9 +111,70 @@ public class EditAccountsActivity extends BaseActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-        VKSdk.onActivityResult(requestCode, resultCode, data, new VKontakteLoginCallback(this));
+    public void onSuccess(String providerId, String accessToken, Long expiresIn, String scope) {
+        disposable.add(
+            viewModel.connectAccount(providerId, accessToken, expiresIn, scope)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(this::onAccountAdded, this::onError)
+        );
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        ToastUtils.show(this, throwable.getMessage());
+        if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {
+            finish();
+        }
+    }
+
+    public static class FacebookLoginCallback implements FacebookCallback<LoginResult> {
+
+        private CommonOnLoginCallback callback;
+
+        public FacebookLoginCallback(CommonOnLoginCallback callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onSuccess(LoginResult loginResult) {
+            AccessToken accessToken = loginResult.getAccessToken();
+            callback.onSuccess("facebook", accessToken.getToken(), accessToken.getExpires().getTime(), null);
+        }
+
+        @Override
+        public void onCancel() {
+            callback.onCanceled();
+        }
+
+        @Override
+        public void onError(FacebookException error) {
+            callback.onError(error);
+        }
+
+    }
+
+    public static class VKontakteLoginCallback implements VKCallback<VKAccessToken> {
+
+        private CommonOnLoginCallback callback;
+
+        public VKontakteLoginCallback(CommonOnLoginCallback callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void onResult(VKAccessToken res) {
+            callback.onSuccess("vkontakte", res.accessToken, null, null);
+        }
+
+        @Override
+        public void onError(VKError error) {
+            if (error.errorCode == VKError.VK_CANCELED) {
+                callback.onCanceled();
+            } else {
+                callback.onError(new Exception(error.errorMessage));
+            }
+        }
     }
 
     public static Intent createIntent(Activity activity) {
@@ -135,85 +185,5 @@ public class EditAccountsActivity extends BaseActivity {
         Intent intent = new Intent(activity, EditAccountsActivity.class);
         intent.putExtra(ACCOUNT_TYPE_KEY, accountType);
         return intent;
-    }
-
-    public static class FacebookLoginCallback implements FacebookCallback<LoginResult> {
-
-        private static final String TAG = "FacebookLoginCallback";
-
-        private EditAccountsActivity activity;
-
-        public FacebookLoginCallback(EditAccountsActivity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        public void onSuccess(LoginResult loginResult) {
-            AccessToken accessToken = loginResult.getAccessToken();
-            new ConnectAccountClient("facebook", accessToken.getToken(), accessToken.getExpires().getTime(), null)
-                    .completable()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .compose(activity.bindToLifecycle())
-                    .subscribe(new Action() {
-                        @Override
-                        public void run() {
-                            activity.onAccountAdded();
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) {
-                            activity.onError(throwable.getMessage());
-                        }
-                    });
-        }
-
-        @Override
-        public void onCancel() {
-            activity.onCanceled();
-        }
-
-        @Override
-        public void onError(FacebookException error) {
-            activity.onError(error.getMessage());
-        }
-
-    }
-
-    public static class VKontakteLoginCallback implements VKCallback<VKAccessToken> {
-
-        private static final String TAG = "VKontakteLoginCallback";
-
-        private EditAccountsActivity activity;
-
-        public VKontakteLoginCallback(EditAccountsActivity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        public void onResult(VKAccessToken res) {
-            new ConnectAccountClient("vkontakte", res.accessToken, null, null)
-                    .completable()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .compose(activity.bindToLifecycle())
-                    .subscribe(() -> {
-                        Log.d(TAG, "onCompleted");
-                        activity.onAccountAdded();
-                    }, throwable -> activity.onError(throwable.getMessage()));
-        }
-
-        @Override
-        public void onError(VKError error) {
-            if (error.errorCode == VKError.VK_CANCELED) {
-                activity.onCanceled();
-            } else {
-                activity.onError(error.errorMessage);
-            }
-        }
-    }
-
-    public interface OnCallbackSuccess {
-        void onSuccess(String providerId, String accessToken, Long expiresIn, String scope);
     }
 }

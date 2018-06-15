@@ -26,24 +26,20 @@ public class MainFragmentPageAdapter extends FragmentPagerAdapter {
         return Tab.fromPosition(position).getIcon();
     }
 
-    public Integer getTitleId(int position) {
-        return Tab.fromPosition(position).getTitle();
-    }
-
     private enum Tab {
-        REVIEW(0, R.drawable.ic_home_black_48dp, R.string.tab_review, new FragmentCreator() {
+        REVIEW(0, R.drawable.ic_home_black_48dp, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new ReviewFragment();
             }
         }),
-        MATCH_LIST(1, R.drawable.ic_star_black_48dp, R.string.tab_pairs, new FragmentCreator() {
+        MATCH_LIST(1, R.drawable.ic_star_black_48dp, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new MatchListFragment();
             }
         }),
-        PROFILE(2, R.drawable.ic_person_black_48dp, R.string.profile, new FragmentCreator() {
+        PROFILE(2, R.drawable.ic_person_black_48dp, new FragmentCreator() {
             @Override
             public Fragment create() {
                 return new ProfileFragment();
@@ -55,10 +51,9 @@ public class MainFragmentPageAdapter extends FragmentPagerAdapter {
         Integer title;
         FragmentCreator fragmentCreator;
 
-        Tab(int position, Integer icon, Integer title, FragmentCreator fragmentCreator) {
+        Tab(int position, Integer icon, FragmentCreator fragmentCreator) {
             this.position = position;
             this.icon = icon;
-            this.title = title;
             this.fragmentCreator = fragmentCreator;
         }
 

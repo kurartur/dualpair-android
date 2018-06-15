@@ -2,14 +2,15 @@ package lt.dualpair.android.ui.main;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import lt.dualpair.android.R;
 import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.CustomActionBarActivity;
+import lt.dualpair.android.ui.CustomActionBarFragment;
 
-public abstract class MainTabFragment extends BaseFragment {
+public abstract class MainTabFragment extends BaseFragment implements CustomActionBarFragment {
 
     private boolean isVisibleToUser;
 
@@ -30,28 +31,18 @@ public abstract class MainTabFragment extends BaseFragment {
         }
     }
 
-    protected void setupActionBar() {
-        if (getActivity() instanceof AppCompatActivity) {
-            ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-            if (actionBar != null) {
-                if (getActionBarView() != null) {
-                    actionBar.setDisplayShowCustomEnabled(true);
-                    actionBar.setDisplayShowTitleEnabled(false);
-                    actionBar.setCustomView(getActionBarView());
-                } else {
-                    actionBar.setDisplayShowCustomEnabled(false);
-                    actionBar.setDisplayShowTitleEnabled(true);
-                    actionBar.setTitle(getActionBarTitle());
-                }
-            }
+    private void setupActionBar() {
+        FragmentActivity activity = getActivity();
+        if (activity != null && activity instanceof CustomActionBarActivity) {
+            ((CustomActionBarActivity) activity).requestActionBar(this);
         }
     }
 
-    protected View getActionBarView() {
+    public View getActionBarView() {
         return null;
     }
 
-    protected String getActionBarTitle() {
+    public String getActionBarTitle() {
         return getResources().getString(R.string.app_name);
     }
 

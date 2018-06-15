@@ -2,7 +2,7 @@ package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Completable;
 import lt.dualpair.android.data.remote.client.CompletableClient;
-import lt.dualpair.android.data.resource.SearchParameters;
+import lt.dualpair.android.data.remote.resource.SearchParameters;
 import retrofit2.Retrofit;
 
 public class SetSearchParametersClient extends CompletableClient {

@@ -18,8 +18,8 @@ import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountConstants;
 import lt.dualpair.android.data.remote.client.TokenProvider;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
-import lt.dualpair.android.data.resource.Token;
-import lt.dualpair.android.data.resource.User;
+import lt.dualpair.android.data.remote.resource.Token;
+import lt.dualpair.android.data.remote.resource.User;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class TokenRequestObserver implements Observer<Token> {
