@@ -134,13 +134,11 @@ public class ReviewViewModel extends ViewModel {
     }
 
     public Completable respondWithYes() {
-        return userRepository.respondWithYes(userToReview.getValue().getData().getSwipe().getId())
-                .doOnComplete(this::loadNext);
+        return userRepository.respondWithYes(userToReview.getValue().getData().getSwipe().getId());
     }
 
     public Completable respondWithNo() {
-        return userRepository.respondWithNo(userToReview.getValue().getData().getSwipe().getId())
-                .doOnComplete(this::loadNext);
+        return userRepository.respondWithNo(userToReview.getValue().getData().getSwipe().getId());
     }
 
     public void retry() {

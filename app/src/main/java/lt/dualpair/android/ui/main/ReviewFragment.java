@@ -7,6 +7,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -50,6 +51,8 @@ import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
+import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.ErrorConverter;
 import lt.dualpair.android.ui.Resource;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
@@ -59,7 +62,7 @@ import lt.dualpair.android.ui.user.UserViewActionBarViewHolder;
 import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LocationUtil;
 
-public class ReviewFragment extends MainTabFragment {
+public class ReviewFragment extends BaseFragment implements CustomActionBarFragment {
 
     private static final String TAG = ReviewFragment.class.getName();
 
@@ -92,7 +95,7 @@ public class ReviewFragment extends MainTabFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
-    }
+        }
 
     @Nullable
     @Override
@@ -102,15 +105,13 @@ public class ReviewFragment extends MainTabFragment {
 
         showLoading();
 
-        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.review_action_bar_layout, null), getContext());
         opponentUserView.setPhotoOverlay(R.layout.review_buttons);
         ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(v -> {
             disposable.add(
                 viewModel.respondWithYes()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-                    }, new UserFriendlyErrorConsumer(this))
+                    .subscribe(viewModel::loadNext, new UserFriendlyErrorConsumer(this))
             );
         });
         ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(v -> {
@@ -118,8 +119,7 @@ public class ReviewFragment extends MainTabFragment {
                 viewModel.respondWithNo()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-                    }, new UserFriendlyErrorConsumer(this))
+                    .subscribe(viewModel::loadNext, new UserFriendlyErrorConsumer(this))
             );
         });
 
@@ -134,6 +134,12 @@ public class ReviewFragment extends MainTabFragment {
         subscribeUi();
 
         doLocationChecks();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.review_action_bar_layout, null), getContext());
     }
 
     private void doLocationChecks() {
@@ -376,8 +382,17 @@ public class ReviewFragment extends MainTabFragment {
         viewModel.loadNext();
     }
 
+    @Override
+    public String getActionBarTitle() {
+        return null;
+    }
+
     private static LocationRequest createLocationRequest() {
         return LocationUtil.createLocationRequest();
+    }
+
+    public static ReviewFragment newInstance() {
+        return new ReviewFragment();
     }
 
     private static class ReviewViewModelFactory extends ViewModelProvider.AndroidViewModelFactory {

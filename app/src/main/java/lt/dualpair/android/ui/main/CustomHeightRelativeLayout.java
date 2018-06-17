@@ -1,7 +1,11 @@
 package lt.dualpair.android.ui.main;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Point;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.widget.RelativeLayout;
 
 public class CustomHeightRelativeLayout extends RelativeLayout {
@@ -18,14 +22,17 @@ public class CustomHeightRelativeLayout extends RelativeLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public CustomHeightRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
-        this.setMinimumHeight(parentHeight * 2 / 3);
+        Display display = getDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        this.setMinimumHeight(size.y / 2);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 

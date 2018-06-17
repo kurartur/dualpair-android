@@ -10,7 +10,6 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.AccountUtils;
@@ -176,8 +175,6 @@ public class UserRepository {
 
     public Completable report(Long userId) {
         return getUser(userId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .flatMapCompletable(new Function<UserForView, Completable>() {
                     @Override
                     public Completable apply(UserForView userForView) {

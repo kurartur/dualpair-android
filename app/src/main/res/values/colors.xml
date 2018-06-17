@@ -21,4 +21,5 @@
     <color name="grey">#cccccc</color>
 
     <color name="new_match_background">#e5000000</color>
+    <color name="text_protection_background">#c7333333</color>
 </resources>

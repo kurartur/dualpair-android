@@ -1,7 +1,9 @@
 package lt.dualpair.android.ui.user;
 
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +46,7 @@ public class OpponentUserView extends LinearLayout {
         initView(context);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public OpponentUserView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initView(context);

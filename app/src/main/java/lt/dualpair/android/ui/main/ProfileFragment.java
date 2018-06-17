@@ -37,6 +37,8 @@ import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.ui.AboutActivity;
+import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.accounts.AccountTypeAdapter;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
@@ -48,7 +50,7 @@ import lt.dualpair.android.ui.user.EditUserActivity;
 import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
-public class ProfileFragment extends MainTabFragment {
+public class ProfileFragment extends BaseFragment implements CustomActionBarFragment {
 
     private static final String LOG_TAG = "ProfileFragment";
 
@@ -264,5 +266,14 @@ public class ProfileFragment extends MainTabFragment {
     @Override
     public String getActionBarTitle() {
         return getResources().getString(R.string.profile);
+    }
+
+    @Override
+    public View getActionBarView() {
+        return null;
+    }
+
+    public static ProfileFragment newInstance() {
+        return new ProfileFragment();
     }
 }

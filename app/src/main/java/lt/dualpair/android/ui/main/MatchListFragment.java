@@ -69,4 +69,8 @@ public class MatchListFragment extends UserListFragment {
     public String getActionBarTitle() {
         return getResources().getString(R.string.my_matches);
     }
+
+    public static MatchListFragment newInstance() {
+        return new MatchListFragment();
+    }
 }

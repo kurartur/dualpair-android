@@ -12,9 +12,11 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
+import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.ScrollSwipeRefreshLayout;
 
-public abstract class UserListFragment extends MainTabFragment implements SwipeRefreshLayout.OnRefreshListener {
+public abstract class UserListFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener, CustomActionBarFragment {
 
     private ScrollSwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.mutual_matches) protected RecyclerView matchesView;
@@ -61,6 +63,16 @@ public abstract class UserListFragment extends MainTabFragment implements SwipeR
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         refresh();
+    }
+
+    @Override
+    public String getActionBarTitle() {
+        return null;
+    }
+
+    @Override
+    public View getActionBarView() {
+        return null;
     }
 
     protected void onRefreshed() {

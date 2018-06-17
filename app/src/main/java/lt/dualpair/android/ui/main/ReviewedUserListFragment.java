@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.View;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -35,11 +34,6 @@ public class ReviewedUserListFragment extends UserListFragment {
     @Override
     public String getActionBarTitle() {
         return getString(R.string.history);
-    }
-
-    @Override
-    public View getActionBarView() {
-        return null;
     }
 
     @SuppressLint("CheckResult")

@@ -17,7 +17,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:spanCount="2"
-            app:layoutManager="android.support.v7.widget.GridLayoutManager"/>
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
+            android:padding="2dp"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbarSize="1dp"
+            android:clipToPadding="true"/>
 
         <LinearLayout
             android:id="@android:id/empty"

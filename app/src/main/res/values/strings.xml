@@ -194,4 +194,7 @@
     <string name="sample">Sample</string>
     <string name="more">More</string>
     <string name="check_internet_connection">No internet connection. Please check your internet connection and try again.</string>
+    <string name="unmatched">%1$s removed from matches</string>
+    <string name="user_reported_and_unmatched">%1$s reported and removed from matches</string>
+    <string name="search">Search</string>
 </resources>

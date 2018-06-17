@@ -3,14 +3,13 @@ package lt.dualpair.android.ui.main;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -25,24 +24,18 @@ import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.user.UserFragment;
-import lt.dualpair.android.utils.DrawableUtils;
 
 public class MainActivity extends BaseActivity implements CustomActionBarActivity,
-        UserListRecyclerAdapter.OnItemClickListener, FragmentManager.OnBackStackChangedListener {
+        UserListRecyclerAdapter.OnItemClickListener, FragmentManager.OnBackStackChangedListener,
+        UserFragment.OnUnmatchListener, UserFragment.OnReportListener {
 
     private static final String TAG = "MainActivity";
     private static final String USER_FRAGMENT = "UserFragment";
     private static volatile boolean isInForeground = false;
     private Disposable newMatchEventSubscription;
 
-    @Bind(R.id.tabs)
-    TabLayout tabLayout;
-
-    @Bind(R.id.viewpager)
-    ViewPager viewPager;
-
-    @Bind(R.id.layout_main)
-    LinearLayout mainLayout;
+    @Bind(R.id.navigation)
+    BottomNavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +77,14 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
     }
 
     @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if (fragment instanceof CustomActionBarFragment) {
+            setupActionBar((CustomActionBarFragment) fragment, false);
+        }
+    }
+
+    @Override
     public void requestActionBar(CustomActionBarFragment fragment) {
         setupActionBar(fragment, fragment instanceof UserFragment);
     }
@@ -106,31 +107,32 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
     }
 
     private void init() {
-        final MainFragmentPageAdapter adapter = new MainFragmentPageAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(adapter);
-        tabLayout.setupWithViewPager(viewPager);
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            TabLayout.Tab tab = tabLayout.getTabAt(i);
-            tab.setIcon(DrawableUtils.getActionBarIcon(this, adapter.getIconId(i)));
-            if (i == 0) {
-                DrawableUtils.setAccentColorFilter(this, tab.getIcon());
-            }
-        }
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        navigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                DrawableUtils.setAccentColorFilter(MainActivity.this, tab.getIcon());
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment selectedFragment = null;
+                switch (item.getItemId()) {
+                    case R.id.action_search:
+                        selectedFragment = ReviewFragment.newInstance();
+                        break;
+                    case R.id.action_matches:
+                        selectedFragment = MatchListFragment.newInstance();
+                        break;
+                    case R.id.action_profile:
+                        selectedFragment = ProfileFragment.newInstance();
+                        break;
+                }
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(R.anim.slide_in_up, android.R.anim.fade_out);
+                transaction.replace(R.id.frame_layout, selectedFragment);
+                transaction.commit();
+                return true;
             }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                DrawableUtils.setActionBarIconColorFilter(MainActivity.this, tab.getIcon());
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
         });
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, ReviewFragment.newInstance());
+        transaction.commit();
 
         startService(RegistrationService.createIntent(this));
     }
@@ -146,11 +148,21 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
     }
 
     @Override
+    public void onUnmatch() {
+        getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
+    public void onReport() {
+        getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
     public void onBackStackChanged() {
         FragmentManager fm = getSupportFragmentManager();
         int backStackEntryCount = fm.getBackStackEntryCount();
         if (backStackEntryCount == 0) {
-            Fragment f = fm.findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + viewPager.getCurrentItem());
+            Fragment f = fm.getFragments().get(0);
             setupActionBar((CustomActionBarFragment) f, false);
         }
     }

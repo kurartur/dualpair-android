@@ -2,6 +2,7 @@ package lt.dualpair.android.ui.user;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,7 +17,6 @@ import android.view.ViewGroup;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
@@ -29,6 +29,7 @@ import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
+import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.utils.SocialUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
@@ -68,7 +69,6 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         View view = inflater.inflate(R.layout.user_layout, container, false);
         ButterKnife.bind(this, view);
 
-        actionBarViewHolder = new UserViewActionBarViewHolder(inflater.inflate(R.layout.opponent_action_bar_data_layout, null), getContext());
         socialButtonsViewHolder = new SocialButtonsViewHolder(opponentUserView.setPhotoOverlay(R.layout.match_social_buttons));
 
         return view;
@@ -83,6 +83,12 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         }
         viewModel = ViewModelProviders.of(getActivity(), new UserViewModel.Factory(getActivity().getApplication())).get(UserViewModel.class);
         subscribeUi();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.opponent_action_bar_data_layout, null), getContext());
     }
 
     @SuppressLint("CheckResult")
@@ -112,13 +118,16 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
                 reportUser();
                 return true;
             case UNMATCH_MENU_ITEM:
-                unmatch()
+                viewModel.unmatch(userId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(new Action() {
                         @Override
                         public void run() {
-                            // TODO on unmatched
+                            ToastUtils.show(getActivity(), getString(R.string.unmatched, username));
+                            if (getActivity() instanceof OnUnmatchListener) {
+                                ((OnUnmatchListener)getActivity()).onUnmatch();
+                            }
                         }
                     });
                 return true;
@@ -187,28 +196,29 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
                     }
                 }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                report()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action() {
-                        @Override
-                        public void run() {
-                            // TODO on reported
-                            ToastUtils.show(getContext(), getString(R.string.user_reported, username));
-                        }
-                    });
-            }
+
+                    @SuppressLint("CheckResult")
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        viewModel.report(userId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .compose(bindToLifecycle())
+                            .subscribe(new Action() {
+                                @Override
+                                public void run() {
+                                    if (matchId != null) {
+                                        ToastUtils.show(getActivity(), getString(R.string.user_reported_and_unmatched, username));
+                                    } else {
+                                        ToastUtils.show(getActivity(), getString(R.string.user_reported, username));
+                                    }
+                                    if (getActivity() instanceof OnReportListener) {
+                                        ((OnReportListener)getActivity()).onReport();
+                                    }
+                                }
+                            }, new UserFriendlyErrorConsumer(UserFragment.this));
+                    }
         }).show();
-    }
-
-    protected Completable report() {
-        return viewModel.report(userId);
-    }
-
-    protected Completable unmatch() {
-        return viewModel.unmatch(userId);
     }
 
     public static UserFragment newInstance(Long userId) {
@@ -227,6 +237,14 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         public SocialButtonsViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
+    }
+
+    public interface OnUnmatchListener {
+        void onUnmatch();
+    }
+
+    public interface OnReportListener {
+        void onReport();
     }
 
 }
