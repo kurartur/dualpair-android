@@ -32,7 +32,7 @@ public class CustomHeightRelativeLayout extends RelativeLayout {
         Display display = getDisplay();
         Point size = new Point();
         display.getSize(size);
-        this.setMinimumHeight(size.y / 2);
+        this.setMinimumHeight(size.y / 3);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 

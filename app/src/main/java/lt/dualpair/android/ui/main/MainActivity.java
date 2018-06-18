@@ -79,7 +79,14 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-        if (fragment instanceof CustomActionBarFragment) {
+        if (fragment instanceof ReviewFragment) {
+            //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getSupportActionBar().setTitle(getString(R.string.app_name));
+            //getSupportActionBar().setShowHideAnimationEnabled(false);
+            //getSupportActionBar().hide();
+        } else if (fragment instanceof CustomActionBarFragment) {
+            //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
+            //getSupportActionBar().show();
             setupActionBar((CustomActionBarFragment) fragment, false);
         }
     }
