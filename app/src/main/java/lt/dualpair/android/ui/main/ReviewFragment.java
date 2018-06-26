@@ -7,7 +7,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -37,6 +36,8 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -46,23 +47,25 @@ import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.LocationLiveData;
 import lt.dualpair.android.data.LocationSettingsLiveData;
+import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
+import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
 import lt.dualpair.android.ui.BaseFragment;
-import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.ErrorConverter;
+import lt.dualpair.android.ui.ImageSwipe;
 import lt.dualpair.android.ui.Resource;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
-import lt.dualpair.android.ui.user.OpponentUserView;
-import lt.dualpair.android.ui.user.UserViewActionBarViewHolder;
 import lt.dualpair.android.utils.DrawableUtils;
+import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.LocationUtil;
 
-public class ReviewFragment extends BaseFragment implements CustomActionBarFragment {
+public class ReviewFragment extends BaseFragment {
 
     private static final String TAG = ReviewFragment.class.getName();
 
@@ -72,16 +75,21 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
     private static final int LOCATION_SETTINGS_REQ_CODE = 4;
     private static final int PERMISSION_SETTING_REQ_CODE = 5;
 
-    @Bind(R.id.review) LinearLayout reviewLayout;
+    @Bind(R.id.review) View reviewLayout;
+    @Bind(R.id.name) TextView name;
+    @Bind(R.id.age) TextView age;
+    @Bind(R.id.city) TextView city;
+    @Bind(R.id.distance) TextView distance;
+    @Bind(R.id.photos) ImageSwipe photosView;
+    @Bind(R.id.sociotypes)  TextView sociotypes;
+    @Bind(R.id.description) TextView description;
+    @Bind(R.id.purposes_of_being) TextView purposesOfBeing;
+    @Bind(R.id.relationship_status) TextView relationshipStatus;
 
     @Bind(R.id.progress_layout) LinearLayout progressLayout;
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.progress_text) TextView progressText;
     @Bind(R.id.retry_button) ImageView retryButton;
-
-    @Bind(R.id.opponent_user_view) OpponentUserView opponentUserView;
-
-    private UserViewActionBarViewHolder actionBarViewHolder;
 
     private ReviewViewModel viewModel;
 
@@ -95,7 +103,7 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
-        }
+    }
 
     @Nullable
     @Override
@@ -105,8 +113,7 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
 
         showLoading();
 
-        opponentUserView.setPhotoOverlay(R.layout.review_buttons);
-        ButterKnife.findById(opponentUserView, R.id.yes_button).setOnClickListener(v -> {
+        ButterKnife.findById(view, R.id.yes_button).setOnClickListener(v -> {
             disposable.add(
                 viewModel.respondWithYes()
                     .subscribeOn(Schedulers.io())
@@ -114,7 +121,7 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
                     .subscribe(viewModel::loadNext, new UserFriendlyErrorConsumer(this))
             );
         });
-        ButterKnife.findById(opponentUserView, R.id.no_button).setOnClickListener(v -> {
+        ButterKnife.findById(view, R.id.no_button).setOnClickListener(v -> {
             disposable.add(
                 viewModel.respondWithNo()
                     .subscribeOn(Schedulers.io())
@@ -134,12 +141,6 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         subscribeUi();
 
         doLocationChecks();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.review_action_bar_layout, null), getContext());
     }
 
     private void doLocationChecks() {
@@ -172,7 +173,7 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
             @Override
             public void onChanged(@Nullable UserLocation userLocation) {
                 lastPrincipalLocation = userLocation;
-                actionBarViewHolder.setLocation(userLocation, lastReviewedUserLocation);
+                setLocation(userLocation, lastReviewedUserLocation);
             }
         });
     }
@@ -190,26 +191,89 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         viewModel.retry();
     }
 
-    @Override
-    public View getActionBarView() {
-        return actionBarViewHolder.actionBarView;
-    }
-
     public void renderReview(UserForView userForView) {
         User opponentUser = userForView.getUser();
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
 
         lastReviewedUserLocation = userForView.getLastLocation();
-        actionBarViewHolder.setUserData(opponentUser);
-        actionBarViewHolder.setLocation(lastPrincipalLocation, lastReviewedUserLocation);
-        opponentUserView.setData(
+        setLocation(lastPrincipalLocation, lastReviewedUserLocation);
+
+        setData(
+                opponentUser,
                 userForView.getSociotypes(),
                 userForView.getUser().getDescription(),
                 userForView.getPhotos(),
                 userForView.getUser().getRelationshipStatus(),
                 userForView.getPurposesOfBeing()
         );
+    }
+
+    public void setData(User user,
+                        List<FullUserSociotype> userSociotypes,
+                        String description,
+                        List<UserPhoto> photos,
+                        lt.dualpair.android.data.local.entity.RelationshipStatus relationshipStatus,
+                        List<UserPurposeOfBeing> purposesOfBeing) {
+        name.setText(user.getName());
+        age.setText(getString(R.string.review_age, user.getAge()));
+        StringBuilder sb = new StringBuilder();
+        String prefix = "";
+        for (FullUserSociotype sociotype : userSociotypes) {
+            sb.append(prefix);
+            prefix = ", ";
+            String code = sociotype.getSociotype().getCode1();
+            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getContext().getPackageName());
+            sb.append(getContext().getString(titleId) + " (" + sociotype.getSociotype().getCode1() + ")");
+        }
+        sociotypes.setText(sb);
+        this.description.setText(description);
+        photosView.setPhotos(photos);
+        setRelationshipStatus(relationshipStatus);
+        setPurposesOfBeing(purposesOfBeing);
+    }
+
+    public void setLocation(UserLocation principalLocation, UserLocation opponentLocation) {
+        if (opponentLocation != null) {
+            city.setText(getString(R.string.review_city, opponentLocation.getCity()));
+        }
+        if (principalLocation != null && opponentLocation != null) {
+            Double distance = LocationUtil.calculateDistance(
+                    principalLocation.getLatitude(),
+                    principalLocation.getLongitude(),
+                    opponentLocation.getLatitude(),
+                    opponentLocation.getLongitude()
+            );
+            this.distance.setText(getString(R.string.review_distance, distance.intValue() / 1000));
+        } else {
+            this.distance.setText("");
+        }
+    }
+
+    private void setPurposesOfBeing(List<UserPurposeOfBeing> purposesOfBeing) {
+        this.purposesOfBeing.setVisibility(View.GONE);
+        if (!purposesOfBeing.isEmpty()) {
+            this.purposesOfBeing.setText(getResources().getString(R.string.i_am_here_to, getPurposesText(purposesOfBeing)));
+            this.purposesOfBeing.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setRelationshipStatus(lt.dualpair.android.data.local.entity.RelationshipStatus relationshipStatus) {
+        this.relationshipStatus.setVisibility(View.GONE);
+        if (relationshipStatus != lt.dualpair.android.data.local.entity.RelationshipStatus.NONE) {
+            this.relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(getContext(), relationshipStatus));
+            this.relationshipStatus.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private String getPurposesText(List<UserPurposeOfBeing> purposesOfBeing) {
+        String text = "";
+        String prefix = "";
+        for (UserPurposeOfBeing purposeOfBeing : purposesOfBeing) {
+            text += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing.getPurpose());
+            prefix = ", ";
+        }
+        return text.toLowerCase();
     }
 
     public void showLoading() {
@@ -380,11 +444,6 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
 
     private void onLocationSettingsOk() {
         viewModel.loadNext();
-    }
-
-    @Override
-    public String getActionBarTitle() {
-        return null;
     }
 
     private static LocationRequest createLocationRequest() {

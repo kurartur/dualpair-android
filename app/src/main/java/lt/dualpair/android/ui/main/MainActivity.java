@@ -81,6 +81,8 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
         super.onAttachFragment(fragment);
         if (fragment instanceof CustomActionBarFragment) {
             setupActionBar((CustomActionBarFragment) fragment, false);
+        } else {
+            getSupportActionBar().setTitle(getString(R.string.app_name));
         }
     }
 

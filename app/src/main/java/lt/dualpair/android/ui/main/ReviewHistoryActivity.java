@@ -14,11 +14,12 @@ import java.util.List;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.user.UserFragment;
 
 public class ReviewHistoryActivity extends BaseActivity implements UserListRecyclerAdapter.OnItemClickListener,
-        FragmentManager.OnBackStackChangedListener{
+        FragmentManager.OnBackStackChangedListener, CustomActionBarActivity {
 
     private final static String LIST_FRAGMENT = "ReviewedUserListFragment";
     private final static String USER_FRAGMENT = "UserFragment";
@@ -71,6 +72,11 @@ public class ReviewHistoryActivity extends BaseActivity implements UserListRecyc
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void requestActionBar(CustomActionBarFragment fragment) {
+        setupActionBar(fragment);
     }
 
     private void setupActionBar(CustomActionBarFragment fragment) {

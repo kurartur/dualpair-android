@@ -2,24 +2,89 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <lt.dualpair.android.ui.main.CustomHeightRelativeLayout
-        android:id="@+id/photos_wrapper"
+    <lt.dualpair.android.ui.ImageSwipe
+        android:id="@+id/photos"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="290dp"
+        app:dotsVerticalPosition="bottom"
+        app:dotsHorizontalPosition="center" />
 
-        <lt.dualpair.android.ui.ImageSwipe
-            android:id="@+id/photos"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </lt.dualpair.android.ui.main.CustomHeightRelativeLayout>
-
-    <View
+    <RelativeLayout
+        android:id="@+id/bar"
         android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/button_bg_color1"/>
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark">
+
+        <LinearLayout
+            android:id="@+id/place"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:id="@+id/city"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="City"
+                style="@style/ReviewActionBarText"/>
+
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="Distance"
+                android:layout_marginLeft="2sp"
+                style="@style/ReviewActionBarText"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_below="@id/place"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:text="Anastasija"
+                style="@style/ReviewActionBarText"/>
+
+            <TextView
+                android:id="@+id/age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="27"
+                style="@style/ReviewActionBarText" />
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/social_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"/>
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

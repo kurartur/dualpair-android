@@ -2,13 +2,11 @@ package lt.dualpair.android.ui.user;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,14 +21,12 @@ import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.User;
-import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
-import lt.dualpair.android.utils.SocialUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class UserFragment extends BaseFragment implements CustomActionBarFragment {
@@ -44,11 +40,9 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
     @Bind(R.id.opponent_user_view)
     OpponentUserView opponentUserView;
-    protected UserViewActionBarViewHolder actionBarViewHolder;
 
     private UserLocation lastOpponentLocation;
     private UserLocation lastPrincipalLocation;
-    private SocialButtonsViewHolder socialButtonsViewHolder;
 
     private String username;
     protected Long userId;
@@ -69,26 +63,14 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         View view = inflater.inflate(R.layout.user_layout, container, false);
         ButterKnife.bind(this, view);
 
-        socialButtonsViewHolder = new SocialButtonsViewHolder(opponentUserView.setPhotoOverlay(R.layout.match_social_buttons));
-
         return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        FragmentActivity activity = getActivity();
-        if (activity instanceof CustomActionBarActivity) {
-            ((CustomActionBarActivity) activity).requestActionBar(this);
-        }
         viewModel = ViewModelProviders.of(getActivity(), new UserViewModel.Factory(getActivity().getApplication())).get(UserViewModel.class);
         subscribeUi();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.opponent_action_bar_data_layout, null), getContext());
     }
 
     @SuppressLint("CheckResult")
@@ -144,12 +126,12 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
     @Override
     public String getActionBarTitle() {
-        return null;
+        return username;
     }
 
     @Override
     public View getActionBarView() {
-        return actionBarViewHolder.actionBarView;
+        return null;
     }
 
     protected Long getUserId() {
@@ -161,30 +143,31 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         username = user.getUser().getName();
         userId = opponentUser.getId();
         lastOpponentLocation = user.getLastLocation();
-        actionBarViewHolder.setUserData(opponentUser);
-        actionBarViewHolder.setLocation(lastPrincipalLocation, lastOpponentLocation);
         opponentUserView.setData(
+                opponentUser,
                 user.getSociotypes(),
                 opponentUser.getDescription(),
                 user.getPhotos(),
                 opponentUser.getRelationshipStatus(),
-                user.getPurposesOfBeing()
+                user.getPurposesOfBeing(),
+                user.getAccounts()
         );
+
+        opponentUserView.setLocation(lastPrincipalLocation, lastOpponentLocation);
 
         if (user.getMatch() != null) {
             matchId = user.getMatch().getId();
-            socialButtonsViewHolder.buttons.setAdapter(new SocialButtonsRecyclerAdapter(user.getAccounts(), new SocialButtonsRecyclerAdapter.OnButtonClick() {
-                @Override
-                public void onClick(UserAccount userAccount) {
-                    SocialUtils.openUserAccount(getActivity(), userAccount);
-                }
-            }));
         }
 
         viewModel.getLastStoredLocation().observe(this, userLocation -> {
             lastPrincipalLocation = userLocation;
-            actionBarViewHolder.setLocation(userLocation, lastOpponentLocation);
+            opponentUserView.setLocation(userLocation, lastOpponentLocation);
         });
+
+        FragmentActivity activity = getActivity();
+        if (activity instanceof CustomActionBarActivity) {
+            ((CustomActionBarActivity) activity).requestActionBar(this);
+        }
     }
 
     private void reportUser() {
@@ -231,8 +214,6 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
     protected static class SocialButtonsViewHolder {
 
-        @Bind(R.id.buttons)
-        RecyclerView buttons;
 
         public SocialButtonsViewHolder(View view) {
             ButterKnife.bind(this, view);

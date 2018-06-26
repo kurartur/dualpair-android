@@ -39,6 +39,7 @@ public abstract class UserListFragment extends BaseFragment implements SwipeRefr
         emptyText.setText(getEmptyViewText());
         swipeRefreshLayout.setView(matchesView);
         swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setProgressViewOffset(true, 150, 400);
         return view;
     }
 

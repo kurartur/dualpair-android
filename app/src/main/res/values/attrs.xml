@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ImageSwipe">
+        <attr name="dotsHorizontalPosition" format="enum">
+            <enum name="left" value="0"/>
+            <enum name="center" value="1"/>
+        </attr>
+        <attr name="dotsVerticalPosition" format="enum">
+            <enum name="top" value="1"/>
+            <enum name="bottom" value="0"/>
+        </attr>
+        <attr name="dotsLeftMargin" format="dimension"/>
+    </declare-styleable>
+</resources>
