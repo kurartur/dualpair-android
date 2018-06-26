@@ -1,15 +1,20 @@
 package lt.dualpair.android.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -26,31 +31,54 @@ public class ImageSwipe extends LinearLayout {
     private ViewPager photoPager;
     private LinearLayout photoDots;
 
-    public ImageSwipe(Context context) {
-        super(context);
-        initView();
-    }
+    private int dotsHorizontalPosition;
+    private int dotsVerticalPosition;
+    private int dotsLeftMargin;
 
     public ImageSwipe(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initView();
+        initView(context, attrs);
     }
 
     public ImageSwipe(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView();
+        initView(context, attrs);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ImageSwipe(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        initView();
+        initView(context, attrs);
     }
 
-    private void initView() {
+    private void initView(Context context, AttributeSet attrs) {
         View view = inflate(getContext(), R.layout.image_swipe_layout, null);
+
+        TypedArray a = getContext().getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.ImageSwipe,
+                0, 0);
+
+        try {
+            dotsHorizontalPosition = a.getInteger(R.styleable.ImageSwipe_dotsHorizontalPosition, 0);
+            dotsVerticalPosition = a.getInteger(R.styleable.ImageSwipe_dotsVerticalPosition, 0);
+            dotsLeftMargin = a.getDimensionPixelSize(R.styleable.ImageSwipe_dotsLeftMargin, 0);
+        } finally {
+            a.recycle();
+        }
 
         photoPager = view.findViewById(R.id.photo_pager);
         photoDots = view.findViewById(R.id.photo_dots);
+
+        photoDots.setGravity(dotsHorizontalPosition == 0 ? Gravity.LEFT : Gravity.CENTER);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)photoDots.getLayoutParams();
+        params.setMargins(dotsLeftMargin, 0, 0, 0);
+        if (dotsVerticalPosition == 0) {
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        } else {
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        }
+        photoDots.setLayoutParams(params);
 
         photoPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override

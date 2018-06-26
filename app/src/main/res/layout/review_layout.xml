@@ -1,179 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/windowBackground">
 
-    <RelativeLayout
+    <ScrollView
         android:id="@+id/review"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <lt.dualpair.android.ui.ImageSwipe
-            android:id="@+id/photos"
-            android:layout_width="match_parent"
-            android:layout_height="260dp"/>
+        android:layout_height="match_parent">
 
         <RelativeLayout
-            android:id="@+id/bottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@id/photos"
-            android:background="@color/white">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <lt.dualpair.android.ui.ImageSwipe
+                android:id="@+id/photos"
+                android:layout_width="match_parent"
+                android:layout_height="290dp"
+                custom:dotsHorizontalPosition="center"
+                custom:dotsVerticalPosition="top"
+                custom:dotsLeftMargin="20dp"/>
 
             <RelativeLayout
-                android:id="@+id/bar"
+                android:id="@+id/bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark">
+                android:orientation="vertical"
+                android:layout_below="@id/photos"
+                android:background="@color/white">
+
+                <RelativeLayout
+                    android:id="@+id/bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimaryDark">
+
+                    <LinearLayout
+                        android:id="@+id/place"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginTop="5dp">
+
+                        <TextView
+                            android:id="@+id/city"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:text="City"
+                            style="@style/ReviewActionBarText"/>
+
+                        <TextView
+                            android:id="@+id/distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:text="Distance"
+                            android:layout_marginLeft="2sp"
+                            style="@style/ReviewActionBarText"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_below="@id/place"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginBottom="5dp">
+
+                        <TextView
+                            android:id="@+id/name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:text="Anastasija"
+                            style="@style/ReviewActionBarText"/>
+
+                        <TextView
+                            android:id="@+id/age"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:text="27"
+                            style="@style/ReviewActionBarText" />
+
+                    </LinearLayout>
+
+
+
+                </RelativeLayout>
 
                 <LinearLayout
-                    android:id="@+id/place"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginBottom="3dp"
-                    android:layout_marginTop="5dp">
+                    android:orientation="vertical"
+                    android:paddingTop="10dp"
+                    android:paddingLeft="15dp"
+                    android:paddingBottom="10dp"
+                    android:paddingRight="15dp"
+                    android:layout_below="@id/bar">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/relationship_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/purposes_of_being"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/sociotypes"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="right"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"/>
 
                     <TextView
-                        android:id="@+id/city"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/description"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:text="City"
-                        style="@style/ReviewActionBarText"/>
-
-                    <TextView
-                        android:id="@+id/distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:text="Distance"
-                        android:layout_marginLeft="2sp"
-                        style="@style/ReviewActionBarText"/>
+                        android:textSize="15dp"/>
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_below="@id/place"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginBottom="5dp">
-
-                    <TextView
-                        android:id="@+id/name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:text="Anastasija"
-                        style="@style/ReviewActionBarText"/>
-
-                    <TextView
-                        android:id="@+id/age"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:text="27"
-                        style="@style/ReviewActionBarText" />
-
-                </LinearLayout>
-
-
 
             </RelativeLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="10dp"
-                android:paddingLeft="15dp"
-                android:paddingBottom="10dp"
-                android:paddingRight="15dp"
-                android:layout_below="@id/bar">
+                android:layout_alignTop="@id/bottom"
+                android:layout_alignRight="@id/bottom"
+                android:layout_marginTop="-35dp"
+                android:layout_marginRight="20dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+                <ImageView
+                    android:id="@+id/no_button"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/ic_close_black_48dp"
+                    android:tint="@color/white"
+                    android:background="@drawable/oval"
+                    android:padding="5dp"
+                    android:layout_marginRight="15dp"/>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_weight="1">
-
-                        <TextView
-                            android:id="@+id/relationship_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
-
-                        <TextView
-                            android:id="@+id/purposes_of_being"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/sociotypes"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="right"/>
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"/>
-
-                <TextView
-                    android:id="@+id/description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="15dp"/>
+                <ImageView
+                    android:id="@+id/yes_button"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:background="@drawable/oval_accent"
+                    android:src="@drawable/ic_done_black_48dp"
+                    android:tint="@color/white"
+                    android:padding="5dp"/>
 
             </LinearLayout>
 
         </RelativeLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/bottom"
-            android:layout_alignRight="@id/bottom"
-            android:layout_marginTop="-30dp"
-            android:layout_marginRight="20dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/no_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:text="N"
-                android:layout_marginRight="10dp" />
-
-            <Button
-                android:id="@+id/yes_button"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:text="Y"/>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/progress_layout"

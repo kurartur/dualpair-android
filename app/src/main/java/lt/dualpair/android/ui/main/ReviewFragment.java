@@ -7,7 +7,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -29,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.api.Status;
@@ -58,18 +56,16 @@ import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
 import lt.dualpair.android.ui.BaseFragment;
-import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.ErrorConverter;
 import lt.dualpair.android.ui.ImageSwipe;
 import lt.dualpair.android.ui.Resource;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.ui.search.SearchParametersActivity;
-import lt.dualpair.android.ui.user.UserViewActionBarViewHolder;
 import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.LocationUtil;
 
-public class ReviewFragment extends BaseFragment implements CustomActionBarFragment {
+public class ReviewFragment extends BaseFragment {
 
     private static final String TAG = ReviewFragment.class.getName();
 
@@ -79,7 +75,7 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
     private static final int LOCATION_SETTINGS_REQ_CODE = 4;
     private static final int PERMISSION_SETTING_REQ_CODE = 5;
 
-    @Bind(R.id.review) RelativeLayout reviewLayout;
+    @Bind(R.id.review) View reviewLayout;
     @Bind(R.id.name) TextView name;
     @Bind(R.id.age) TextView age;
     @Bind(R.id.city) TextView city;
@@ -94,8 +90,6 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
     @Bind(R.id.progress_bar) ProgressBar progressBar;
     @Bind(R.id.progress_text) TextView progressText;
     @Bind(R.id.retry_button) ImageView retryButton;
-
-    private UserViewActionBarViewHolder actionBarViewHolder;
 
     private ReviewViewModel viewModel;
 
@@ -149,12 +143,6 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         doLocationChecks();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        actionBarViewHolder = new UserViewActionBarViewHolder(getActivity().getLayoutInflater().inflate(R.layout.review_action_bar_layout, null), getContext());
-    }
-
     private void doLocationChecks() {
         if (!canAccessLocation()) {
             askForPermissionToAccessLocation();
@@ -185,7 +173,7 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
             @Override
             public void onChanged(@Nullable UserLocation userLocation) {
                 lastPrincipalLocation = userLocation;
-                actionBarViewHolder.setLocation(userLocation, lastReviewedUserLocation);
+                setLocation(userLocation, lastReviewedUserLocation);
             }
         });
     }
@@ -203,21 +191,16 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         viewModel.retry();
     }
 
-    @Override
-    public View getActionBarView() {
-        return actionBarViewHolder.actionBarView;
-    }
-
     public void renderReview(UserForView userForView) {
         User opponentUser = userForView.getUser();
         progressLayout.setVisibility(View.GONE);
         reviewLayout.setVisibility(View.VISIBLE);
 
         lastReviewedUserLocation = userForView.getLastLocation();
-        setUserData(opponentUser);
         setLocation(lastPrincipalLocation, lastReviewedUserLocation);
 
         setData(
+                opponentUser,
                 userForView.getSociotypes(),
                 userForView.getUser().getDescription(),
                 userForView.getPhotos(),
@@ -226,11 +209,14 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         );
     }
 
-    public void setData(List<FullUserSociotype> userSociotypes,
+    public void setData(User user,
+                        List<FullUserSociotype> userSociotypes,
                         String description,
                         List<UserPhoto> photos,
                         lt.dualpair.android.data.local.entity.RelationshipStatus relationshipStatus,
                         List<UserPurposeOfBeing> purposesOfBeing) {
+        name.setText(user.getName());
+        age.setText(getString(R.string.review_age, user.getAge()));
         StringBuilder sb = new StringBuilder();
         String prefix = "";
         for (FullUserSociotype sociotype : userSociotypes) {
@@ -245,11 +231,6 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
         photosView.setPhotos(photos);
         setRelationshipStatus(relationshipStatus);
         setPurposesOfBeing(purposesOfBeing);
-    }
-
-    public void setUserData(User user) {
-        name.setText(user.getName());
-        age.setText(getString(R.string.review_age, user.getAge()));
     }
 
     public void setLocation(UserLocation principalLocation, UserLocation opponentLocation) {
@@ -463,11 +444,6 @@ public class ReviewFragment extends BaseFragment implements CustomActionBarFragm
 
     private void onLocationSettingsOk() {
         viewModel.loadNext();
-    }
-
-    @Override
-    public String getActionBarTitle() {
-        return null;
     }
 
     private static LocationRequest createLocationRequest() {
