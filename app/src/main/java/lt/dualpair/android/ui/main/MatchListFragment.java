@@ -1,18 +1,15 @@
 package lt.dualpair.android.ui.main;
 
-import android.arch.lifecycle.Observer;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-
-import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.local.entity.UserListItem;
-import lt.dualpair.android.utils.ToastUtils;
+import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 
 public class MatchListFragment extends UserListFragment {
 
@@ -33,18 +30,20 @@ public class MatchListFragment extends UserListFragment {
         disposable.clear();
     }
 
+    @SuppressLint("CheckResult")
     private void subscribeUi() {
-        viewModel.getMatchList().observe(this, new Observer<List<UserListItem>>() {
-            @Override
-            public void onChanged(@Nullable List<UserListItem> items) {
+        viewModel.getMatchList()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .compose(bindToLifecycle())
+            .subscribe(items -> {
                 if (items.isEmpty()) {
                     showEmpty();
                 } else {
                     matchesView.setAdapter(new UserListRecyclerAdapter<>(items, (UserListRecyclerAdapter.OnItemClickListener)getActivity()));
                     showList();
                 }
-            }
-        });
+            });
     }
 
     @Override
@@ -58,10 +57,7 @@ public class MatchListFragment extends UserListFragment {
                 viewModel.refresh()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::onRefreshed, throwable -> {
-                        onRefreshed();
-                        ToastUtils.show(getActivity(), throwable.getMessage());
-                    })
+                    .subscribe(this::onRefreshed, new UserFriendlyErrorConsumer(this, throwable -> onRefreshed()))
         );
     }
 

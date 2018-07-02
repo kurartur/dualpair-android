@@ -1,5 +1,7 @@
 package lt.dualpair.android.data.mapper;
 
+import java.util.Date;
+
 import lt.dualpair.android.data.local.entity.Match;
 import lt.dualpair.android.data.local.entity.Swipe;
 
@@ -25,6 +27,7 @@ public class MatchResourceMapper {
             match = new lt.dualpair.android.data.local.entity.Match();
             match.setId(matchResource.getId());
             match.setOpponentId(opponentUserId);
+            match.setDate(new Date());
         }
         UserResourceMapper.Result userMappingResult = userResourceMapper.map(matchResource.getOpponent().getUser());
         return new Result(swipe, match, userMappingResult);

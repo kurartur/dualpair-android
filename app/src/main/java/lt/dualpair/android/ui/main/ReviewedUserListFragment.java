@@ -10,7 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
-import lt.dualpair.android.utils.ToastUtils;
+import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 
 public class ReviewedUserListFragment extends UserListFragment {
 
@@ -65,10 +65,7 @@ public class ReviewedUserListFragment extends UserListFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
-                .subscribe(this::onRefreshed, throwable -> {
-                    onRefreshed();
-                    ToastUtils.show(getContext(), throwable.getMessage());
-                })
+                .subscribe(this::onRefreshed, new UserFriendlyErrorConsumer(this, t -> onRefreshed()))
         );
     }
 }

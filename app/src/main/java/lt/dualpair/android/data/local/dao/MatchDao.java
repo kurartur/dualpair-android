@@ -13,7 +13,7 @@ import lt.dualpair.android.data.local.entity.Match;
 @Dao
 public interface MatchDao {
 
-    @Query("SELECT * FROM matches ORDER BY date DESC")
+    @Query("SELECT * FROM matches ORDER BY id DESC")
     Flowable<List<Match>> getMatchesFlowable();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
