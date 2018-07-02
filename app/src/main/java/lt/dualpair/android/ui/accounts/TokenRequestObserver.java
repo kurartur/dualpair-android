@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.net.SocketTimeoutException;
-
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -16,6 +14,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountConstants;
+import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.data.remote.client.TokenProvider;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
 import lt.dualpair.android.data.remote.resource.Token;
@@ -50,11 +49,17 @@ public class TokenRequestObserver implements Observer<Token> {
     @Override
     public void onError(Throwable e) {
         Log.e(TAG, "Token request error", e);
-        if (e instanceof SocketTimeoutException) {
-            ToastUtils.show(loginActivity, loginActivity.getString(R.string.no_server_connection));
-            loginActivity.finish();
-        }
         disposable.dispose();
+        if (e instanceof ServiceException) {
+            ServiceException se = (ServiceException)e;
+            if (se.getKind() == ServiceException.Kind.NETWORK) {
+                ToastUtils.show(loginActivity, loginActivity.getString(R.string.no_server_connection));
+                loginActivity.finish();
+                return;
+            }
+        }
+        ToastUtils.show(loginActivity, loginActivity.getString(R.string.unexpected_error));
+        loginActivity.finish();
     }
 
     @Override

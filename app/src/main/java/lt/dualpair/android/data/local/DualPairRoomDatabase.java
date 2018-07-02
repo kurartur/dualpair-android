@@ -72,5 +72,6 @@ public abstract class DualPairRoomDatabase extends RoomDatabase {
 
     public static void reset() {
         INSTANCE.clearAllTables();
+        INSTANCE.sociotypeDao().saveSociotypes(Sociotype.populate());
     }
 }

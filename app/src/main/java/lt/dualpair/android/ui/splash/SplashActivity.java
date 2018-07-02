@@ -2,19 +2,20 @@ package lt.dualpair.android.ui.splash;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.ui.BaseActivity;
@@ -31,11 +32,10 @@ public class SplashActivity extends BaseActivity {
     private static final int SET_BIRTHDAY_REQUEST_CODE = 3;
     private static final int GOOGLE_API_REQUEST_CODE = 4;
 
-    private AddAccountTask addAccountTask = null;
-
     private SplashViewModel viewModel;
 
     private CompositeDisposable disposable = new CompositeDisposable();
+    private Disposable addAccountDisposable;
 
     @Override
     protected void onStart() {
@@ -120,11 +120,23 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void addAccount(final AccountManager am) {
-        if (addAccountTask != null) {
-            addAccountTask.cancel(true);
+        if (addAccountDisposable != null && !addAccountDisposable.isDisposed()) {
+            addAccountDisposable.dispose();
         }
-        addAccountTask = new AddAccountTask(am, this);
-        addAccountTask.execute((Void)null);
+
+        addAccountDisposable = Completable.fromRunnable(() -> {
+            try {
+                AccountUtils.addAccount(am, SplashActivity.this);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }})
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {}, throwable -> {
+                    if (throwable.getCause() instanceof OperationCanceledException) {
+                        finish();
+                    }
+                });
     }
 
     private void startMain() {
@@ -136,23 +148,4 @@ public class SplashActivity extends BaseActivity {
         return new Intent(activity, SplashActivity.class);
     }
 
-    private static class AddAccountTask extends AsyncTask<Void, Void, Bundle> {
-
-        private AccountManager am;
-        private Activity activity;
-
-        public AddAccountTask(AccountManager am, Activity activity) {
-            this.am = am;
-            this.activity = activity;
-        }
-
-        @Override
-        protected Bundle doInBackground(Void... params) {
-            return AccountUtils.addAccount(am, activity);
-        }
-
-        @Override
-        protected void onPostExecute(Bundle bundle) {}
-
-    }
 }

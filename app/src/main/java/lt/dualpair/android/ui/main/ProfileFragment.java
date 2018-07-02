@@ -154,12 +154,19 @@ public class ProfileFragment extends BaseFragment implements CustomActionBarFrag
                 viewModel.logout()
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe(disposable -> {
+                            viewModel.getUserLive().removeObservers(ProfileFragment.this);
+                            viewModel.getUserSociotypesLive().removeObservers(ProfileFragment.this);
+                            viewModel.getUserAccountsLive().removeObservers(ProfileFragment.this);
+                            viewModel.getUserPhotosLive().removeObservers(ProfileFragment.this);
+                            viewModel.getPurposesOfBeingLive().removeObservers(ProfileFragment.this);
+                        })
                         .subscribe(() -> {
                             Intent newIntent = SplashActivity.createIntent(getActivity());
                             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(newIntent);
-                        });;
+                        });
                 break;
         }
         return false;

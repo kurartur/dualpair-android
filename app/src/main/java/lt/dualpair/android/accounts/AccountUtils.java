@@ -9,7 +9,6 @@ import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -45,65 +44,13 @@ public class AccountUtils {
         return Long.valueOf(accountManager.getUserData(account, AccountConstants.ARG_USER_ID));
     }
 
-    public static Bundle addAccount(final AccountManager am, final Activity activity) {
-        try {
-            return am.addAccount(AccountConstants.ACCOUNT_TYPE, null, null, null, activity, null, null).getResult();
-        } catch (AuthenticatorException ae) {
-            throw new RuntimeException(ae);
-        } catch (OperationCanceledException oce) {
-            activity.finish();
-            throw new RuntimeException(oce); // TODO should rethrow
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
-
-    public static String blockingGetAuthToken(final AccountManager am, final Account account) {
-        try {
-            return am.blockingGetAuthToken(account, AccountConstants.ACCOUNT_TYPE, false);
-        }  catch (OperationCanceledException | IOException | AuthenticatorException e) {
-            Log.e(TAG, "Unable to blocking get auth token", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Get authentication token.
-     * To be called from service.
-     * @param am - Account manager
-     * @param account - Account
-     * @return Authentication token
-     */
-    public static String getAuthToken(final AccountManager am, final Account account) {
-        try {
-            Bundle result = am.getAuthToken(account, AccountConstants.ACCOUNT_TYPE, null, false, null, null).getResult();
-            return (String)result.get(AccountManager.KEY_AUTHTOKEN);
-        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
-            Log.e(TAG, "Unable to get token in service", e);
-            throw new RuntimeException(e);
-        }
+    public static Bundle addAccount(final AccountManager am, final Activity activity) throws OperationCanceledException,
+            AuthenticatorException, IOException {
+        return am.addAccount(AccountConstants.ACCOUNT_TYPE, null, null, null, activity, null, null).getResult();
     }
 
     public static AccountManagerFuture<Bundle> getAuthToken(final AccountManager am, final Account account, AccountManagerCallback<Bundle> callback) {
         return am.getAuthToken(account, AccountConstants.ACCOUNT_TYPE, null, false, callback, null);
-    }
-
-    /**
-     * Get authentication token.
-     * To be called from foreground.
-     * @param am- Account manager
-     * @param account - Account
-     * @param activity - Activity from which login activity should be called
-     * @return
-     */
-    public static String getAuthToken(final AccountManager am, final Account account, final Activity activity) {
-        try {
-            Bundle result = am.getAuthToken(account, AccountConstants.ACCOUNT_TYPE, null, activity, null, null).getResult();
-            return (String)result.get(AccountManager.KEY_AUTHTOKEN);
-        } catch (OperationCanceledException | IOException | AuthenticatorException e) {
-            Log.e(TAG, "Unable to get token", e);
-            throw new RuntimeException(e);
-        }
     }
 
     public static void removeAccount(AccountManager am) {
