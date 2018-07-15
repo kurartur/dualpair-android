@@ -197,5 +197,5 @@
     <string name="unmatched">%1$s removed from matches</string>
     <string name="user_reported_and_unmatched">%1$s reported and removed from matches</string>
     <string name="search">Search</string>
-    <string name="unexpected_error">Unexpected error occured</string>
+    <string name="unexpected_error">Unexpected error occurred</string>
 </resources>

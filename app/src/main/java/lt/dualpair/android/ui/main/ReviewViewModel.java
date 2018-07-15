@@ -113,7 +113,7 @@ public class ReviewViewModel extends ViewModel {
                 .flatMapMaybe(new Function<UserSearchParameters, Maybe<UserForView>>() {
                     @Override
                     public Maybe<UserForView> apply(UserSearchParameters userSearchParameters) {
-                        return userRepository.next(userSearchParameters);
+                        return userRepository.find(userSearchParameters);
                     }
                 })
                 .defaultIfEmpty(new UserForView())
@@ -134,11 +134,11 @@ public class ReviewViewModel extends ViewModel {
     }
 
     public Completable respondWithYes() {
-        return userRepository.respondWithYes(userToReview.getValue().getData().getSwipe().getId());
+        return userRepository.respondWithYes(userToReview.getValue().getData().getUser().getId());
     }
 
     public Completable respondWithNo() {
-        return userRepository.respondWithNo(userToReview.getValue().getData().getSwipe().getId());
+        return userRepository.respondWithNo(userToReview.getValue().getData().getUser().getId());
     }
 
     public void retry() {

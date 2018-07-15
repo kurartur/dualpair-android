@@ -52,7 +52,7 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
         newMatchEventSubscription = RxBus.getInstance().register(NewMatchEvent.class, new Consumer<NewMatchEvent>() {
             @Override
             public void accept(NewMatchEvent newMatchEvent) {
-                showNewMatch(newMatchEvent.getMatchId());
+                showNewMatch(newMatchEvent.getUserId());
             }
         });
         isInForeground = true;
@@ -169,8 +169,8 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
         }
     }
 
-    private void showNewMatch(Long matchId) {
-        startActivity(NewMatchActivity.createIntent(this, matchId));
+    private void showNewMatch(Long userId) {
+        startActivity(NewMatchActivity.createIntent(this, userId));
     }
 
     public static boolean isInForeground() {

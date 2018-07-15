@@ -26,6 +26,7 @@ import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.ui.accounts.AccountType;
 import lt.dualpair.android.ui.user.UserActivity;
 import lt.dualpair.android.utils.SocialUtils;
@@ -33,7 +34,7 @@ import lt.dualpair.android.utils.SocialUtils;
 public class NewMatchActivity extends BaseActivity {
 
     public static final String TAG = "NewMatchActivity";
-    public static final String MATCH_ID = "matchId";
+    public static final String USER_ID = "userId";
 
     @Bind(R.id.main_picture) protected ImageView mainPicture;
     @Bind(R.id.name) protected TextView name;
@@ -54,9 +55,9 @@ public class NewMatchActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
-        Long matchId = getIntent().getLongExtra(MATCH_ID, -1);
+        Long userId = getIntent().getLongExtra(USER_ID, -1);
 
-        viewModel = ViewModelProviders.of(this, new NewMatchViewModel.Factory(getApplication(), matchId)).get(NewMatchViewModel.class);
+        viewModel = ViewModelProviders.of(this, new NewMatchViewModel.Factory(getApplication(), userId)).get(NewMatchViewModel.class);
         subscribeUi();
     }
 
@@ -66,7 +67,7 @@ public class NewMatchActivity extends BaseActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
-                .subscribe(this::render);
+                .subscribe(this::render, new UserFriendlyErrorConsumer(this));
     }
 
     @OnClick(R.id.close) void onCloseClick(View v) {
@@ -141,9 +142,9 @@ public class NewMatchActivity extends BaseActivity {
                 });
     }
 
-    public static Intent createIntent(Activity activity, Long matchId) {
+    public static Intent createIntent(Activity activity, Long userId) {
         Intent intent = new Intent(activity, NewMatchActivity.class);
-        intent.putExtra(MATCH_ID, matchId);
+        intent.putExtra(USER_ID, userId);
         return intent;
     }
 

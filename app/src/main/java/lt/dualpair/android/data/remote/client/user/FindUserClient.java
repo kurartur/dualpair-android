@@ -1,18 +1,18 @@
-package lt.dualpair.android.data.remote.client.match;
+package lt.dualpair.android.data.remote.client.user;
 
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.client.ObservableClient;
-import lt.dualpair.android.data.remote.resource.Match;
+import lt.dualpair.android.data.remote.resource.User;
 import retrofit2.Retrofit;
 
-public class GetNextMatchClient extends ObservableClient<Match> {
+public class FindUserClient extends ObservableClient<User> {
 
     private Integer minAge;
     private Integer maxAge;
     private Boolean searchFemale;
     private Boolean searchMale;
 
-    public GetNextMatchClient(Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
+    public FindUserClient(Integer minAge, Integer maxAge, Boolean searchFemale, Boolean searchMale) {
         this.minAge = minAge;
         this.maxAge = maxAge;
         this.searchFemale = searchFemale;
@@ -20,9 +20,9 @@ public class GetNextMatchClient extends ObservableClient<Match> {
     }
 
     @Override
-    protected Observable<Match> getApiObserable(Retrofit retrofit) {
-        return retrofit.create(MatchService.class)
-                .getNext(
+    protected Observable<User> getApiObserable(Retrofit retrofit) {
+        return retrofit.create(UserService.class)
+                .find(
                         minAge,
                         maxAge,
                         searchFemale ? "Y" : "N",

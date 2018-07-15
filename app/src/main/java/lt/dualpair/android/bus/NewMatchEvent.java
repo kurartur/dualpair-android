@@ -2,13 +2,13 @@ package lt.dualpair.android.bus;
 
 public class NewMatchEvent extends Event {
 
-    private Long matchId;
+    private Long userId;
 
-    public NewMatchEvent(Long matchId) {
-        this.matchId = matchId;
+    public NewMatchEvent(Long userId) {
+        this.userId = userId;
     }
 
-    public Long getMatchId() {
-        return matchId;
+    public Long getUserId() {
+        return userId;
     }
 }

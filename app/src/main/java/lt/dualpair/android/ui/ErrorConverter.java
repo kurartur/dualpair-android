@@ -14,11 +14,18 @@ public class ErrorConverter {
         context = fragment.getContext();
     }
 
+    public ErrorConverter(Context context) {
+        this.context = context;
+    }
+
     public String convert(Throwable throwable) {
         if (throwable instanceof ServiceException) {
             ServiceException se = (ServiceException)throwable;
             if (se.getKind() == ServiceException.Kind.NETWORK) {
                 return context.getString(R.string.check_internet_connection);
+            }
+            if (se.getKind() == ServiceException.Kind.UNEXPECTED) {
+                return context.getString(R.string.unexpected_error);
             }
         }
         return throwable.getMessage();

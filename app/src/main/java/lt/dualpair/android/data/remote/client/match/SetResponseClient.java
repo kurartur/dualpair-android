@@ -8,16 +8,18 @@ import retrofit2.Retrofit;
 
 public class SetResponseClient extends CompletableClient {
 
-    private Long matchPartyId;
+    private Long userId;
+    private Long toUserId;
     private Response response;
 
-    public SetResponseClient(Long matchPartyId, Response response) {
-        this.matchPartyId = matchPartyId;
+    public SetResponseClient(Long userId, Long toUserId, Response response) {
+        this.userId = userId;
+        this.toUserId = toUserId;
         this.response = response;
     }
 
     @Override
     protected Completable getApiCompletable(Retrofit retrofit) {
-        return retrofit.create(UserService.class).setResponse(matchPartyId, response.name());
+        return retrofit.create(UserService.class).respond(userId, toUserId, response.name());
     }
 }

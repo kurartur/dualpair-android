@@ -12,22 +12,22 @@ import java.util.concurrent.Executors;
 
 import lt.dualpair.android.data.local.dao.MatchDao;
 import lt.dualpair.android.data.local.dao.SociotypeDao;
-import lt.dualpair.android.data.local.dao.SwipeDao;
 import lt.dualpair.android.data.local.dao.UserDao;
+import lt.dualpair.android.data.local.dao.UserResponseDao;
 import lt.dualpair.android.data.local.entity.Match;
 import lt.dualpair.android.data.local.entity.Sociotype;
-import lt.dualpair.android.data.local.entity.Swipe;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
+import lt.dualpair.android.data.local.entity.UserResponse;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 
 @Database(entities = {
         User.class, UserSociotype.class, UserAccount.class,
-        Swipe.class, UserPhoto.class, Sociotype.class, UserPurposeOfBeing.class,
+        UserResponse.class, UserPhoto.class, Sociotype.class, UserPurposeOfBeing.class,
         UserSearchParameters.class, UserLocation.class, Match.class
 }, version = 2, exportSchema = false)
 @TypeConverters({
@@ -39,7 +39,7 @@ public abstract class DualPairRoomDatabase extends RoomDatabase {
 
     public abstract UserDao userDao();
 
-    public abstract SwipeDao swipeDao();
+    public abstract UserResponseDao swipeDao();
 
     public abstract SociotypeDao sociotypeDao();
 

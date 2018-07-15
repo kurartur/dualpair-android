@@ -13,7 +13,7 @@ import lt.dualpair.android.data.local.entity.Match;
 @Dao
 public interface MatchDao {
 
-    @Query("SELECT * FROM matches ORDER BY id DESC")
+    @Query("SELECT * FROM matches ORDER BY date DESC")
     Flowable<List<Match>> getMatchesFlowable();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -22,11 +22,8 @@ public interface MatchDao {
     @Query("DELETE FROM matches")
     void deleteAll();
 
-    @Query("DELETE from matches WHERE id NOT IN (:ids)")
+    @Query("DELETE from matches WHERE opponent_id NOT IN (:ids)")
     void deleteNotIn(String ids);
-
-    @Query("SELECT * FROM matches WHERE id = :matchId")
-    Match getMatch(Long matchId);
 
     @Query("SELECT * FROM matches WHERE opponent_id = :opponentId")
     Match getMatchByOpponent(Long opponentId);

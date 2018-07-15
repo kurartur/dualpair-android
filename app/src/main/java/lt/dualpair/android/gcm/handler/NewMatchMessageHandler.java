@@ -28,7 +28,7 @@ public class NewMatchMessageHandler implements MessageHandler<NewMatchMessage> {
         if (!applicationInForeground()) {
             sendNotification(message);
         }
-        RxBus.getInstance().post(new NewMatchEvent(message.getMatchId()));
+        RxBus.getInstance().post(new NewMatchEvent(message.getUserId()));
     }
 
     private void sendNotification(NewMatchMessage message) {
@@ -59,7 +59,7 @@ public class NewMatchMessageHandler implements MessageHandler<NewMatchMessage> {
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         // mId allows you to update the notification later on.
-        mNotificationManager.notify(message.getMatchId().intValue(), mBuilder.build());
+        mNotificationManager.notify(message.getUserId().intValue(), mBuilder.build());
     }
 
     private boolean applicationInForeground() {

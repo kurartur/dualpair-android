@@ -46,7 +46,7 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
     private String username;
     protected Long userId;
-    protected Long matchId;
+    protected boolean isMatch;
 
     private UserViewModel viewModel;
 
@@ -88,7 +88,7 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
     public void onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         menu.add(Menu.NONE, REPORT_MENU_ITEM, Menu.NONE, R.string.report);
-        if (matchId != null) {
+        if (isMatch) {
             menu.add(Menu.NONE, UNMATCH_MENU_ITEM, Menu.NONE, R.string.unmatch);
         }
     }
@@ -155,9 +155,7 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
         opponentUserView.setLocation(lastPrincipalLocation, lastOpponentLocation);
 
-        if (user.getMatch() != null) {
-            matchId = user.getMatch().getId();
-        }
+        isMatch = user.getMatch() != null;
 
         viewModel.getLastStoredLocation().observe(this, userLocation -> {
             lastPrincipalLocation = userLocation;
@@ -190,7 +188,7 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
                             .subscribe(new Action() {
                                 @Override
                                 public void run() {
-                                    if (matchId != null) {
+                                    if (isMatch) {
                                         ToastUtils.show(getActivity(), getString(R.string.user_reported_and_unmatched, username));
                                     } else {
                                         ToastUtils.show(getActivity(), getString(R.string.user_reported, username));

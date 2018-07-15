@@ -18,6 +18,11 @@ public class UserFriendlyErrorConsumer implements Consumer<Throwable> {
         converter = new ErrorConverter(fragment);
     }
 
+    public UserFriendlyErrorConsumer(Context context) {
+        this.context = context;
+        converter = new ErrorConverter(context);
+    }
+
     public UserFriendlyErrorConsumer(Fragment fragment, Consumer<Throwable> consumer) {
         this(fragment);
         this.consumer = consumer;

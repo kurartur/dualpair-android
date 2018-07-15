@@ -2,11 +2,11 @@ package lt.dualpair.android.gcm.message;
 
 public class NewMatchMessage {
 
-    private Long matchId;
+    private Long userId;
     private String opponentName;
 
-    public Long getMatchId() {
-        return matchId;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getOpponentName() {

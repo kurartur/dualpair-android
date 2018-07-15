@@ -3,49 +3,32 @@ package lt.dualpair.android.data.mapper;
 import java.util.Date;
 
 import lt.dualpair.android.data.local.entity.Match;
-import lt.dualpair.android.data.local.entity.Swipe;
 
 public class MatchResourceMapper {
 
-    private Long userPrincipalId;
     private UserResourceMapper userResourceMapper;
 
-    public MatchResourceMapper(Long userPrincipalId, UserResourceMapper userResourceMapper) {
-        this.userPrincipalId = userPrincipalId;
+    public MatchResourceMapper(UserResourceMapper userResourceMapper) {
         this.userResourceMapper = userResourceMapper;
     }
 
     public Result map(lt.dualpair.android.data.remote.resource.Match matchResource) {
-        Swipe swipe = new Swipe();
-        swipe.setId(matchResource.getUser().getId());
-        swipe.setUserId(userPrincipalId);
-        Long opponentUserId = matchResource.getOpponent().getUser().getId();
-        swipe.setWho(opponentUserId);
-        swipe.setType(matchResource.getUser().getResponse().toString());
-        lt.dualpair.android.data.local.entity.Match match = null;
-        if (matchResource.isMutual()) {
-            match = new lt.dualpair.android.data.local.entity.Match();
-            match.setId(matchResource.getId());
-            match.setOpponentId(opponentUserId);
-            match.setDate(new Date());
-        }
-        UserResourceMapper.Result userMappingResult = userResourceMapper.map(matchResource.getOpponent().getUser());
-        return new Result(swipe, match, userMappingResult);
+        lt.dualpair.android.data.local.entity.Match match = new lt.dualpair.android.data.local.entity.Match();
+        match.setOpponentId(matchResource.getUser().getId());
+        match.setDate(new Date());
+        match.setName(matchResource.getUser().getName());
+        match.setPhotoSource(matchResource.getUser().getPhotos().get(0).getSourceUrl());
+        UserResourceMapper.Result userMappingResult = userResourceMapper.map(matchResource.getUser());
+        return new Result(match, userMappingResult);
     }
 
     public static class Result {
-        Swipe swipe;
         Match match;
         UserResourceMapper.Result userMappingResult;
 
-        public Result(Swipe swipe, Match match, UserResourceMapper.Result userMappingResult) {
-            this.swipe = swipe;
+        public Result(Match match, UserResourceMapper.Result userMappingResult) {
             this.match = match;
             this.userMappingResult = userMappingResult;
-        }
-
-        public Swipe getSwipe() {
-            return swipe;
         }
 
         public Match getMatch() {

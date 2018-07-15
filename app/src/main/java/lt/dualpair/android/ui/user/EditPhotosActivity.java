@@ -13,6 +13,10 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -75,6 +79,20 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
         viewModel = ViewModelProviders.of(this, new EditPhotosViewModel.Factory(getApplication())).get(EditPhotosViewModel.class);
         subscribeUi();
+
+        GraphRequest request = GraphRequest.newGraphPathRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/me/photos",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String hello = "hello";
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "source");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
     private void subscribeUi() {

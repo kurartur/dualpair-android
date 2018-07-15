@@ -17,10 +17,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
-import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserListItem;
-import lt.dualpair.android.ui.accounts.AccountType;
-import lt.dualpair.android.utils.SocialUtils;
 
 public class UserListRecyclerAdapter<T extends UserListItem> extends RecyclerView.Adapter<UserListRecyclerAdapter.ItemViewHolder> {
 
@@ -48,10 +45,8 @@ public class UserListRecyclerAdapter<T extends UserListItem> extends RecyclerVie
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, int position) {
         final UserListItem item = items.get(position);
-        loadPhoto(holder.context, item.getPhoto().getSourceLink(), holder.picture);
+        loadPhoto(holder.context, item.getPhotoSource(), holder.picture);
         holder.name.setText(item.getName());
-        setupFacebookButton(holder.context, holder.facebookButton, item.getAccountByType(AccountType.FB.name()));
-        setupVkontakteButton(holder.context, holder.vkontakteButton, item.getAccountByType(AccountType.VK.name()));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,34 +76,6 @@ public class UserListRecyclerAdapter<T extends UserListItem> extends RecyclerVie
                 });
     }
 
-    private void setupFacebookButton(final Context context, View button, UserAccount account) {
-        if (account == null) {
-            button.setVisibility(View.GONE);
-        } else {
-            button.setVisibility(View.VISIBLE);
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    SocialUtils.openFacebookUser(context, account.getAccountId());
-                }
-            });
-        }
-    }
-
-    private void setupVkontakteButton(final Context context, View button, UserAccount account) {
-        if (account == null) {
-            button.setVisibility(View.GONE);
-        } else {
-            button.setVisibility(View.VISIBLE);
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    SocialUtils.openVKontakteUser(context, account.getAccountId());
-                }
-            });
-        }
-    }
-
     public interface OnItemClickListener {
         void onClick(UserListItem item);
     }
@@ -119,8 +86,6 @@ public class UserListRecyclerAdapter<T extends UserListItem> extends RecyclerVie
 
         @Bind(R.id.picture) public ImageView picture;
         @Bind(R.id.name) public TextView name;
-        @Bind(R.id.facebook_button) public View facebookButton;
-        @Bind(R.id.vkontakte_button) public View vkontakteButton;
 
         public ItemViewHolder(Context ctx, View itemView) {
             super(itemView);

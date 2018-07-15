@@ -35,21 +35,6 @@
             android:orientation="horizontal"
             android:layout_alignParentRight="true">
 
-            <ImageView
-                android:id="@+id/facebook_button"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/fb_f_logo__blue_50"
-                android:visibility="gone"/>
-
-            <ImageView
-                android:id="@+id/vkontakte_button"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/vkontakte_logo"
-                android:visibility="gone"
-                android:layout_marginLeft="5dp"/>
-
         </LinearLayout>
 
     </RelativeLayout>

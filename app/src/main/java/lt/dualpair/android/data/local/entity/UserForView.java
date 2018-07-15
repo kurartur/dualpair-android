@@ -11,7 +11,7 @@ public class UserForView {
     private UserLocation lastLocation;
     private List<UserAccount> accounts;
     private Match match;
-    private Swipe swipe;
+    private UserResponse userResponse;
 
     public UserForView() {}
 
@@ -22,7 +22,7 @@ public class UserForView {
                        UserLocation lastLocation,
                        List<UserAccount> accounts,
                        Match match,
-                       Swipe swipe) {
+                       UserResponse userResponse) {
         this.user = user;
         this.photos = photos;
         this.sociotypes = sociotypes;
@@ -30,7 +30,7 @@ public class UserForView {
         this.lastLocation = lastLocation;
         this.accounts = accounts;
         this.match = match;
-        this.swipe = swipe;
+        this.userResponse = userResponse;
     }
 
     public User getUser() {
@@ -61,7 +61,7 @@ public class UserForView {
         return match;
     }
 
-    public Swipe getSwipe() {
-        return swipe;
+    public UserResponse getUserResponse() {
+        return userResponse;
     }
 }

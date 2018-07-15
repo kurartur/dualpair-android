@@ -13,8 +13,8 @@ public class NewMatchViewModel extends ViewModel {
 
     private final Flowable<UserForView> user;
 
-    public NewMatchViewModel(UserRepository userRepository, Long matchId) {
-        user = userRepository.getUserByMatchId(matchId).toFlowable();
+    public NewMatchViewModel(UserRepository userRepository, Long userId) {
+        user = userRepository.getUser(userId).toFlowable();
     }
 
     public Flowable<UserForView> getUser() {
@@ -24,19 +24,19 @@ public class NewMatchViewModel extends ViewModel {
     public static class Factory extends ViewModelProvider.AndroidViewModelFactory {
 
         private Application application;
-        private Long reference;
+        private Long userId;
 
-        public Factory(@NonNull Application application, Long reference) {
+        public Factory(@NonNull Application application, Long userId) {
             super(application);
             this.application = application;
-            this.reference = reference;
+            this.userId = userId;
         }
 
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(NewMatchViewModel.class)) {
-                return (T) new NewMatchViewModel(new UserRepository(application), reference);
+                return (T) new NewMatchViewModel(new UserRepository(application), userId);
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
