@@ -21,17 +21,20 @@ import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserPhoto;
+import lt.dualpair.android.data.repository.PhotoRepository;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.ui.accounts.AccountType;
 
 public class EditPhotosViewModel extends ViewModel {
 
     private UserPrincipalRepository userPrincipalRepository;
+    private PhotoRepository photoRepository;
     private final MutableLiveData<PhotoEditingData> data;
     private final Map<AccountType, List<UserPhoto>> availablePhotos = new HashMap<>();
 
-    public EditPhotosViewModel(UserPrincipalRepository userPrincipalRepository) {
+    public EditPhotosViewModel(UserPrincipalRepository userPrincipalRepository, PhotoRepository photoRepository) {
         this.userPrincipalRepository = userPrincipalRepository;
+        this.photoRepository = photoRepository;
         data = new MutableLiveData<>();
         load();
     }
@@ -69,7 +72,7 @@ public class EditPhotosViewModel extends ViewModel {
         if (availablePhotos.containsKey(accountType)) {
             return Observable.just(availablePhotos.get(accountType));
         } else {
-            return userPrincipalRepository.getAvailableUserPhotos(accountType)
+            return photoRepository.getAvailableUserPhotos(accountType)
                     .doOnNext(new Consumer<List<UserPhoto>>() {
                         @Override
                         public void accept(List<UserPhoto> userPhotos) throws Exception {
@@ -113,7 +116,7 @@ public class EditPhotosViewModel extends ViewModel {
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (modelClass.isAssignableFrom(EditPhotosViewModel.class)) {
-                return (T) new EditPhotosViewModel(new UserPrincipalRepository(application));
+                return (T) new EditPhotosViewModel(new UserPrincipalRepository(application), new PhotoRepository(application));
             }
             throw new IllegalArgumentException("Wrong classs");
         }

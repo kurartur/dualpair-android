@@ -49,9 +49,6 @@ public interface UserService {
     @PATCH("api/user/{userId}")
     Completable updateUser(@Path("userId") Long userId, @Body Map<String, Object> data);
 
-    @GET("api/user/{userId}/available-photos")
-    Observable<List<Photo>> getAvailablePhotos(@Path("userId") Long userId, @Query("at") String accountType);
-
     @PUT("api/user/{userId}/photos")
     Observable<Photo> addPhoto(@Path("userId") Long userId, @Body Photo photo);
 

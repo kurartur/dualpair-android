@@ -35,7 +35,6 @@ import lt.dualpair.android.data.local.entity.UserSociotype;
 import lt.dualpair.android.data.mapper.UserResourceMapper;
 import lt.dualpair.android.data.remote.client.authentication.LogoutClient;
 import lt.dualpair.android.data.remote.client.user.ConnectAccountClient;
-import lt.dualpair.android.data.remote.client.user.GetAvailablePhotosClient;
 import lt.dualpair.android.data.remote.client.user.GetSearchParametersClient;
 import lt.dualpair.android.data.remote.client.user.GetUserPrincipalClient;
 import lt.dualpair.android.data.remote.client.user.SetLocationClient;
@@ -283,22 +282,6 @@ public class UserPrincipalRepository {
 
     public LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive() {
         return userDao.getUserPurposesOfBeingLive(userId);
-    }
-
-    public Observable<List<UserPhoto>> getAvailableUserPhotos(AccountType accountType) {
-        return new GetAvailablePhotosClient(userId, accountType).observable()
-                .map(photos -> {
-                    List<UserPhoto> userPhotos = new ArrayList<>();
-                    for(Photo photoResource : photos) {
-                        UserPhoto userPhoto = new UserPhoto();
-                        userPhoto.setUserId(userId);
-                        userPhoto.setAccountType(photoResource.getAccountType().toString());
-                        userPhoto.setIdOnAccount(photoResource.getIdOnAccount());
-                        userPhoto.setSourceLink(photoResource.getSourceUrl());
-                        userPhotos.add(userPhoto);
-                    }
-                    return userPhotos;
-                });
     }
 
     public Completable connectAccount(String providerId, String accessToken, Long expiresIn, String scope) {
