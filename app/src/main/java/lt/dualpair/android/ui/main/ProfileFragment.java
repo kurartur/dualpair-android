@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +48,7 @@ import lt.dualpair.android.ui.socionics.ViewSociotypeActivity;
 import lt.dualpair.android.ui.splash.SplashActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
 import lt.dualpair.android.ui.user.EditUserActivity;
+import lt.dualpair.android.utils.DrawableUtils;
 import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
@@ -142,11 +144,26 @@ public class ProfileFragment extends BaseFragment implements CustomActionBarFrag
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.profile_menu, menu);
+        DrawableUtils.setActionBarIconColorFilter(getContext(), menu.findItem(R.id.invite_menu_item).getIcon());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.invite_menu_item:
+                try {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                    String strShareMessage = getString(R.string.recommendation_text) + "\n\n";
+                    strShareMessage = strShareMessage + "https://play.google.com/store/apps/details?id=" + getActivity().getPackageName();
+                    i.putExtra(Intent.EXTRA_TEXT, strShareMessage);
+                    startActivity(Intent.createChooser(i, getString(R.string.share_via)));
+                } catch(Exception e) {
+                    Log.e(LOG_TAG, e.getMessage(), e);
+                    ToastUtils.show(getContext(), getString(R.string.unexpected_error));
+                }
+                break;
             case R.id.about_menu_item:
                 startActivity(AboutActivity.createIntent(this.getActivity()));
                 break;

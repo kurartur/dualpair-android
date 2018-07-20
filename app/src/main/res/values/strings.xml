@@ -198,4 +198,7 @@
     <string name="user_reported_and_unmatched">%1$s reported and removed from matches</string>
     <string name="search">Search</string>
     <string name="unexpected_error">Unexpected error occurred</string>
+    <string name="invite_friends">Invite friends</string>
+    <string name="share_via">Share via</string>
+    <string name="recommendation_text">Want to find people that match your personal character? Install DualPair and join the community!</string>
 </resources>
