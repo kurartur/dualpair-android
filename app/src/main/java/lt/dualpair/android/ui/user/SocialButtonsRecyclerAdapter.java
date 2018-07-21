@@ -1,5 +1,6 @@
 package lt.dualpair.android.ui.user;
 
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
@@ -25,6 +26,9 @@ public class SocialButtonsRecyclerAdapter extends RecyclerView.Adapter<SocialBut
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ImageView imageView = new ImageView(parent.getContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            imageView.setElevation(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, parent.getContext().getResources().getDisplayMetrics()));
+        }
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, parent.getContext().getResources().getDisplayMetrics()),
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, parent.getContext().getResources().getDisplayMetrics()));

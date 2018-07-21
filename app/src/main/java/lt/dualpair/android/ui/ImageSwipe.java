@@ -34,6 +34,7 @@ public class ImageSwipe extends LinearLayout {
     private int dotsHorizontalPosition;
     private int dotsVerticalPosition;
     private int dotsLeftMargin;
+    private boolean square;
 
     public ImageSwipe(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -63,6 +64,7 @@ public class ImageSwipe extends LinearLayout {
             dotsHorizontalPosition = a.getInteger(R.styleable.ImageSwipe_dotsHorizontalPosition, 0);
             dotsVerticalPosition = a.getInteger(R.styleable.ImageSwipe_dotsVerticalPosition, 0);
             dotsLeftMargin = a.getDimensionPixelSize(R.styleable.ImageSwipe_dotsLeftMargin, 0);
+            square = a.getBoolean(R.styleable.ImageSwipe_square, false);
         } finally {
             a.recycle();
         }
@@ -111,6 +113,15 @@ public class ImageSwipe extends LinearLayout {
             params.setMargins(7, 0, 7, 0);
             photoDots.addView(dotImages[i], params);
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (square) {
+            super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec) * 9 / 10, MeasureSpec.EXACTLY));
+            return;
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     public static class ImagePagerAdapter extends PagerAdapter {

@@ -10,5 +10,6 @@
             <enum name="bottom" value="0"/>
         </attr>
         <attr name="dotsLeftMargin" format="dimension"/>
+        <attr name="square" format="boolean"/>
     </declare-styleable>
 </resources>

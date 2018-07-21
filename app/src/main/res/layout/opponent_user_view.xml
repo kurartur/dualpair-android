@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="290dp"
         app:dotsVerticalPosition="bottom"
-        app:dotsHorizontalPosition="center" />
+        app:dotsHorizontalPosition="center"
+        app:square="true"/>
 
     <RelativeLayout
         android:id="@+id/bar"

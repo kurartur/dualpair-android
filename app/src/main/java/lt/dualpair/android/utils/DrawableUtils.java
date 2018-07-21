@@ -19,6 +19,7 @@ public class DrawableUtils {
     }
 
     public static void setActionBarIconColorFilter(Context context, Drawable drawable) {
+        drawable.mutate();
         drawable.setColorFilter(context.getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
     }
 }
