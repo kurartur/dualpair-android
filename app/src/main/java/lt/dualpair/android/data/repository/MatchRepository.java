@@ -20,12 +20,11 @@ import lt.dualpair.android.data.remote.resource.ResourceCollection;
 public class MatchRepository {
 
     private Long userPrincipalId;
-    private DualPairRoomDatabase database;
     private MatchDao matchDao;
 
     public MatchRepository(Application application) {
         userPrincipalId = AccountUtils.getUserId(application);
-        database = DualPairRoomDatabase.getDatabase(application);
+        DualPairRoomDatabase database = DualPairRoomDatabase.getDatabase(application);
         matchDao = database.matchDao();
     }
 
@@ -59,6 +58,7 @@ public class MatchRepository {
 
     private void saveMatchResource(lt.dualpair.android.data.remote.resource.Match matchResource) {
         Match match = new Match();
+        match.setMatchId(matchResource.getId());
         match.setOpponentId(matchResource.getUser().getId());
         match.setDate(matchResource.getDate());
         match.setName(matchResource.getUser().getName());

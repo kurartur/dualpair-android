@@ -3,15 +3,16 @@ package lt.dualpair.android.data.local.entity;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
 
 import java.util.Date;
 
 @Entity(tableName = "matches")
 public class Match {
 
-    @NonNull
     @PrimaryKey
+    @ColumnInfo(name = "match_id")
+    private Long matchId;
+
     @ColumnInfo(name = "opponent_id")
     private Long opponentId;
 
@@ -22,6 +23,14 @@ public class Match {
 
     @ColumnInfo(name = "photo_source")
     private String photoSource;
+
+    public Long getMatchId() {
+        return matchId;
+    }
+
+    public void setMatchId(Long matchId) {
+        this.matchId = matchId;
+    }
 
     public Long getOpponentId() {
         return opponentId;

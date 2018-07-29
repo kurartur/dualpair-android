@@ -3,14 +3,20 @@ package lt.dualpair.android.data.repository;
 import android.app.Application;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
+import lt.dualpair.android.ConnectivityMonitor;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.local.DualPairRoomDatabase;
 import lt.dualpair.android.data.local.dao.MatchDao;
@@ -20,15 +26,15 @@ import lt.dualpair.android.data.local.dao.UserResponseDao;
 import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserForView;
+import lt.dualpair.android.data.local.entity.UserResponse;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
-import lt.dualpair.android.data.mapper.MatchResourceMapper;
 import lt.dualpair.android.data.mapper.UserResourceMapper;
-import lt.dualpair.android.data.remote.client.match.SetResponseClient;
+import lt.dualpair.android.data.remote.client.ServiceException;
+import lt.dualpair.android.data.remote.client.UnmatchClient;
 import lt.dualpair.android.data.remote.client.user.FindUserClient;
 import lt.dualpair.android.data.remote.client.user.GetUserClient;
 import lt.dualpair.android.data.remote.client.user.ReportUserClient;
-import lt.dualpair.android.data.remote.resource.Response;
 
 public class UserRepository {
 
@@ -37,7 +43,6 @@ public class UserRepository {
     private final UserDao userDao;
     private final MatchDao matchDao;
     private final UserResponseDao userResponseDao;
-    private final MatchResourceMapper matchResourceMapper;
     private final UserResourceMapper userResourceMapper;
     private final Long userPrincipalId;
 
@@ -49,7 +54,6 @@ public class UserRepository {
         userResponseDao = database.swipeDao();
         userPrincipalId = AccountUtils.getUserId(application);
         userResourceMapper = new UserResourceMapper(sociotypeDao);
-        matchResourceMapper = new MatchResourceMapper(userResourceMapper);
     }
 
     public Maybe<UserForView> find(UserSearchParameters usp) {
@@ -69,6 +73,52 @@ public class UserRepository {
                                 null);
                     }
                 }).firstElement();
+    }
+
+    public Flowable<UserForView> getUser2(Long userId) {
+        return Flowable.concatArrayEager(
+                userDao.getUserMaybe(userId).toFlowable(),
+                userFromApiObservable(userId)
+                        .retryWhen(new Function<Observable<Throwable>, ObservableSource<?>>() {
+                            @Override
+                            public ObservableSource<?> apply(Observable<Throwable> throwableObservable) throws Exception {
+                                return throwableObservable.flatMap(new Function<Throwable, Observable<?>>() {
+                                    @Override
+                                    public Observable<?> apply(Throwable throwable) throws Exception {
+                                        if (throwable instanceof ServiceException) {
+                                            ServiceException se = (ServiceException)throwable;
+                                            if (se.getKind() == ServiceException.Kind.NETWORK) {
+                                                return ConnectivityMonitor.getInstance().getConnectivityInfo()
+                                                        .filter(new Predicate<ConnectivityMonitor.ConnectivityInfo>() {
+                                                            @Override
+                                                            public boolean test(ConnectivityMonitor.ConnectivityInfo connectivityInfo) throws Exception {
+                                                                return connectivityInfo.isNetworkAvailable();
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                        return Observable.error(throwable);
+                                    }
+                                });
+                            }
+                        })
+                        .map(user -> userResourceMapper.map(user).getUser()).toFlowable(BackpressureStrategy.ERROR)
+        ).map(new Function<User, UserForView>() {
+            @Override
+            public UserForView apply(User user) throws Exception {
+                Long userId = user.getId();
+                return new UserForView(
+                        user,
+                        userDao.getUserPhotos(userId),
+                        userDao.getFullUserSociotypes(userId),
+                        userDao.getUserPurposesOfBeing(userId),
+                        userDao.getLastLocation(userId),
+                        userDao.getUserAccounts(userId),
+                        matchDao.getMatchByOpponent(userId),
+                        userResponseDao.getResponse(userId)
+                );
+            }
+        });
     }
 
     public Single<UserForView> getUser(Long userId) {
@@ -124,19 +174,26 @@ public class UserRepository {
         return fullSociotypes;
     }
 
-    public Completable respondWithYes(Long toUserId) {
-        return new SetResponseClient(userPrincipalId, toUserId, Response.YES).completable();
-    }
-
-    public Completable respondWithNo(Long toUserId) {
-        return new SetResponseClient(userPrincipalId, toUserId, Response.NO).completable();
-    }
-
     public Completable unmatch(Long userId) {
-        return respondWithNo(userId);
+        return Single.fromCallable(() -> matchDao.getMatchByOpponent(userId).getMatchId())
+                .flatMapCompletable(matchId -> new UnmatchClient(userPrincipalId, matchId).completable())
+                .andThen(Completable.fromAction(() -> {
+                    database.runInTransaction(() -> {
+                        matchDao.deleteByOpponent(userId);
+                        UserResponse response = userResponseDao.getResponse(userId);
+                        if (response != null) {
+                            response.setDate(new Date());
+                            response.setMatch(false);
+                            response.setType("N");
+                            userResponseDao.save(response);
+                        }
+                    });
+                }));
     }
 
     public Completable report(Long userId) {
-        return new ReportUserClient(userId).completable();
+        return new ReportUserClient(userId).completable()
+                .andThen(unmatch(userId));
     }
+
 }

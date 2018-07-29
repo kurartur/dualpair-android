@@ -26,7 +26,7 @@ public class UserViewModel extends ViewModel {
     }
 
     public Flowable<UserForView> getUser(Long userId) {
-        return userRepository.getUser(userId).toFlowable();
+        return userRepository.getUser2(userId);
     }
 
     public Completable unmatch(Long userId) {

@@ -20,5 +20,7 @@ public class Application extends android.app.Application {
         VKSdk.initialize(this);
 
         TokenProvider.initialize(this);
+
+        ConnectivityMonitor.initialize(this);
     }
 }

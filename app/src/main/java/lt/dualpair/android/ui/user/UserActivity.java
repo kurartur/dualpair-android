@@ -11,7 +11,8 @@ import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 
-public class UserActivity extends BaseActivity implements CustomActionBarActivity {
+public class UserActivity extends BaseActivity implements CustomActionBarActivity,
+        UserFragment.OnUnmatchListener, UserFragment.OnReportListener {
 
     private static final String TAG = UserActivity.class.getName();
     private static final String ARG_USER_ID = "userId";
@@ -26,6 +27,12 @@ public class UserActivity extends BaseActivity implements CustomActionBarActivit
             throw new RuntimeException("Reference not provided");
         }
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
+        }
+
         FragmentManager fm = getSupportFragmentManager();
         if (fm.findFragmentByTag(USER_FRAGMENT) == null) {
             UserFragment userFragment = UserFragment.newInstance(userId);
@@ -37,6 +44,16 @@ public class UserActivity extends BaseActivity implements CustomActionBarActivit
     }
 
     @Override
+    public void onUnmatch() {
+        finish();
+    }
+
+    @Override
+    public void onReport() {
+        finish();
+    }
+
+    @Override
     public void requestActionBar(CustomActionBarFragment fragment) {
         setupActionBar(fragment, true);
     }
@@ -44,8 +61,6 @@ public class UserActivity extends BaseActivity implements CustomActionBarActivit
     protected void setupActionBar(CustomActionBarFragment fragment, boolean homeUp) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(homeUp);
-            actionBar.setDisplayShowHomeEnabled(homeUp);
             if (fragment.getActionBarView() != null) {
                 actionBar.setDisplayShowCustomEnabled(true);
                 actionBar.setDisplayShowTitleEnabled(false);

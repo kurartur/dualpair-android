@@ -9,9 +9,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
+import lt.dualpair.android.ui.user.UserActivity;
 
-public class MatchListFragment extends UserListFragment {
+public class MatchListFragment extends UserListFragment implements UserListRecyclerAdapter.OnItemClickListener {
 
     private MatchListViewModel viewModel;
 
@@ -40,11 +42,17 @@ public class MatchListFragment extends UserListFragment {
                 if (items.isEmpty()) {
                     showEmpty();
                 } else {
-                    matchesView.setAdapter(new UserListRecyclerAdapter<>(items, (UserListRecyclerAdapter.OnItemClickListener)getActivity()));
+                    matchesView.setAdapter(new UserListRecyclerAdapter<>(items, this));
                     showList();
                 }
             });
     }
+
+    @Override
+    public void onClick(UserListItem item) {
+        startActivity(UserActivity.createIntent(getContext(), item.getUserId()));
+    }
+
 
     @Override
     protected String getEmptyViewText() {

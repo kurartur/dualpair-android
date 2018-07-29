@@ -28,6 +28,7 @@ public class ReviewHistoryActivity extends BaseActivity implements UserListRecyc
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.review_history_layout);
+        requestOfflineNotification(findViewById(R.id.offline));
 
         FragmentManager fm = getSupportFragmentManager();
         fm.addOnBackStackChangedListener(this);

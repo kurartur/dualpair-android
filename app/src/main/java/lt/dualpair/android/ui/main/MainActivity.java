@@ -18,16 +18,13 @@ import io.reactivex.functions.Consumer;
 import lt.dualpair.android.R;
 import lt.dualpair.android.bus.NewMatchEvent;
 import lt.dualpair.android.bus.RxBus;
-import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.user.UserFragment;
 
-public class MainActivity extends BaseActivity implements CustomActionBarActivity,
-        UserListRecyclerAdapter.OnItemClickListener, FragmentManager.OnBackStackChangedListener,
-        UserFragment.OnUnmatchListener, UserFragment.OnReportListener {
+public class MainActivity extends BaseActivity implements CustomActionBarActivity, FragmentManager.OnBackStackChangedListener {
 
     private static final String TAG = "MainActivity";
     private static final String USER_FRAGMENT = "UserFragment";
@@ -41,6 +38,7 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
+        requestOfflineNotification(findViewById(R.id.offline));
         ButterKnife.bind(this);
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         init();
@@ -137,26 +135,6 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
         transaction.commit();
 
         startService(RegistrationService.createIntent(this));
-    }
-
-    @Override
-    public void onClick(UserListItem item) {
-        FragmentManager fm = getSupportFragmentManager();
-        UserFragment f = UserFragment.newInstance(item.getUserId());
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(android.R.id.content, f, USER_FRAGMENT);
-        ft.addToBackStack(null);
-        ft.commit();
-    }
-
-    @Override
-    public void onUnmatch() {
-        getSupportFragmentManager().popBackStack();
-    }
-
-    @Override
-    public void onReport() {
-        getSupportFragmentManager().popBackStack();
     }
 
     @Override

@@ -5,8 +5,17 @@ import java.util.Date;
 
 public class Match implements Serializable {
 
+    private Long id;
     private User user;
     private Date date;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public User getUser() {
         return user;

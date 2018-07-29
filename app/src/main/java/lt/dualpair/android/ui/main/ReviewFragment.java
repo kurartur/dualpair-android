@@ -53,6 +53,7 @@ import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
+import lt.dualpair.android.data.repository.ResponseRepository;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
 import lt.dualpair.android.ui.BaseFragment;
@@ -471,7 +472,8 @@ public class ReviewFragment extends BaseFragment {
                 UserPrincipalRepository userPrincipalRepository = new UserPrincipalRepository(application);
                 UserRepository userRepository = new UserRepository(application);
                 LiveData<android.location.Location> location = new LocationLiveData(application);
-                return (T) new ReviewViewModel(userPrincipalRepository, userRepository, locationSettingsLiveData, location);
+                ResponseRepository responseRepository = new ResponseRepository(application);
+                return (T) new ReviewViewModel(userPrincipalRepository, userRepository, responseRepository, locationSettingsLiveData, location);
             }
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

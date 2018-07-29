@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,18 +19,21 @@ import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import lt.dualpair.android.ConnectivityMonitor;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
-import lt.dualpair.android.ui.BaseFragment;
+import lt.dualpair.android.data.remote.client.ServiceException;
+import lt.dualpair.android.ui.BaseLayoutFragment;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.utils.ToastUtils;
 
-public class UserFragment extends BaseFragment implements CustomActionBarFragment {
+public class UserFragment extends BaseLayoutFragment implements CustomActionBarFragment {
 
     protected static final String ARG_USER_ID = "user_id";
 
@@ -59,11 +63,11 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.user_layout, container, false);
+        View parent = super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.user_layout, parent.findViewById(R.id.content_layout), true);
         ButterKnife.bind(this, view);
-
-        return view;
+        requestOfflineNotification(view.findViewById(R.id.offline));
+        return parent;
     }
 
     @Override
@@ -75,12 +79,24 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
     @SuppressLint("CheckResult")
     private void subscribeUi() {
+        if (!isNetworkAvailable()) {
+            showNoConnection();
+        }
         viewModel.getUser(getUserId())
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread(), true)
                 .compose(bindToLifecycle())
                 .subscribe(this::render, e -> {
-                    ToastUtils.show(getActivity(), e.getMessage());
+                    Log.e(UserFragment.class.getName(), e.getMessage(), e);
+                    if (userId == null) {
+                        if (e instanceof ServiceException) {
+                            if (((ServiceException) e).getKind() == ServiceException.Kind.NETWORK) {
+                                showNoConnection();
+                                return;
+                            }
+                        }
+                        showUnexpectedError();
+                    }
                 });
     }
 
@@ -100,18 +116,7 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
                 reportUser();
                 return true;
             case UNMATCH_MENU_ITEM:
-                viewModel.unmatch(userId)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new Action() {
-                        @Override
-                        public void run() {
-                            ToastUtils.show(getActivity(), getString(R.string.unmatched, username));
-                            if (getActivity() instanceof OnUnmatchListener) {
-                                ((OnUnmatchListener)getActivity()).onUnmatch();
-                            }
-                        }
-                    });
+                unmatchUser();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -162,6 +167,12 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
             opponentUserView.setLocation(userLocation, lastOpponentLocation);
         });
 
+        requestActionBar();
+
+        showContent();
+    }
+
+    private void requestActionBar() {
         FragmentActivity activity = getActivity();
         if (activity instanceof CustomActionBarActivity) {
             ((CustomActionBarActivity) activity).requestActionBar(this);
@@ -169,13 +180,15 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
     }
 
     private void reportUser() {
+        if (!isNetworkAvailable()) {
+            ToastUtils.show(getContext(), getString(R.string.cant_report_offline));
+            return;
+        }
         new AlertDialog.Builder(getContext())
                 .setMessage(getString(R.string.report_user_confirmation, username))
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
+                    public void onClick(DialogInterface dialog, int which) {}
                 }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                     @SuppressLint("CheckResult")
@@ -202,20 +215,51 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         }).show();
     }
 
+    @SuppressLint("CheckResult")
+    private void unmatchUser() {
+        if (!isNetworkAvailable()) {
+            ToastUtils.show(getContext(), getString(R.string.cant_unmatch_offline));
+            return;
+        }
+        viewModel.unmatch(userId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .compose(bindToLifecycle())
+                .subscribe(new Action() {
+                    @Override
+                    public void run() {
+                        ToastUtils.show(getActivity(), getString(R.string.unmatched, username));
+                        if (getActivity() instanceof OnUnmatchListener) {
+                            ((OnUnmatchListener)getActivity()).onUnmatch();
+                        }
+                    }
+                }, new UserFriendlyErrorConsumer(UserFragment.this));
+    }
+
+    @SuppressLint("CheckResult")
+    protected void requestOfflineNotification(final View offlineNotificationView) {
+        ConnectivityMonitor.getInstance().getConnectivityInfo()
+                .compose(bindToLifecycle())
+                .subscribe(new Consumer<ConnectivityMonitor.ConnectivityInfo>() {
+                    @Override
+                    public void accept(ConnectivityMonitor.ConnectivityInfo connectivityInfo) throws Exception {
+                        if (offlineNotificationView != null) {
+                            offlineNotificationView.setVisibility(connectivityInfo.isNetworkAvailable() ? View.GONE : View.VISIBLE);
+                        }
+                    }
+                });
+    }
+
+    private boolean isNetworkAvailable() {
+        return ConnectivityMonitor.getInstance().getConnectivityInfo().blockingFirst().isNetworkAvailable();
+    }
+
     public static UserFragment newInstance(Long userId) {
         UserFragment f = new UserFragment();
         Bundle bundle = new Bundle();
         bundle.putLong(ARG_USER_ID, userId);
         f.setArguments(bundle);
         return f;
-    }
-
-    protected static class SocialButtonsViewHolder {
-
-
-        public SocialButtonsViewHolder(View view) {
-            ButterKnife.bind(this, view);
-        }
     }
 
     public interface OnUnmatchListener {

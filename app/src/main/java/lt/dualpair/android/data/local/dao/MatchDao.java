@@ -28,4 +28,6 @@ public interface MatchDao {
     @Query("SELECT * FROM matches WHERE opponent_id = :opponentId")
     Match getMatchByOpponent(Long opponentId);
 
+    @Query("DELETE FROM matches WHERE opponent_id = :opponentId")
+    void deleteByOpponent(Long opponentId);
 }

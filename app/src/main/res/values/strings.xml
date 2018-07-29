@@ -201,4 +201,7 @@
     <string name="invite_friends">Invite friends</string>
     <string name="share_via">Share via</string>
     <string name="recommendation_text">Want to find people that match your personal character? Install DualPair and join the community!</string>
+    <string name="you_are_offline">You are offline</string>
+    <string name="cant_report_offline">Can\'t report while offline</string>
+    <string name="cant_unmatch_offline">Can\'t unmatch while offline</string>
 </resources>

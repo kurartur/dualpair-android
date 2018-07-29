@@ -3,6 +3,7 @@ package lt.dualpair.android.data.repository;
 import android.app.Application;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -11,15 +12,21 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.local.DualPairRoomDatabase;
+import lt.dualpair.android.data.local.dao.UserDao;
 import lt.dualpair.android.data.local.dao.UserResponseDao;
+import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserListItem;
+import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserResponse;
+import lt.dualpair.android.data.remote.client.match.SetResponseClient;
 import lt.dualpair.android.data.remote.client.user.GetUserResponsesClient;
 import lt.dualpair.android.data.remote.resource.ResourceCollection;
+import lt.dualpair.android.data.remote.resource.Response;
 
 public class ResponseRepository {
 
     private UserResponseDao userResponseDao;
+    private UserDao userDao;
     private Long userPrincipalId;
     private DualPairRoomDatabase database;
 
@@ -27,6 +34,7 @@ public class ResponseRepository {
         userPrincipalId = AccountUtils.getUserId(application);
         database = DualPairRoomDatabase.getDatabase(application);
         userResponseDao = database.swipeDao();
+        userDao = database.userDao();
     }
 
     public Flowable<List<UserListItem>> getReviewedUsers() {
@@ -53,6 +61,36 @@ public class ResponseRepository {
                         }
                     }
                 }).ignoreElements();
+    }
+
+    public Completable respondWithYes(Long toUserId) {
+        return new SetResponseClient(userPrincipalId, toUserId, Response.YES).completable()
+                .doOnComplete(() -> {
+                    UserResponse userResponse = new UserResponse();
+                    userResponse.setUserId(toUserId);
+                    userResponse.setType("Y");
+                    userResponse.setDate(new Date());
+                    User user = userDao.getUser(toUserId);
+                    userResponse.setName(user.getName());
+                    UserPhoto userPhoto = userDao.getUserPhotos(toUserId).get(0);
+                    userResponse.setPhotoSource(userPhoto.getSourceLink());
+                    userResponseDao.save(userResponse);
+                });
+    }
+
+    public Completable respondWithNo(Long toUserId) {
+        return new SetResponseClient(userPrincipalId, toUserId, Response.NO).completable()
+                .doOnComplete(() -> {
+                    UserResponse userResponse = new UserResponse();
+                    userResponse.setUserId(toUserId);
+                    userResponse.setType("N");
+                    userResponse.setDate(new Date());
+                    User user = userDao.getUser(toUserId);
+                    userResponse.setName(user.getName());
+                    UserPhoto userPhoto = userDao.getUserPhotos(toUserId).get(0);
+                    userResponse.setPhotoSource(userPhoto.getSourceLink());
+                    userResponseDao.save(userResponse);
+                });
     }
 
     private void saveResource(lt.dualpair.android.data.remote.resource.UserResponse resource) {

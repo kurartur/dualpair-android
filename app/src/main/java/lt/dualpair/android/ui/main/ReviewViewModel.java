@@ -20,6 +20,7 @@ import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
+import lt.dualpair.android.data.repository.ResponseRepository;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.data.repository.UserRepository;
 import lt.dualpair.android.ui.Resource;
@@ -30,6 +31,7 @@ public class ReviewViewModel extends ViewModel {
 
     private final UserPrincipalRepository userPrincipalRepository;
     private final UserRepository userRepository;
+    private final ResponseRepository responseRepository;
 
     private MutableLiveData<Resource<UserForView>> userToReview;
 
@@ -40,8 +42,13 @@ public class ReviewViewModel extends ViewModel {
     private long lastLocationUpdate;
     private static final long LOCATION_UPDATE_INTERVAL = 1000 * 60 * 5;
 
-    public ReviewViewModel(UserPrincipalRepository userPrincipalRepository, UserRepository userRepository, LiveData<LocationSettingsResult> locationSettingsResult, LiveData<Location> location) {
+    public ReviewViewModel(UserPrincipalRepository userPrincipalRepository,
+                           UserRepository userRepository,
+                           ResponseRepository responseRepository,
+                           LiveData<LocationSettingsResult> locationSettingsResult,
+                           LiveData<Location> location) {
         this.userPrincipalRepository = userPrincipalRepository;
+        this.responseRepository = responseRepository;
         this.userRepository = userRepository;
         this.locationSettingsResult = locationSettingsResult;
         this.location = location;
@@ -134,11 +141,11 @@ public class ReviewViewModel extends ViewModel {
     }
 
     public Completable respondWithYes() {
-        return userRepository.respondWithYes(userToReview.getValue().getData().getUser().getId());
+        return responseRepository.respondWithYes(userToReview.getValue().getData().getUser().getId());
     }
 
     public Completable respondWithNo() {
-        return userRepository.respondWithNo(userToReview.getValue().getData().getUser().getId());
+        return responseRepository.respondWithNo(userToReview.getValue().getData().getUser().getId());
     }
 
     public void retry() {

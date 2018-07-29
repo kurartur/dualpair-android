@@ -1,5 +1,6 @@
 package lt.dualpair.android.ui;
 
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
@@ -7,6 +8,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.LifecycleTransformer;
@@ -15,7 +17,9 @@ import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
+import lt.dualpair.android.ConnectivityMonitor;
 import lt.dualpair.android.R;
 
 public class BaseActivity extends AppCompatActivity implements LifecycleProvider<ActivityEvent> {
@@ -105,6 +109,20 @@ public class BaseActivity extends AppCompatActivity implements LifecycleProvider
     protected void onDestroy() {
         lifecycleSubject.onNext(ActivityEvent.DESTROY);
         super.onDestroy();
+    }
+
+    @SuppressLint("CheckResult")
+    protected void requestOfflineNotification(final View offlineNotificationView) {
+        ConnectivityMonitor.getInstance().getConnectivityInfo()
+                .compose(bindToLifecycle())
+                .subscribe(new Consumer<ConnectivityMonitor.ConnectivityInfo>() {
+                    @Override
+                    public void accept(ConnectivityMonitor.ConnectivityInfo connectivityInfo) throws Exception {
+                        if (offlineNotificationView != null) {
+                            offlineNotificationView.setVisibility(connectivityInfo.isNetworkAvailable() ? View.GONE : View.VISIBLE);
+                        }
+                    }
+                });
     }
 
 }
