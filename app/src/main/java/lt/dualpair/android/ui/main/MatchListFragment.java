@@ -1,58 +1,30 @@
 package lt.dualpair.android.ui.main;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
+import java.util.List;
+
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.UserListItem;
-import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
-import lt.dualpair.android.ui.user.UserActivity;
 
-public class MatchListFragment extends UserListFragment implements UserListRecyclerAdapter.OnItemClickListener {
+public class MatchListFragment extends UserListFragment {
 
     private MatchListViewModel viewModel;
 
-    private CompositeDisposable disposable = new CompositeDisposable();
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity(), new MatchListViewModel.Factory(getActivity().getApplication())).get(MatchListViewModel.class);
-        subscribeUi();
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        disposable.clear();
+    protected Flowable<List<UserListItem>> getItemsFlowable() {
+        return viewModel.getMatchList();
     }
-
-    @SuppressLint("CheckResult")
-    private void subscribeUi() {
-        viewModel.getMatchList()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .compose(bindToLifecycle())
-            .subscribe(items -> {
-                if (items.isEmpty()) {
-                    showEmpty();
-                } else {
-                    matchesView.setAdapter(new UserListRecyclerAdapter<>(items, this));
-                    showList();
-                }
-            });
-    }
-
-    @Override
-    public void onClick(UserListItem item) {
-        startActivity(UserActivity.createIntent(getContext(), item.getUserId()));
-    }
-
 
     @Override
     protected String getEmptyViewText() {
@@ -60,13 +32,8 @@ public class MatchListFragment extends UserListFragment implements UserListRecyc
     }
 
     @Override
-    protected void refresh() {
-        disposable.add(
-                viewModel.refresh()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::onRefreshed, new UserFriendlyErrorConsumer(this, throwable -> onRefreshed()))
-        );
+    protected Completable getRefreshCompletable() {
+        return viewModel.refresh();
     }
 
     @Override

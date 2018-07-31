@@ -63,11 +63,11 @@ public class UserListRecyclerAdapter<T extends UserListItem> extends RecyclerVie
     private void loadPhoto(Context context, String sourceLink, ImageView picture) {
         Picasso.with(context)
                 .load(sourceLink)
-                .error(R.drawable.image_not_found)
+                .placeholder(R.drawable.person)
+                .error(R.drawable.person)
                 .into(picture, new Callback() {
                     @Override
-                    public void onSuccess() {
-                    }
+                    public void onSuccess() {}
 
                     @Override
                     public void onError() {

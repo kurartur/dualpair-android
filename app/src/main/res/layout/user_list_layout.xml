@@ -13,7 +13,7 @@
         android:measureAllChildren="true">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/mutual_matches"
+            android:id="@+id/user_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:spanCount="2"
@@ -40,6 +40,11 @@
 
         </LinearLayout>
 
+        <include layout="@layout/no_connection_layout"/>
+        <include layout="@layout/offline_layout"/>
+        <include layout="@layout/unexpected_error"/>
+
     </FrameLayout>
+
 
 </lt.dualpair.android.ui.ScrollSwipeRefreshLayout>

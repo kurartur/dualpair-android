@@ -9,7 +9,6 @@ import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.data.local.entity.UserListItem;
 import lt.dualpair.android.data.repository.MatchRepository;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
@@ -23,10 +22,6 @@ public class MatchListViewModel extends ViewModel {
     public MatchListViewModel(MatchRepository matchRepository, UserPrincipalRepository userPrincipalRepository) {
         this.matchRepository = matchRepository;
         matchList = matchRepository.getMatches();
-
-        refresh()
-                .subscribeOn(Schedulers.io())
-                .subscribe(() -> {}, e -> {});
     }
 
     public Flowable<List<UserListItem>> getMatchList() {
@@ -34,7 +29,7 @@ public class MatchListViewModel extends ViewModel {
     }
 
     public Completable refresh() {
-        return matchRepository.loadMatchesFromApi();
+        return matchRepository.loadMatchesFromApi().ignoreElements();
     }
 
     public static class Factory extends ViewModelProvider.AndroidViewModelFactory {

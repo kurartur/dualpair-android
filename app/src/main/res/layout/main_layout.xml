@@ -11,11 +11,6 @@
         android:layout_above="@+id/navigation"
         android:animateLayoutChanges="true"/>
 
-    <include layout="@layout/offline_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/navigation"/>
-
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"

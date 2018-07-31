@@ -27,13 +27,14 @@ import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.remote.client.ServiceException;
-import lt.dualpair.android.ui.BaseLayoutFragment;
+import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
+import lt.dualpair.android.ui.VisibilitySwitcher;
 import lt.dualpair.android.utils.ToastUtils;
 
-public class UserFragment extends BaseLayoutFragment implements CustomActionBarFragment {
+public class UserFragment extends BaseFragment implements CustomActionBarFragment {
 
     protected static final String ARG_USER_ID = "user_id";
 
@@ -54,6 +55,8 @@ public class UserFragment extends BaseLayoutFragment implements CustomActionBarF
 
     private UserViewModel viewModel;
 
+    private VisibilitySwitcher visibilitySwitcher;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,11 +66,13 @@ public class UserFragment extends BaseLayoutFragment implements CustomActionBarF
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View parent = super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.user_layout, parent.findViewById(R.id.content_layout), true);
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.user_layout, container, false);
         ButterKnife.bind(this, view);
         requestOfflineNotification(view.findViewById(R.id.offline));
-        return parent;
+        visibilitySwitcher = new VisibilitySwitcher(view, R.id.loading, R.id.unexpected_error, R.id.no_connection, R.id.main_layout);
+        visibilitySwitcher.switchTo(R.id.loading);
+        return view;
     }
 
     @Override
@@ -80,7 +85,7 @@ public class UserFragment extends BaseLayoutFragment implements CustomActionBarF
     @SuppressLint("CheckResult")
     private void subscribeUi() {
         if (!isNetworkAvailable()) {
-            showNoConnection();
+            visibilitySwitcher.switchTo(R.id.no_connection);
         }
         viewModel.getUser(getUserId())
                 .subscribeOn(Schedulers.io())
@@ -91,11 +96,11 @@ public class UserFragment extends BaseLayoutFragment implements CustomActionBarF
                     if (userId == null) {
                         if (e instanceof ServiceException) {
                             if (((ServiceException) e).getKind() == ServiceException.Kind.NETWORK) {
-                                showNoConnection();
+                                visibilitySwitcher.switchTo(R.id.no_connection);
                                 return;
                             }
                         }
-                        showUnexpectedError();
+                        visibilitySwitcher.switchTo(R.id.unexpected_error);
                     }
                 });
     }
@@ -169,7 +174,7 @@ public class UserFragment extends BaseLayoutFragment implements CustomActionBarF
 
         requestActionBar();
 
-        showContent();
+        visibilitySwitcher.switchTo(R.id.main_layout);
     }
 
     private void requestActionBar() {

@@ -28,9 +28,12 @@
 
     </LinearLayout>
 
+    <include layout="@layout/progress_layout"/>
+    <include layout="@layout/no_connection_layout"/>
+    <include layout="@layout/unexpected_error"/>
     <include layout="@layout/offline_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="bottom" />
 
 </FrameLayout>

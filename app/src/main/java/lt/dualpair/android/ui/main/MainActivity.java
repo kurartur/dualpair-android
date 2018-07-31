@@ -27,7 +27,6 @@ import lt.dualpair.android.ui.user.UserFragment;
 public class MainActivity extends BaseActivity implements CustomActionBarActivity, FragmentManager.OnBackStackChangedListener {
 
     private static final String TAG = "MainActivity";
-    private static final String USER_FRAGMENT = "UserFragment";
     private static volatile boolean isInForeground = false;
     private Disposable newMatchEventSubscription;
 
@@ -38,7 +37,6 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
-        requestOfflineNotification(findViewById(R.id.offline));
         ButterKnife.bind(this);
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         init();
