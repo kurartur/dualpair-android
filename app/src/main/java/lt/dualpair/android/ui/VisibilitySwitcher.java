@@ -7,23 +7,28 @@ import java.util.List;
 
 public class VisibilitySwitcher {
 
-    public View parentView;
     private List<View> views = new ArrayList<>();
 
     public VisibilitySwitcher(View parentView, Integer ...ids) {
-        this.parentView = parentView;
         for (Integer id : ids) {
-            views.add(parentView.findViewById(id));
+            View viewById = parentView.findViewById(id);
+            if (viewById == null) throw new NullPointerException("View not found");
+            views.add(viewById);
         }
     }
 
     public void switchTo(Integer id) {
+        boolean found = false;
         for (View view : views) {
             if (view.getId() == id) {
                 view.setVisibility(View.VISIBLE);
+                found = true;
             } else {
                 view.setVisibility(View.GONE);
             }
+        }
+        if (!found) {
+            throw new IllegalArgumentException("View not found");
         }
     }
 }

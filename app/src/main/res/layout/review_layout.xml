@@ -20,8 +20,8 @@
                 android:id="@+id/photos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                custom:dotsHorizontalPosition="center"
-                custom:dotsVerticalPosition="top"
+                custom:dotsHorizontalPosition="left"
+                custom:dotsVerticalPosition="bottom"
                 custom:dotsLeftMargin="20dp"
                 custom:square="true"/>
 
@@ -194,38 +194,5 @@
         </RelativeLayout>
 
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/progress_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:visibility="visible">
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp" />
-
-        <TextView
-            android:id="@+id/progress_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:layout_margin="20dp"/>
-
-        <ImageView
-            android:id="@id/retry_button"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_refresh_black_36dp"
-            android:tint="@color/colorPrimaryText"
-            android:visibility="gone"/>
-
-    </LinearLayout>
 
 </LinearLayout>

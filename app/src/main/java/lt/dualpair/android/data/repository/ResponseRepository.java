@@ -3,7 +3,6 @@ package lt.dualpair.android.data.repository;
 import android.app.Application;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -14,9 +13,7 @@ import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.local.DualPairRoomDatabase;
 import lt.dualpair.android.data.local.dao.UserDao;
 import lt.dualpair.android.data.local.dao.UserResponseDao;
-import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserListItem;
-import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserResponse;
 import lt.dualpair.android.data.remote.client.match.SetResponseClient;
 import lt.dualpair.android.data.remote.client.user.GetUserResponsesClient;
@@ -66,7 +63,7 @@ public class ResponseRepository {
     public Completable respondWithYes(Long toUserId) {
         return new SetResponseClient(userPrincipalId, toUserId, Response.YES).completable()
                 .doOnComplete(() -> {
-                    UserResponse userResponse = new UserResponse();
+                    /*UserResponse userResponse = new UserResponse();
                     userResponse.setUserId(toUserId);
                     userResponse.setType("Y");
                     userResponse.setDate(new Date());
@@ -74,14 +71,14 @@ public class ResponseRepository {
                     userResponse.setName(user.getName());
                     UserPhoto userPhoto = userDao.getUserPhotos(toUserId).get(0);
                     userResponse.setPhotoSource(userPhoto.getSourceLink());
-                    userResponseDao.save(userResponse);
+                    userResponseDao.save(userResponse);*/
                 });
     }
 
     public Completable respondWithNo(Long toUserId) {
         return new SetResponseClient(userPrincipalId, toUserId, Response.NO).completable()
                 .doOnComplete(() -> {
-                    UserResponse userResponse = new UserResponse();
+                    /*UserResponse userResponse = new UserResponse();
                     userResponse.setUserId(toUserId);
                     userResponse.setType("N");
                     userResponse.setDate(new Date());
@@ -89,7 +86,7 @@ public class ResponseRepository {
                     userResponse.setName(user.getName());
                     UserPhoto userPhoto = userDao.getUserPhotos(toUserId).get(0);
                     userResponse.setPhotoSource(userPhoto.getSourceLink());
-                    userResponseDao.save(userResponse);
+                    userResponseDao.save(userResponse);*/
                 });
     }
 

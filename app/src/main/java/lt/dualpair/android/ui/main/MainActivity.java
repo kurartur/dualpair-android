@@ -111,7 +111,7 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
                 Fragment selectedFragment = null;
                 switch (item.getItemId()) {
                     case R.id.action_search:
-                        selectedFragment = ReviewFragment.newInstance();
+                        selectedFragment = SearchFragment.newInstance();
                         break;
                     case R.id.action_matches:
                         selectedFragment = MatchListFragment.newInstance();
@@ -129,7 +129,7 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
         });
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, ReviewFragment.newInstance());
+        transaction.replace(R.id.frame_layout, SearchFragment.newInstance());
         transaction.commit();
 
         startService(RegistrationService.createIntent(this));
