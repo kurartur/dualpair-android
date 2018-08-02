@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 
+import lt.dualpair.android.R;
 import lt.dualpair.android.ui.BaseActivity;
-import lt.dualpair.android.ui.CustomActionBarActivity;
-import lt.dualpair.android.ui.CustomActionBarFragment;
 
-public class UserActivity extends BaseActivity implements CustomActionBarActivity,
-        UserFragment.OnUnmatchListener, UserFragment.OnReportListener {
+public class UserActivity extends BaseActivity implements UserFragment.OnUnmatchListener,
+        UserFragment.OnReportListener {
 
     private static final String TAG = UserActivity.class.getName();
     private static final String ARG_USER_ID = "userId";
@@ -21,23 +21,27 @@ public class UserActivity extends BaseActivity implements CustomActionBarActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.user_main_layout);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
 
         Long userId = getIntent().getLongExtra(ARG_USER_ID, -1);
         if (userId == -1) {
             throw new RuntimeException("Reference not provided");
         }
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
-        }
-
         FragmentManager fm = getSupportFragmentManager();
         if (fm.findFragmentByTag(USER_FRAGMENT) == null) {
             UserFragment userFragment = UserFragment.newInstance(userId);
             FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(android.R.id.content, userFragment, USER_FRAGMENT);
+            ft.replace(R.id.content_frame, userFragment, USER_FRAGMENT);
             ft.commit();
         }
 
@@ -51,26 +55,6 @@ public class UserActivity extends BaseActivity implements CustomActionBarActivit
     @Override
     public void onReport() {
         finish();
-    }
-
-    @Override
-    public void requestActionBar(CustomActionBarFragment fragment) {
-        setupActionBar(fragment, true);
-    }
-
-    protected void setupActionBar(CustomActionBarFragment fragment, boolean homeUp) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            if (fragment.getActionBarView() != null) {
-                actionBar.setDisplayShowCustomEnabled(true);
-                actionBar.setDisplayShowTitleEnabled(false);
-                actionBar.setCustomView(fragment.getActionBarView());
-            } else {
-                actionBar.setDisplayShowCustomEnabled(false);
-                actionBar.setDisplayShowTitleEnabled(true);
-                actionBar.setTitle(fragment.getActionBarTitle());
-            }
-        }
     }
 
     public static Intent createIntent(Context ctx, Long userId) {

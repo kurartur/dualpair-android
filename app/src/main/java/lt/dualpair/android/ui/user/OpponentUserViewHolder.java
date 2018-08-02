@@ -1,13 +1,10 @@
 package lt.dualpair.android.ui.user;
 
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
@@ -26,7 +23,12 @@ import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.LocationUtil;
 import lt.dualpair.android.utils.SocialUtils;
 
-public class OpponentUserView extends LinearLayout {
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+public class OpponentUserViewHolder {
+
+    private Context context;
 
     @Bind(R.id.name) TextView name;
     @Bind(R.id.age) TextView age;
@@ -38,32 +40,15 @@ public class OpponentUserView extends LinearLayout {
     @Bind(R.id.purposes_of_being) TextView purposesOfBeing;
     @Bind(R.id.relationship_status) TextView relationshipStatus;
     @Bind(R.id.social_buttons) RecyclerView socialButtons;
+    @Bind(R.id.divider) View divider;
 
-    public OpponentUserView(Context context) {
-        super(context);
-        initView(context);
+    public OpponentUserViewHolder(Context context, View view) {
+        this.context = context;
+        ButterKnife.bind(this, view);
     }
 
-    public OpponentUserView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initView(context);
-    }
-
-    public OpponentUserView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initView(context);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public OpponentUserView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        initView(context);
-    }
-
-    protected void initView(Context context) {
-        LayoutInflater  mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mInflater.inflate(R.layout.opponent_user_view, this, true);
-        ButterKnife.bind(this);
+    private Resources getResources() {
+        return context.getResources();
     }
 
     public void setData(User user,
@@ -74,53 +59,54 @@ public class OpponentUserView extends LinearLayout {
                         List<UserPurposeOfBeing> purposesOfBeing,
                         List<UserAccount> userAccounts) {
         name.setText(user.getName());
-        age.setText(getContext().getResources().getString(R.string.review_age, user.getAge()));
+        age.setText(context.getString(R.string.review_age, user.getAge()));
         StringBuilder sb = new StringBuilder();
         String prefix = "";
         for (FullUserSociotype sociotype : userSociotypes) {
             sb.append(prefix);
             prefix = ", ";
             String code = sociotype.getSociotype().getCode1();
-            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getContext().getPackageName());
-            sb.append(getContext().getString(titleId) + " (" + sociotype.getSociotype().getCode1() + ")");
+            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", context.getPackageName());
+            sb.append(context.getString(titleId) + " (" + sociotype.getSociotype().getCode1() + ")");
         }
         sociotypes.setText(sb);
-        this.description.setText(description);
+        if (description != null && description.length() > 0) {
+            this.description.setText(description);
+            this.divider.setVisibility(VISIBLE);
+        } else {
+            this.divider.setVisibility(GONE);
+        }
         photosView.setPhotos(photos);
         setRelationshipStatus(relationshipStatus);
-        setPurposesOfBeing(purposesOfBeing);
+        setPurposesOfBeing(purposesOfBeing, user.getGender());
 
-
-
-        socialButtons.setAdapter(new SocialButtonsRecyclerAdapter(userAccounts, new SocialButtonsRecyclerAdapter.OnButtonClick() {
-            @Override
-            public void onClick(UserAccount userAccount) {
-                SocialUtils.openUserAccount(getContext(), userAccount);
-            }
-        }));
+        socialButtons.setAdapter(new SocialButtonsRecyclerAdapter(userAccounts,
+                userAccount -> SocialUtils.openUserAccount(context, userAccount)));
     }
 
     public void setLocation(UserLocation principalLocation, UserLocation opponentLocation) {
-        if (opponentLocation != null) {
-            city.setText(getContext().getString(R.string.review_city, opponentLocation.getCity()));
+        if (opponentLocation != null && opponentLocation.getCity() != null) {
+            city.setText(context.getString(R.string.review_city, opponentLocation.getCity()));
+        } else {
+            city.setText("");
         }
-        if (principalLocation != null && opponentLocation != null) {
+        if (principalLocation != null && opponentLocation != null && opponentLocation.getCity() != null) {
             Double distance = LocationUtil.calculateDistance(
                     principalLocation.getLatitude(),
                     principalLocation.getLongitude(),
                     opponentLocation.getLatitude(),
                     opponentLocation.getLongitude()
             );
-            this.distance.setText(getContext().getString(R.string.review_distance, distance.intValue() / 1000));
+            this.distance.setText(context.getString(R.string.review_distance, distance.intValue() / 1000));
         } else {
             this.distance.setText("");
         }
     }
 
-    private void setPurposesOfBeing(List<UserPurposeOfBeing> purposesOfBeing) {
+    private void setPurposesOfBeing(List<UserPurposeOfBeing> purposesOfBeing, String gender) {
         this.purposesOfBeing.setVisibility(GONE);
         if (!purposesOfBeing.isEmpty()) {
-            this.purposesOfBeing.setText(getResources().getString(R.string.i_am_here_to, getPurposesText(purposesOfBeing)));
+            this.purposesOfBeing.setText(getResources().getString(R.string.is_here_to, LabelUtils.getHeOrShe(context, gender), getPurposesText(purposesOfBeing)));
             this.purposesOfBeing.setVisibility(VISIBLE);
         }
     }
@@ -128,7 +114,7 @@ public class OpponentUserView extends LinearLayout {
     private void setRelationshipStatus(lt.dualpair.android.data.local.entity.RelationshipStatus relationshipStatus) {
         this.relationshipStatus.setVisibility(GONE);
         if (relationshipStatus != lt.dualpair.android.data.local.entity.RelationshipStatus.NONE) {
-            this.relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(getContext(), relationshipStatus));
+            this.relationshipStatus.setText(LabelUtils.getRelationshipStatusLabel(context, relationshipStatus));
             this.relationshipStatus.setVisibility(VISIBLE);
         }
     }
@@ -137,7 +123,7 @@ public class OpponentUserView extends LinearLayout {
         String text = "";
         String prefix = "";
         for (UserPurposeOfBeing purposeOfBeing : purposesOfBeing) {
-            text += prefix + LabelUtils.getPurposeOfBeingLabel(getContext(), purposeOfBeing.getPurpose());
+            text += prefix + LabelUtils.getPurposeOfBeingLabel(context, purposeOfBeing.getPurpose());
             prefix = ", ";
         }
         return text.toLowerCase();

@@ -68,7 +68,6 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/description_label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/about_you"
@@ -101,7 +100,6 @@
                 android:layout_marginTop="30dp">
 
                 <LinearLayout
-                    android:id="@+id/date_of_birth_input_layout"
                     android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

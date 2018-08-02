@@ -37,10 +37,6 @@
         <item name="android:textColor">@color/actionBarText</item>
     </style>
 
-    <style name="MainTabs">
-        <item name="android:background">@color/colorPrimary</item>
-    </style>
-
     <style name="loginButtonLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
@@ -62,68 +58,6 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="ProfileViewSection">
-        <item name="android:textColor">@color/colorPrimaryText</item>
-    </style>
-
-    <style name="ProfileViewSection.Container">
-    </style>
-
-    <style name="ProfileViewSection.Header">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:layout_marginTop">25dp</item>
-        <item name="android:paddingLeft">25dp</item>
-        <item name="android:paddingRight">25dp</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-
-    <style name="ProfileViewSection.HeaderText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/colorSecondaryText</item>
-    </style>
-
-    <style name="ProfileViewSection.HeaderEditIcon">
-        <item name="android:layout_width">15dp</item>
-        <item name="android:layout_height">15dp</item>
-        <item name="android:tint">@color/colorSecondaryText</item>
-        <item name="android:src">@drawable/ic_mode_edit_black_48dp</item>
-        <item name="android:layout_marginRight">5dp</item>
-    </style>
-
-    <style name="ProfileViewSection.Divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/divider</item>
-        <item name="android:layout_marginLeft">10dp</item>
-        <item name="android:layout_marginRight">10dp</item>
-    </style>
-
-    <style name="ProfileViewSection.Data">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingLeft">20dp</item>
-        <item name="android:paddingRight">20dp</item>
-        <item name="android:paddingBottom">10dp</item>
-    </style>
-
-    <style name="AppTheme.TextView">
-        <item name="android:textColor">@color/colorPrimaryText</item>
-    </style>
-
-    <style name="AppTheme.NewMatchWindow">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@color/new_match_background</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimEnabled">false</item>
-    </style>
-
     <style name="InputLabel">
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:textSize">13sp</item>
@@ -135,6 +69,33 @@
 
     <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar" >
         <item name="android:textColorPrimary">@android:color/black</item>
+    </style>
+
+    <style name="MeItem"/>
+
+    <style name="MeItem.Container" parent="MeItem">
+        <item name="android:background">@drawable/me_item_background</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="MeItem.Icon" parent="MeItem">
+        <item name="android:layout_margin">16dp</item>
+    </style>
+
+    <style name="MeItem.Text" parent="MeItem">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="UserView"/>
+    <style name="UserView.Overlay" parent="UserView"/>
+    <style name="UserView.Overlay.Text" parent="UserView.Overlay">
+        <item name="android:textColor">@color/userViewOverlayText</item>
+        <item name="android:shadowColor">@color/shadowColor</item>
+        <item name="android:shadowDx">5</item>
+        <item name="android:shadowDy">5</item>
+        <item name="android:shadowRadius">5</item>
     </style>
 
 </resources>

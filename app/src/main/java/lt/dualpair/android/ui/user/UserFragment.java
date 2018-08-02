@@ -5,17 +5,16 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Action;
@@ -28,23 +27,17 @@ import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserLocation;
 import lt.dualpair.android.data.remote.client.ServiceException;
 import lt.dualpair.android.ui.BaseFragment;
-import lt.dualpair.android.ui.CustomActionBarActivity;
-import lt.dualpair.android.ui.CustomActionBarFragment;
 import lt.dualpair.android.ui.UserFriendlyErrorConsumer;
 import lt.dualpair.android.ui.VisibilitySwitcher;
 import lt.dualpair.android.utils.ToastUtils;
 
-public class UserFragment extends BaseFragment implements CustomActionBarFragment {
+public class UserFragment extends BaseFragment {
 
     protected static final String ARG_USER_ID = "user_id";
 
-    private static final int REPORT_MENU_ITEM = 1;
-    private static final int UNMATCH_MENU_ITEM = 2;
-
     protected CompositeDisposable disposable = new CompositeDisposable();
 
-    @Bind(R.id.opponent_user_view)
-    OpponentUserView opponentUserView;
+    OpponentUserViewHolder opponentUserViewHolder;
 
     private UserLocation lastOpponentLocation;
     private UserLocation lastPrincipalLocation;
@@ -57,18 +50,13 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
 
     private VisibilitySwitcher visibilitySwitcher;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.user_layout, container, false);
         ButterKnife.bind(this, view);
+        opponentUserViewHolder = new OpponentUserViewHolder(getContext(), view);
         requestOfflineNotification(view.findViewById(R.id.offline));
         visibilitySwitcher = new VisibilitySwitcher(view, R.id.loading, R.id.unexpected_error, R.id.no_connection, R.id.main_layout);
         visibilitySwitcher.switchTo(R.id.loading);
@@ -105,43 +93,35 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
                 });
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        menu.clear();
-        menu.add(Menu.NONE, REPORT_MENU_ITEM, Menu.NONE, R.string.report);
-        if (isMatch) {
-            menu.add(Menu.NONE, UNMATCH_MENU_ITEM, Menu.NONE, R.string.unmatch);
-        }
-    }
+    @OnClick(R.id.more_menu) void onMoreMenuClick(View view) {
+        final PopupMenu popup = new PopupMenu(getContext(), view);
+        popup.getMenuInflater().inflate(R.menu.user_menu, popup.getMenu());
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case REPORT_MENU_ITEM:
-                reportUser();
-                return true;
-            case UNMATCH_MENU_ITEM:
-                unmatchUser();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (!isMatch) {
+            popup.getMenu().findItem(R.id.unmatch_menu_item).setVisible(false);
         }
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                int i = item.getItemId();
+                switch (item.getItemId()) {
+                    case R.id.report_menu_item:
+                        reportUser();
+                        return true;
+                    case R.id.unmatch_menu_item:
+                        unmatchUser();
+                        return true;
+                }
+                return false;
+            }
+        });
+        popup.show();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         disposable.clear();
-    }
-
-    @Override
-    public String getActionBarTitle() {
-        return username;
-    }
-
-    @Override
-    public View getActionBarView() {
-        return null;
     }
 
     protected Long getUserId() {
@@ -153,7 +133,7 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
         username = user.getUser().getName();
         userId = opponentUser.getId();
         lastOpponentLocation = user.getLastLocation();
-        opponentUserView.setData(
+        opponentUserViewHolder.setData(
                 opponentUser,
                 user.getSociotypes(),
                 opponentUser.getDescription(),
@@ -163,25 +143,16 @@ public class UserFragment extends BaseFragment implements CustomActionBarFragmen
                 user.getAccounts()
         );
 
-        opponentUserView.setLocation(lastPrincipalLocation, lastOpponentLocation);
+        opponentUserViewHolder.setLocation(lastPrincipalLocation, lastOpponentLocation);
 
         isMatch = user.getMatch() != null;
 
         viewModel.getLastStoredLocation().observe(this, userLocation -> {
             lastPrincipalLocation = userLocation;
-            opponentUserView.setLocation(userLocation, lastOpponentLocation);
+            opponentUserViewHolder.setLocation(userLocation, lastOpponentLocation);
         });
 
-        requestActionBar();
-
         visibilitySwitcher.switchTo(R.id.main_layout);
-    }
-
-    private void requestActionBar() {
-        FragmentActivity activity = getActivity();
-        if (activity instanceof CustomActionBarActivity) {
-            ((CustomActionBarActivity) activity).requestActionBar(this);
-        }
     }
 
     private void reportUser() {

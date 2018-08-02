@@ -7,19 +7,22 @@
     <color name="colorPrimaryText">#212121</color>
     <color name="colorSecondaryText">#757575</color>
     <color name="actionBarText">#FFFFFF</color>
-    <color name="icons">#FFFFFF</color>
     <color name="actionBarIcons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
 
     <color name="button_bg_color1">#cccccc</color>
     <color name="white">#FFFFFF</color>
-    <color name="text_shadow">#696969</color>
-    <color name="windowBackground">#f5f5f5</color>
+    <color name="windowBackground">#ffffff</color>
 
     <color name="light_green">#93e77e</color>
     <color name="black">#000000</color>
     <color name="grey">#cccccc</color>
 
-    <color name="new_match_background">#e5000000</color>
     <color name="text_protection_background">#c7333333</color>
+
+    <color name="userViewOverlayText">#ffffff</color>
+    <color name="shadowColor">#55000000</color>
+
+    <color name="facebookColor">#3b5998</color>
+    <color name="vkontakteColor">#45668e</color>
 </resources>

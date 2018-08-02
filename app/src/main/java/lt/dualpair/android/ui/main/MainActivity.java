@@ -22,6 +22,7 @@ import lt.dualpair.android.gcm.RegistrationService;
 import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.ui.CustomActionBarActivity;
 import lt.dualpair.android.ui.CustomActionBarFragment;
+import lt.dualpair.android.ui.me.MeFragment;
 import lt.dualpair.android.ui.user.UserFragment;
 
 public class MainActivity extends BaseActivity implements CustomActionBarActivity, FragmentManager.OnBackStackChangedListener {
@@ -116,8 +117,8 @@ public class MainActivity extends BaseActivity implements CustomActionBarActivit
                     case R.id.action_matches:
                         selectedFragment = MatchListFragment.newInstance();
                         break;
-                    case R.id.action_profile:
-                        selectedFragment = ProfileFragment.newInstance();
+                    case R.id.action_me:
+                        selectedFragment = MeFragment.newInstance();
                         break;
                 }
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

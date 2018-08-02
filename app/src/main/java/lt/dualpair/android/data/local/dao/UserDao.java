@@ -32,14 +32,8 @@ public abstract class UserDao {
     @Query("SELECT * FROM users WHERE id = :id")
     public abstract User getUser(Long id);
 
-    @Query("SELECT * FROM users WHERE id = :userId")
-    public abstract Flowable<User> getUserFlowable(Long userId);
-
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract Maybe<List<UserSociotype>> getUserSociotypesMaybe(Long userId);
-
-    @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
-    public abstract List<UserSociotype> getUserSociotypes(Long userId);
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract List<FullUserSociotype> getFullUserSociotypes(Long userId);
@@ -53,8 +47,8 @@ public abstract class UserDao {
     @Insert
     public abstract void saveUserSociotypes(List<UserSociotype> sociotypeSet);
 
-    @Insert
-    public abstract void saveUserSociotype(UserSociotype sociotypeSet);
+    @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
+    public abstract Flowable<List<UserSociotype>> getUserSociotypesFlowable(Long userId);
 
     @Transaction
     public void replaceUserSociotypes(Long userId, List<UserSociotype> userSociotypes) {
@@ -113,6 +107,9 @@ public abstract class UserDao {
     @Query("SELECT * FROM user_photos WHERE user_id = :userId ORDER BY position ASC")
     public abstract List<UserPhoto> getUserPhotos(Long userId);
 
+    @Query("SELECT * FROM user_photos WHERE user_id = :userId ORDER BY position ASC")
+    public abstract Flowable<List<UserPhoto>> getUserPhotosFlowable(Long userId);
+
     @Query("SELECT * FROM user_photos WHERE user_id = :userId")
     public abstract Maybe<List<UserPhoto>> getUserPhotosMaybe(Long userId);
 
@@ -154,4 +151,5 @@ public abstract class UserDao {
 
     @Insert
     public abstract void saveUserLocation(UserLocation userLocation);
+
 }

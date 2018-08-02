@@ -3,15 +3,19 @@ package lt.dualpair.android.ui.user;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.List;
 
+import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.ui.accounts.AccountType;
+import lt.dualpair.android.utils.DrawableUtils;
+import lt.dualpair.android.utils.LabelUtils;
 
 public class SocialButtonsRecyclerAdapter extends RecyclerView.Adapter<SocialButtonsRecyclerAdapter.ViewHolder> {
 
@@ -25,32 +29,18 @@ public class SocialButtonsRecyclerAdapter extends RecyclerView.Adapter<SocialBut
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        ImageView imageView = new ImageView(parent.getContext());
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.social_buttons_item, parent, false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            imageView.setElevation(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, parent.getContext().getResources().getDisplayMetrics()));
+            view.setElevation(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, parent.getContext().getResources().getDisplayMetrics()));
         }
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, parent.getContext().getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, parent.getContext().getResources().getDisplayMetrics()));
-        imageView.setLayoutParams(layoutParams);
-        imageView.setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, parent.getContext().getResources().getDisplayMetrics()),
-                0,
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, parent.getContext().getResources().getDisplayMetrics()),
-                0);
-        imageView.setAlpha(0.9f);
-        return new ViewHolder(imageView);
+        return new ViewHolder(view, onButtonClick);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         final UserAccount userAccount = userAccounts.get(holder.getAdapterPosition());
-        holder.imageView().setImageResource(AccountType.valueOf(userAccount.getAccountType()).getIcon());
-        holder.imageView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onButtonClick.onClick(userAccount);
-            }
-        });
+        holder.setAccount(userAccount);
     }
 
     @Override
@@ -60,12 +50,28 @@ public class SocialButtonsRecyclerAdapter extends RecyclerView.Adapter<SocialBut
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ViewHolder(View itemView) {
+        private TextView accountTypeNameView;
+        private ImageView accountTypeIconView;
+        private OnButtonClick onClickListener;
+
+        public ViewHolder(View itemView, OnButtonClick onClickListener) {
             super(itemView);
+            accountTypeNameView = itemView.findViewById(R.id.acccount_type_name);
+            accountTypeIconView = itemView.findViewById(R.id.account_type_icon);
+            this.onClickListener = onClickListener;
         }
 
-        public ImageView imageView() {
-            return (ImageView)itemView;
+        public void setAccount(UserAccount userAccount) {
+            AccountType accountType = AccountType.valueOf(userAccount.getAccountType());
+            accountTypeNameView.setText(LabelUtils.getAccountTypeLabel(itemView.getContext(), accountType));
+            accountTypeIconView.setImageResource(accountType.getIcon());
+            itemView.setBackgroundResource(DrawableUtils.getAccountTypeColor(itemView.getContext(), accountType));
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.onClick(userAccount);
+                }
+            });
         }
     }
 

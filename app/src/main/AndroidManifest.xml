@@ -51,7 +51,8 @@
         <activity android:name=".ui.user.SetDateOfBirthActivity" />
         <activity android:name=".ui.search.SearchParametersActivity" />
         <activity android:name=".ui.AboutActivity" />
-        <activity android:name=".ui.user.UserActivity" />
+        <activity android:name=".ui.user.UserActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".ui.main.ReviewHistoryActivity" />
         <activity
             android:name=".ui.user.EditUserActivity"
@@ -78,7 +79,6 @@
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent" />
-        <activity android:name=".ui.splash.ToyActivity" />
         <activity android:name=".ui.socionics.SetSociotypeActivity" />
         <activity android:name=".ui.socionics.ViewSociotypeActivity" />
         <activity android:name=".ui.main.NewMatchActivity" />

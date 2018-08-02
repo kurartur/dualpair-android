@@ -16,153 +16,80 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <lt.dualpair.android.ui.ImageSwipe
-                android:id="@+id/photos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                custom:dotsHorizontalPosition="left"
-                custom:dotsVerticalPosition="bottom"
-                custom:dotsLeftMargin="20dp"
-                custom:square="true"/>
-
             <RelativeLayout
+                android:id="@+id/top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <lt.dualpair.android.ui.ImageSwipe
+                    android:id="@+id/photos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    custom:dotsHorizontalPosition="left"
+                    custom:dotsVerticalPosition="bottom"
+                    custom:dotsLeftMargin="16dp"
+                    custom:square="true"/>
+
+                <include layout="@layout/user_name_layout" />
+
+            </RelativeLayout>
+
+            <LinearLayout
                 android:id="@+id/bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_below="@id/photos"
-                android:background="@color/white">
-
-                <RelativeLayout
-                    android:id="@+id/bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorPrimaryDark">
-
-                    <LinearLayout
-                        android:id="@+id/place"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginBottom="3dp"
-                        android:layout_marginTop="5dp">
-
-                        <TextView
-                            android:id="@+id/city"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="13sp"
-                            android:text="City"
-                            style="@style/ReviewActionBarText"/>
-
-                        <TextView
-                            android:id="@+id/distance"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="13sp"
-                            android:text="Distance"
-                            android:layout_marginLeft="2sp"
-                            style="@style/ReviewActionBarText"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_below="@id/place"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginBottom="5dp">
-
-                        <TextView
-                            android:id="@+id/name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:text="Anastasija"
-                            style="@style/ReviewActionBarText"/>
-
-                        <TextView
-                            android:id="@+id/age"
-                            style="@style/ReviewActionBarText"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="20sp"
-                            android:text="0"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </RelativeLayout>
+                android:paddingTop="8dp"
+                android:paddingLeft="16dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="16dp"
+                android:layout_below="@id/top">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="10dp"
-                    android:paddingLeft="15dp"
-                    android:paddingBottom="10dp"
-                    android:paddingRight="15dp"
-                    android:layout_below="@id/bar">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_weight="1">
-
-                            <TextView
-                                android:id="@+id/relationship_status"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
-
-                            <TextView
-                                android:id="@+id/purposes_of_being"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/sociotypes"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="right"/>
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="5dp"/>
+                    android:layout_marginBottom="4dp">
 
                     <TextView
-                        android:id="@+id/description"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="15dp"/>
+                        android:id="@+id/sociotypes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/relationship_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/purposes_of_being"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 
-            </RelativeLayout>
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"/>
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@id/bottom"
                 android:layout_alignRight="@id/bottom"
-                android:layout_marginTop="-35dp"
+                android:layout_marginTop="-45dp"
                 android:layout_marginRight="20dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">

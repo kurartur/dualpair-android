@@ -24,6 +24,7 @@ import lt.dualpair.android.data.local.dao.SociotypeDao;
 import lt.dualpair.android.data.local.dao.UserDao;
 import lt.dualpair.android.data.local.dao.UserResponseDao;
 import lt.dualpair.android.data.local.entity.FullUserSociotype;
+import lt.dualpair.android.data.local.entity.Sociotype;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserForView;
 import lt.dualpair.android.data.local.entity.UserResponse;
@@ -194,6 +195,20 @@ public class UserRepository {
     public Completable report(Long userId) {
         return new ReportUserClient(userId).completable()
                 .andThen(unmatch(userId));
+    }
+
+    public Flowable<List<Sociotype>> getSociotypes(Long userId) {
+        return userDao.getUserSociotypesFlowable(userId)
+                .map(new Function<List<UserSociotype>, List<Sociotype>>() {
+                    @Override
+                    public List<Sociotype> apply(List<UserSociotype> userSociotypes) throws Exception {
+                        List<Sociotype> sociotypes = new ArrayList<>();
+                        for (UserSociotype userSociotype : userSociotypes) {
+                            sociotypes.add(sociotypeDao.getSociotypeById(userSociotype.getSociotypeId()));
+                        }
+                        return sociotypes;
+                    }
+                });
     }
 
 }

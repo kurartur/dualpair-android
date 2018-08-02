@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
 import lt.dualpair.android.R;
+import lt.dualpair.android.ui.accounts.AccountType;
 
 public class DrawableUtils {
 
@@ -21,5 +22,15 @@ public class DrawableUtils {
     public static void setActionBarIconColorFilter(Context context, Drawable drawable) {
         drawable.mutate();
         drawable.setColorFilter(context.getResources().getColor(R.color.actionBarIcons), PorterDuff.Mode.SRC_ATOP);
+    }
+
+    public static int getAccountTypeColor(Context context, AccountType accountType) {
+        String colorId = "";
+        if (accountType == AccountType.FB) {
+            colorId = "facebookColor";
+        } else {
+            colorId = "vkontakteColor";
+        }
+        return context.getResources().getIdentifier(colorId, "color", context.getPackageName());
     }
 }

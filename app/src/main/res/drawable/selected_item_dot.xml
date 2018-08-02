@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval" android:useLevel="true"
-    android:dither="true">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval" android:useLevel="true"
+            android:dither="true">
+            <size android:height="7dip" android:width="7dip"/>
+            <solid android:color="@color/shadowColor"/>
+        </shape>
+    </item>
 
-    <size android:height="7dip" android:width="7dip"/>
-    <solid android:color="#ffffff"/>
-
-</shape>
+    <item android:bottom="2px" android:right="2px">
+        <shape android:shape="oval" android:useLevel="true"
+            android:dither="true">
+            <size android:height="7dip" android:width="7dip"/>
+            <solid android:color="#ffffff"/>
+        </shape>
+    </item>
+</layer-list>

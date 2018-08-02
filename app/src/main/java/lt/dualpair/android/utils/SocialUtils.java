@@ -17,6 +17,7 @@ public class SocialUtils {
     private static final String FACEBOOK_DOMAIN = "https://www.facebook.com";
     private static final String VKONTAKTE_DOMAIN = "https://vk.com";
 
+    // TODO doesnt work, fix
     public static void openFacebookUser(Context context, String id) {
         String url = FACEBOOK_DOMAIN + "/" + id;
         Uri uri = Uri.parse(url);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="menu_fragment_item_text_size">20dp</dimen>
     <dimen name="search_parameter_item_padding">20dp</dimen>
+    <dimen name="me_item_height">56dp</dimen>
+    <dimen name="me_item_icon_size">24dp</dimen>
 </resources>

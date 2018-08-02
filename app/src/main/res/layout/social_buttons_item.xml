@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:layout_marginBottom="4dp">
+
+    <TextView
+        android:id="@+id/acccount_type_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:text="@string/accounts_and_communication"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_centerVertical="true"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"/>
+
+    <ImageView
+        android:id="@+id/account_type_icon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/fb_f_logo__blue_50"/>
+
+</RelativeLayout>

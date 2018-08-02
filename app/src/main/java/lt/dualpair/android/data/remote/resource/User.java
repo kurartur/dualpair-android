@@ -15,6 +15,7 @@ public class User extends BaseResource implements Serializable {
     private String name;
     private Date dateOfBirth;
     private Integer age;
+    private String gender;
     private Set<Sociotype> sociotypes = new HashSet<>();
     private Set<Location> locations;
     private String description;
@@ -39,6 +40,10 @@ public class User extends BaseResource implements Serializable {
 
     public Integer getAge() {
         return age;
+    }
+
+    public String getGender() {
+        return "F"; // TODO make this work
     }
 
     public Set<Sociotype> getSociotypes() {

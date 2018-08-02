@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -21,7 +22,6 @@ import lt.dualpair.android.accounts.AccountUtils;
 import lt.dualpair.android.data.local.DualPairRoomDatabase;
 import lt.dualpair.android.data.local.dao.SociotypeDao;
 import lt.dualpair.android.data.local.dao.UserDao;
-import lt.dualpair.android.data.local.entity.FullUserSociotype;
 import lt.dualpair.android.data.local.entity.PurposeOfBeing;
 import lt.dualpair.android.data.local.entity.RelationshipStatus;
 import lt.dualpair.android.data.local.entity.Sociotype;
@@ -264,24 +264,12 @@ public class UserPrincipalRepository {
         }
     }
 
-    public LiveData<User> getUserLive() {
-        return userDao.getUserLive(userId);
-    }
-
-    public LiveData<List<FullUserSociotype>> getFullUserSociotypesLive() {
-        return userDao.getFullUserSociotypesLive(userId);
-    }
-
     public LiveData<List<UserAccount>> getUserAccountsLive() {
         return userDao.getUserAccountsLive(userId);
     }
 
-    public LiveData<List<UserPhoto>> getUserPhotosLive() {
-        return userDao.getUserPhotosLive(userId);
-    }
-
-    public LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive() {
-        return userDao.getUserPurposesOfBeingLive(userId);
+    public Flowable<List<UserPhoto>> getUserPhotos() {
+        return userDao.getUserPhotosFlowable(userId);
     }
 
     public Completable connectAccount(String providerId, String accessToken, Long expiresIn, String scope) {

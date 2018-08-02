@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:weightSum="3"
+                android:background="@color/colorPrimaryLight">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_weight="1">
+
+                    <lt.dualpair.android.ui.SquareImageView
+                        android:id="@+id/photo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/person"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_weight="2"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sample"
+                        android:textStyle="bold"
+                        android:textSize="22sp"/>
+
+                    <TextView
+                        android:id="@+id/view_public_profile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/view_public_profile"
+                        android:layout_marginTop="8dp"
+                        android:padding="4dp"
+                        android:textSize="12sp"
+                        android:background="@drawable/button_border"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/sociotype_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/me_item_height"
+                    style="@style/MeItem.Container">
+
+                    <ImageView
+                        android:id="@+id/sociotype_icon"
+                        android:layout_width="@dimen/me_item_icon_size"
+                        android:layout_height="@dimen/me_item_icon_size"
+                        android:src="@drawable/ic_star_black_48dp"
+                        style="@style/MeItem.Icon"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/sociotype_icon"
+                        android:text="@string/sociotype"
+                        android:layout_centerVertical="true"
+                        style="@style/MeItem.Text"/>
+
+                    <TextView
+                        android:id="@+id/sociotype"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:text="@string/sample"
+                        android:layout_marginEnd="16dp"
+                        android:textStyle="bold"
+                        android:textSize="16sp"/>
+
+                </RelativeLayout>
+
+                <include layout="@layout/me_menu_separator" />
+
+                <RelativeLayout
+                    android:id="@+id/about_you_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/me_item_height"
+                    style="@style/MeItem.Container">
+
+                    <ImageView
+                        android:id="@+id/about_you_icon"
+                        android:layout_width="@dimen/me_item_icon_size"
+                        android:layout_height="@dimen/me_item_icon_size"
+                        android:src="@drawable/ic_person_black_48dp"
+                        style="@style/MeItem.Icon"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/about_you_icon"
+                        android:text="@string/about_you"
+                        style="@style/MeItem.Text"/>
+
+                </RelativeLayout>
+
+                <include layout="@layout/me_menu_separator" />
+
+                <RelativeLayout
+                    android:id="@+id/photos_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/me_item_height"
+                    style="@style/MeItem.Container">
+
+                    <ImageView
+                        android:id="@+id/photos_icon"
+                        android:layout_width="@dimen/me_item_icon_size"
+                        android:layout_height="@dimen/me_item_icon_size"
+                        android:src="@drawable/ic_photo_library_black_48dp"
+                        style="@style/MeItem.Icon"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/photos_icon"
+                        android:text="@string/photos"
+                        style="@style/MeItem.Text"/>
+
+                </RelativeLayout>
+
+                <include layout="@layout/me_menu_separator" />
+
+                <RelativeLayout
+                    android:id="@+id/accounts_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/me_item_height"
+                    style="@style/MeItem.Container">
+
+                    <ImageView
+                        android:id="@+id/accounts_icon"
+                        android:layout_width="@dimen/me_item_icon_size"
+                        android:layout_height="@dimen/me_item_icon_size"
+                        style="@style/MeItem.Icon"
+                        android:src="@drawable/ic_star_black_48dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/accounts_icon"
+                        android:text="@string/accounts_and_communication"
+                        style="@style/MeItem.Text"/>
+
+                </RelativeLayout>
+
+                <include layout="@layout/me_menu_separator" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/me_item_height"
+                    style="@style/MeItem.Container">
+
+                    <ImageView
+                        android:id="@+id/settings_icon"
+                        android:layout_width="@dimen/me_item_icon_size"
+                        android:layout_height="@dimen/me_item_icon_size"
+                        android:src="@drawable/ic_settings_black_48dp"
+                        style="@style/MeItem.Icon"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/settings_icon"
+                        android:text="@string/settings"
+                        style="@style/MeItem.Text"/>
+
+                </RelativeLayout>
+
+                <include layout="@layout/me_menu_separator" />
+
+                <RelativeLayout
+                    android:id="@+id/invite_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/me_item_height"
+                    style="@style/MeItem.Container">
+
+                    <ImageView
+                        android:id="@+id/invite_icon"
+                        android:layout_width="@dimen/me_item_icon_size"
+                        android:layout_height="@dimen/me_item_icon_size"
+                        android:src="@drawable/ic_person_add_black_36dp"
+                        style="@style/MeItem.Icon"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/invite_icon"
+                        android:text="@string/invite_friends"
+                        style="@style/MeItem.Text"/>
+
+                </RelativeLayout>
+
+                <include layout="@layout/me_menu_separator" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <include layout="@layout/offline_layout"/>
+
+</FrameLayout>

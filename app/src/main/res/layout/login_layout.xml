@@ -34,7 +34,7 @@
         <LinearLayout
             android:id="@+id/fb_login_button"
             style="@style/loginButtonLayout"
-            android:background="#3b5998"
+            android:background="@color/facebookColor"
             android:layout_marginTop="50dp">
 
             <ImageView
@@ -50,7 +50,7 @@
         <LinearLayout
             android:id="@+id/vk_login_button"
             style="@style/loginButtonLayout"
-            android:background="#45668e"
+            android:background="@color/vkontakteColor"
             android:layout_marginTop="20dp">
 
             <ImageView

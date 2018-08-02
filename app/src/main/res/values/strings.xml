@@ -129,7 +129,7 @@
     <string name="photos">Photos</string>
 
     <string name="FB">Facebook</string>
-    <string name="VK">VK (Vkontakte)</string>
+    <string name="VK">VKontakte</string>
     <string name="about_me">About me</string>
     <string name="date_of_birth">Date of birth</string>
     <string name="no_photos_found">No photos</string>
@@ -179,6 +179,9 @@
     <string name="provide_relationship_status">Share your relationship status</string>
     <string name="provide_purpose_of_beings">Let others know why you are here</string>
     <string name="i_am_here_to">I am here to %1$s</string>
+    <string name="is_here_to">%1$s is here %2$s</string>
+    <string name="he">He</string>
+    <string name="she">She</string>
     <string name="location_permissions_explanation_title">Location access</string>
     <string name="location_permission_explanation_message">We need to know your location to find users near you. Without this permission you will not be able to use the app.</string>
     <string name="decline_anyway">Decline anyway</string>
@@ -199,9 +202,13 @@
     <string name="search">Search</string>
     <string name="unexpected_error">Unexpected error occurred</string>
     <string name="invite_friends">Invite friends</string>
-    <string name="share_via">Share via</string>
+    <string name="share_invite_via">Share invite via</string>
     <string name="recommendation_text">Want to find people that match your personal character? Install DualPair and join the community!</string>
     <string name="you_are_offline">You are offline</string>
     <string name="cant_report_offline">Can\'t report while offline</string>
     <string name="cant_unmatch_offline">Can\'t unmatch while offline</string>
+    <string name="my_dualpair">My DualPair</string>
+    <string name="me">Me</string>
+    <string name="view_public_profile">View public profile</string>
+    <string name="settings">Settings</string>
 </resources>

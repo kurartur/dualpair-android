@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,13 +71,17 @@ public class ImageSwipe extends LinearLayout {
         photoPager = view.findViewById(R.id.photo_pager);
         photoDots = view.findViewById(R.id.photo_dots);
 
-        photoDots.setGravity(dotsHorizontalPosition == 0 ? Gravity.LEFT : Gravity.CENTER);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)photoDots.getLayoutParams();
         params.setMargins(dotsLeftMargin, 0, 0, 0);
         if (dotsVerticalPosition == 0) {
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         } else {
             params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        }
+        if (dotsHorizontalPosition == 0) {
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        } else {
+            params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         }
         photoDots.setLayoutParams(params);
 
@@ -110,7 +113,7 @@ public class ImageSwipe extends LinearLayout {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(7, 0, 7, 0);
+            params.setMargins(6, 0, 6, 0);
             photoDots.addView(dotImages[i], params);
         }
     }

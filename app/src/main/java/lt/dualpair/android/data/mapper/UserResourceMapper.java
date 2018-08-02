@@ -87,6 +87,7 @@ public class UserResourceMapper {
         to.setAge(from.getAge());
         to.setDescription(from.getDescription());
         to.setRelationshipStatus(RelationshipStatus.fromCode(from.getRelationshipStatus()));
+        to.setGender(from.getGender());
         return to;
     }
 
