@@ -211,4 +211,14 @@ public class UserRepository {
                 });
     }
 
+    public Flowable<UserSociotype> getUserSociotype(Long userId) {
+        return userDao.getUserSociotypesFlowable(userId)
+                .map(new Function<List<UserSociotype>, UserSociotype>() {
+                    @Override
+                    public UserSociotype apply(List<UserSociotype> sociotypes) throws Exception {
+                        return sociotypes.get(0);
+                    }
+                });
+    }
+
 }

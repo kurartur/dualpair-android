@@ -95,9 +95,9 @@ public class UserPrincipalRepository {
         return mappingResult;
     }
 
-    public Completable setSociotype(String sociotypeCode) {
+    public Completable setSociotype(Sociotype.Code sociotypeCode) {
         Set<String> sociotypes = new HashSet<>();
-        sociotypes.add(sociotypeCode);
+        sociotypes.add(sociotypeCode.name());
         return new SetUserSociotypesClient(userId, sociotypes).completable()
                 .doOnComplete(() -> {
                     Sociotype sociotype = sociotypeDao.getSociotype(sociotypeCode);

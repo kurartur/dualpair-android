@@ -82,6 +82,7 @@
         <activity android:name=".ui.socionics.SetSociotypeActivity" />
         <activity android:name=".ui.socionics.ViewSociotypeActivity" />
         <activity android:name=".ui.main.NewMatchActivity" />
+        <activity android:name=".ui.me.MySociotypeActivity" />
 
         <service android:name=".accounts.AuthenticatorService">
             <intent-filter>

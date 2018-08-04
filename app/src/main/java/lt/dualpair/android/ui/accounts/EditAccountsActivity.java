@@ -49,7 +49,7 @@ public class EditAccountsActivity extends BaseActivity implements CommonOnLoginC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar(true, getString(R.string.accounts_and_communication));
-        setContentView(R.layout.edit_accounts);
+        setContentView(R.layout.edit_accounts_layout);
         ButterKnife.bind(this);
 
         if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {

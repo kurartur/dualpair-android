@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 import lt.dualpair.android.data.local.DualPairRoomDatabase;
@@ -19,11 +20,10 @@ import lt.dualpair.android.data.remote.client.socionics.EvaluateTestClient;
 public class SociotypeRepository {
 
     private final LiveData<List<Sociotype>> sociotypes;
-    private DualPairRoomDatabase database;
     private SociotypeDao sociotypeDao;
 
     public SociotypeRepository(Application application) {
-        database = DualPairRoomDatabase.getDatabase(application);
+        DualPairRoomDatabase database = DualPairRoomDatabase.getDatabase(application);
         sociotypeDao = database.sociotypeDao();
         sociotypes = sociotypeDao.getAllSociotypesLiveData();
     }
@@ -32,8 +32,8 @@ public class SociotypeRepository {
         return sociotypes;
     }
 
-    public LiveData<Sociotype> getSociotype(String code1) {
-        return sociotypeDao.getSociotypeLive(code1);
+    public Flowable<Sociotype> getSociotype(Long id) {
+        return sociotypeDao.getSociotype(id);
     }
 
     public Observable<Sociotype> evaluateTest(Map<String, ChoicePair> choicePairs) {
@@ -41,7 +41,7 @@ public class SociotypeRepository {
                 .map(new Function<lt.dualpair.android.data.remote.resource.Sociotype, Sociotype>() {
                     @Override
                     public Sociotype apply(lt.dualpair.android.data.remote.resource.Sociotype sociotypeResource) throws Exception {
-                        return sociotypeDao.getSociotype(sociotypeResource.getCode1());
+                        return sociotypeDao.getSociotype(Sociotype.Code.valueOf(sociotypeResource.getCode1()));
                     }
                 });
     }

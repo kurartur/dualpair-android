@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lt.dualpair.android.ui.accounts.AccountType;
-
 public class User extends BaseResource implements Serializable {
 
     private Long id;
@@ -23,8 +21,6 @@ public class User extends BaseResource implements Serializable {
     private List<UserAccount> accounts = new ArrayList<>();
     private String relationshipStatus;
     private Set<String> purposesOfBeing = new HashSet<>();
-
-    private Date updateTime = new Date();
 
     public Long getId() {
         return id;
@@ -43,7 +39,7 @@ public class User extends BaseResource implements Serializable {
     }
 
     public String getGender() {
-        return "F"; // TODO make this work
+        return gender;
     }
 
     public Set<Sociotype> getSociotypes() {
@@ -89,6 +85,10 @@ public class User extends BaseResource implements Serializable {
         this.age = age;
     }
 
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     public void setSociotypes(Set<Sociotype> sociotypes) {
         this.sociotypes = sociotypes;
     }
@@ -107,25 +107,6 @@ public class User extends BaseResource implements Serializable {
 
     public void setAccounts(List<UserAccount> accounts) {
         this.accounts = accounts;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public UserAccount getAccountByType(AccountType accountType) {
-        if (getAccounts() != null) {
-            for (UserAccount account : getAccounts()) {
-                if (account.getAccountType() == accountType) {
-                    return account;
-                }
-            }
-        }
-        return null;
     }
 
     public String getRelationshipStatus() {

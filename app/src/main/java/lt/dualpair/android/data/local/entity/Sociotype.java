@@ -9,15 +9,14 @@ import java.io.Serializable;
 @Entity(tableName = "sociotypes")
 public class Sociotype implements Serializable {
 
+    public enum Code { LII,  ILE,  ESE,  SEI,  LSI,  SLE,  EIE,  IEI,  ESI,  SEE,  LIE,  ILI,  EII,  IEE,  LSE,  SLI }
+
     @PrimaryKey(autoGenerate = true)
     @NonNull
     private Long id;
 
     @NonNull
-    private String code1;
-
-    @NonNull
-    private String code2;
+    private Code code;
 
     @NonNull
     public Long getId() {
@@ -28,47 +27,17 @@ public class Sociotype implements Serializable {
         this.id = id;
     }
 
-    public Sociotype(@NonNull String code1, @NonNull String code2) {
-        this.code1 = code1;
-        this.code2 = code2;
+    public Sociotype(@NonNull Code code) {
+        this.code = code;
     }
 
     @NonNull
-    public String getCode1() {
-        return code1;
+    public Code getCode() {
+        return code;
     }
 
-    public void setCode1(@NonNull String code1) {
-        this.code1 = code1;
+    public void setCode(@NonNull Code code) {
+        this.code = code;
     }
 
-    @NonNull
-    public String getCode2() {
-        return code2;
-    }
-
-    public void setCode2(@NonNull String code2) {
-        this.code2 = code2;
-    }
-
-    public static Sociotype[] populate() {
-        return new Sociotype[] {
-            new Sociotype("LII", "INTJ"),
-            new Sociotype("ILE", "ENTP"),
-            new Sociotype("ESE", "ESFJ"),
-            new Sociotype("SEI", "ISFP"),
-            new Sociotype("LSI", "ISTJ"),
-            new Sociotype("SLE", "ESTP"),
-            new Sociotype("EIE", "ENFJ"),
-            new Sociotype("IEI", "INFP"),
-            new Sociotype("ESI", "ISFJ"),
-            new Sociotype("SEE", "ESFP"),
-            new Sociotype("LIE", "ENTJ"),
-            new Sociotype("ILI", "INTP"),
-            new Sociotype("EII", "INFJ"),
-            new Sociotype("IEE", "ENFP"),
-            new Sociotype("LSE", "ESTJ"),
-            new Sociotype("SLI", "ISTP")
-        };
-    }
 }

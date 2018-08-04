@@ -65,9 +65,8 @@ public class OpponentUserViewHolder {
         for (FullUserSociotype sociotype : userSociotypes) {
             sb.append(prefix);
             prefix = ", ";
-            String code = sociotype.getSociotype().getCode1();
-            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", context.getPackageName());
-            sb.append(context.getString(titleId) + " (" + sociotype.getSociotype().getCode1() + ")");
+            String code = LabelUtils.getSociotypeAcronym(context, sociotype.getSociotype().getCode());
+            sb.append(LabelUtils.getSociotypeSocialRole(context, sociotype.getSociotype().getCode()) + " (" + code + ")");
         }
         sociotypes.setText(sb);
         if (description != null && description.length() > 0) {

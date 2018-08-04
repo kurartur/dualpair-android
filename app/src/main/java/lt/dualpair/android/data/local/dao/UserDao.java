@@ -24,9 +24,6 @@ import lt.dualpair.android.data.local.entity.UserSociotype;
 public abstract class UserDao {
 
     @Query("SELECT * FROM users WHERE id = :id")
-    public abstract LiveData<User> getUserLive(Long id);
-
-    @Query("SELECT * FROM users WHERE id = :id")
     public abstract Maybe<User> getUserMaybe(Long id);
 
     @Query("SELECT * FROM users WHERE id = :id")
@@ -37,9 +34,6 @@ public abstract class UserDao {
 
     @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
     public abstract List<FullUserSociotype> getFullUserSociotypes(Long userId);
-
-    @Query("SELECT * FROM user_sociotypes WHERE user_id = :userId")
-    public abstract LiveData<List<FullUserSociotype>> getFullUserSociotypesLive(Long userId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void saveUser(User user);
@@ -112,12 +106,6 @@ public abstract class UserDao {
 
     @Query("SELECT * FROM user_photos WHERE user_id = :userId")
     public abstract Maybe<List<UserPhoto>> getUserPhotosMaybe(Long userId);
-
-    @Query("SELECT * FROM user_photos WHERE user_id = :userId")
-    public abstract LiveData<List<UserPhoto>> getUserPhotosLive(Long userId);
-
-    @Query("SELECT * FROM user_purposes_of_being WHERE user_id = :userId")
-    public abstract LiveData<List<UserPurposeOfBeing>> getUserPurposesOfBeingLive(Long userId);
 
     @Query("SELECT * FROM user_purposes_of_being WHERE user_id = :userId")
     public abstract Maybe<List<UserPurposeOfBeing>> getUserPurposesOfBeingMaybe(Long userId);

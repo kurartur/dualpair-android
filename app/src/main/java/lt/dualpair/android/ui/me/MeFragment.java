@@ -28,15 +28,14 @@ import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.ConnectivityMonitor;
 import lt.dualpair.android.R;
 import lt.dualpair.android.accounts.AccountUtils;
-import lt.dualpair.android.data.local.entity.Sociotype;
 import lt.dualpair.android.ui.AboutActivity;
 import lt.dualpair.android.ui.BaseFragment;
 import lt.dualpair.android.ui.accounts.EditAccountsActivity;
-import lt.dualpair.android.ui.socionics.SetSociotypeActivity;
 import lt.dualpair.android.ui.splash.SplashActivity;
 import lt.dualpair.android.ui.user.EditPhotosActivity;
 import lt.dualpair.android.ui.user.EditUserActivity;
 import lt.dualpair.android.ui.user.UserActivity;
+import lt.dualpair.android.utils.LabelUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class MeFragment extends BaseFragment {
@@ -112,12 +111,11 @@ public class MeFragment extends BaseFragment {
 
     @SuppressLint("CheckResult")
     private void subscribeUi() {
-        disposable.add(viewModel.getSociotypes()
+        disposable.add(viewModel.getSociotype()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(sociotypes -> {
-                    Sociotype sociotype = sociotypes.get(0);
-                    sociotypeView.setText(sociotype.getCode1() + " [" + sociotype.getCode2() + "]");
+                .subscribe(sociotype -> {
+                    sociotypeView.setText(LabelUtils.getSociotypeAcronym(getContext(), sociotype.getCode()) + " (" + LabelUtils.getSociotype4LetterAcronym(getContext(), sociotype.getCode()) + ")");
                 }));
         disposable.add(viewModel.getUser()
                 .subscribeOn(Schedulers.io())
@@ -146,7 +144,7 @@ public class MeFragment extends BaseFragment {
     }
 
     @OnClick(R.id.sociotype_item) void onSociotypesItemClick(View v) {
-        startActivity(SetSociotypeActivity.createIntent(getActivity(), false));
+        startActivity(MySociotypeActivity.createIntent(getActivity()));
     }
 
     @OnClick(R.id.accounts_item) void onAccountsItemClick(View v) {

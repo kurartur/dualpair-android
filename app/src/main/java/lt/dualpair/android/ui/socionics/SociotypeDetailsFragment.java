@@ -68,15 +68,15 @@ public class SociotypeDetailsFragment extends BaseFragment {
     private void subscribeUi() {
         // nothing here, just show sociotype arg
         Sociotype sociotype = getSociotype();
-        String t = sociotype.getCode1();
-        t += " (" + sociotype.getCode2() + ") - ";
-        t += LabelUtils.getSociotypeTitle(getContext(), sociotype.getCode1());
+        String t = LabelUtils.getSociotypeAcronym(getContext(), sociotype.getCode());
+        String sociotype4LetterAcronym = LabelUtils.getSociotype4LetterAcronym(getContext(), sociotype.getCode());
+        t += " (" + sociotype4LetterAcronym + ") - ";
+        t += LabelUtils.getSociotypeSocialRole(getContext(), sociotype.getCode());
         title.setText(t);
         String url = "http://www.sociotype.com/socionics/types/"
-                + sociotype.getCode1()
+                + sociotype.getCode().name()
                 + "-"
-                + sociotype.getCode2().substring(0, 3)
-                + sociotype.getCode2().substring(3).toLowerCase()
+                + sociotype4LetterAcronym
                 + "/";
         link.setText(Html.fromHtml("<a href=\"" + url + "\">" + getString(R.string.more) + "...</a>"));
         link.setMovementMethod(LinkMovementMethod.getInstance());
@@ -84,8 +84,8 @@ public class SociotypeDetailsFragment extends BaseFragment {
     }
 
     private void setupActionBar(Sociotype sociotype) {
-        String code1 = sociotype.getCode1();
-        ActionBarUtils.setTitle(getActivity(), LabelUtils.getSociotypeTitle(getContext(), code1) + " - " + code1);
+        Sociotype.Code code = sociotype.getCode();
+        ActionBarUtils.setTitle(getActivity(), LabelUtils.getSociotypeSocialRole(getContext(), code) + " - " + code);
     }
 
     public Sociotype getSociotype() {

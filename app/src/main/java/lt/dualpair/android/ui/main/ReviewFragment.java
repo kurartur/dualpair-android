@@ -138,9 +138,8 @@ public class ReviewFragment extends BaseFragment {
         for (FullUserSociotype sociotype : userSociotypes) {
             sb.append(prefix);
             prefix = ", ";
-            String code = sociotype.getSociotype().getCode1();
-            int titleId = getResources().getIdentifier(code.toLowerCase() + "_title", "string", getContext().getPackageName());
-            sb.append(getContext().getString(titleId) + " (" + sociotype.getSociotype().getCode1() + ")");
+            String code = LabelUtils.getSociotypeAcronym(getContext(), sociotype.getSociotype().getCode());
+            sb.append(LabelUtils.getSociotypeSocialRole(getContext(), sociotype.getSociotype().getCode()) + " (" + code + ")");
         }
         sociotypes.setText(sb);
         this.description.setText(description);

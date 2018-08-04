@@ -39,7 +39,7 @@ public class SociotypesViewModel extends ViewModel {
         return sociotypeLiveData;
     }
 
-    public Completable saveSociotype(String sociotypeCode) {
+    public Completable saveSociotype(Sociotype.Code sociotypeCode) {
         return userPrincipalRepository.setSociotype(sociotypeCode);
     }
 

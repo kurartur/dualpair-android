@@ -16,6 +16,7 @@ import lt.dualpair.android.data.local.dao.UserDao;
 import lt.dualpair.android.data.local.dao.UserResponseDao;
 import lt.dualpair.android.data.local.entity.Match;
 import lt.dualpair.android.data.local.entity.Sociotype;
+import lt.dualpair.android.data.local.entity.SociotypeRelation;
 import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserLocation;
@@ -28,10 +29,11 @@ import lt.dualpair.android.data.local.entity.UserSociotype;
 @Database(entities = {
         User.class, UserSociotype.class, UserAccount.class,
         UserResponse.class, UserPhoto.class, Sociotype.class, UserPurposeOfBeing.class,
-        UserSearchParameters.class, UserLocation.class, Match.class
+        UserSearchParameters.class, UserLocation.class, Match.class, SociotypeRelation.class
 }, version = 2, exportSchema = false)
 @TypeConverters({
-        DateTypeConverter.class, RelationshipStatusConverter.class, PurposeOfBeingConverter.class
+        DateTypeConverter.class, RelationshipStatusConverter.class, PurposeOfBeingConverter.class,
+        SociotypeCodeConverter.class
 })
 public abstract class DualPairRoomDatabase extends RoomDatabase {
 
@@ -59,7 +61,7 @@ public abstract class DualPairRoomDatabase extends RoomDatabase {
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     Executors.newSingleThreadScheduledExecutor().execute(() -> {
-                                        getDatabase(context).sociotypeDao().saveSociotypes(Sociotype.populate());
+                                        new DatabasePopulator(getDatabase(context)).populate();
                                     });
                                 }
                             })
@@ -72,6 +74,6 @@ public abstract class DualPairRoomDatabase extends RoomDatabase {
 
     public static void reset() {
         INSTANCE.clearAllTables();
-        INSTANCE.sociotypeDao().saveSociotypes(Sociotype.populate());
+        new DatabasePopulator(INSTANCE).populate();
     }
 }

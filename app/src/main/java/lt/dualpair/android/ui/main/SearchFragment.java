@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -260,6 +261,7 @@ public class SearchFragment extends BaseFragment implements ReviewFragment.OnRes
             viewModel.find()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
+                    .compose(bindUntilEvent(FragmentEvent.DESTROY))
                     .subscribe(this::render,
                             throwable -> {
                                 Log.e(getClass().getName(), throwable.getMessage(), throwable);

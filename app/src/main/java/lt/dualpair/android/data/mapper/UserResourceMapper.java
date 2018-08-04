@@ -52,7 +52,7 @@ public class UserResourceMapper {
             for (Sociotype sociotype : userResource.getSociotypes()) {
                 UserSociotype userSociotype = new UserSociotype();
                 userSociotype.setUserId(userId);
-                userSociotype.setSociotypeId(sociotypeDao.getSociotype(sociotype.getCode1()).getId());
+                userSociotype.setSociotypeId(sociotypeDao.getSociotype(lt.dualpair.android.data.local.entity.Sociotype.Code.valueOf(sociotype.getCode1())).getId());
                 userSociotypes.add(userSociotype);
             }
         }

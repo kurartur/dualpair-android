@@ -48,7 +48,7 @@ public class ConfirmableSociotypeDetailsFragment extends SociotypeDetailsFragmen
             case MENU_ITEM_SAVE:
                 isSaving = true;
                 getActivity().invalidateOptionsMenu();
-                Disposable disposable = viewModel.saveSociotype(getSociotype().getCode1())
+                Disposable disposable = viewModel.saveSociotype(getSociotype().getCode())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {

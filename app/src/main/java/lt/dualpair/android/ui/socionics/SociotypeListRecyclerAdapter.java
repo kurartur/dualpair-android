@@ -14,6 +14,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import lt.dualpair.android.R;
 import lt.dualpair.android.data.local.entity.Sociotype;
+import lt.dualpair.android.utils.LabelUtils;
 
 public class SociotypeListRecyclerAdapter extends RecyclerView.Adapter<SociotypeListRecyclerAdapter.SociotypeViewHolder> {
 
@@ -59,9 +60,9 @@ public class SociotypeListRecyclerAdapter extends RecyclerView.Adapter<Sociotype
         }
 
         public void set(Sociotype sociotype, OnSociotypeClickListener onSociotypeClickListener) {
-            this.code1.setText(sociotype.getCode1());
-            this.code2.setText(sociotype.getCode2());
-            String title = context.getString(context.getResources().getIdentifier(sociotype.getCode1().toLowerCase() + "_title", "string", context.getPackageName()));
+            this.code1.setText(LabelUtils.getSociotypeAcronym(context, sociotype.getCode()));
+            this.code2.setText(LabelUtils.getSociotype4LetterAcronym(context, sociotype.getCode()));
+            String title = LabelUtils.getSociotypeSocialRole(context, sociotype.getCode());
             this.title.setText(title);
             itemView.setOnClickListener(v -> onSociotypeClickListener.onSociotypeClick(sociotype));
         }
