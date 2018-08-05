@@ -33,6 +33,7 @@ import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.local.entity.UserSearchParameters;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 import lt.dualpair.android.data.mapper.UserResourceMapper;
+import lt.dualpair.android.data.remote.client.DisconnectAccountClient;
 import lt.dualpair.android.data.remote.client.authentication.LogoutClient;
 import lt.dualpair.android.data.remote.client.user.ConnectAccountClient;
 import lt.dualpair.android.data.remote.client.user.GetSearchParametersClient;
@@ -274,6 +275,11 @@ public class UserPrincipalRepository {
 
     public Completable connectAccount(String providerId, String accessToken, Long expiresIn, String scope) {
         return new ConnectAccountClient(providerId, accessToken, expiresIn, scope).completable()
+                .andThen(loadFromApi());
+    }
+
+    public Completable disconnectAccount(String providerId) {
+        return new DisconnectAccountClient(providerId).completable()
                 .andThen(loadFromApi());
     }
 }

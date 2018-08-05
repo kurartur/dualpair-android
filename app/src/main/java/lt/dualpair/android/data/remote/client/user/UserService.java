@@ -13,6 +13,7 @@ import lt.dualpair.android.data.remote.resource.SearchParameters;
 import lt.dualpair.android.data.remote.resource.User;
 import lt.dualpair.android.data.remote.resource.UserResponse;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -59,6 +60,10 @@ public interface UserService {
                              @Field("expiresIn") Long expiresIn,
                              @Field("scope") String scope);
 
+    @DELETE("api/connect")
+    @FormUrlEncoded
+    Completable disconnect(@Field("provider") String providerId);
+
     @POST("api/user/{userId}/photos")
     Completable setPhotos(@Path("userId") Long userId, @Body List<Photo> photos);
 
@@ -76,5 +81,4 @@ public interface UserService {
 
     @GET("/api/user/{userId}/responses")
     Observable<ResourceCollection<UserResponse>> getResponses(@Path("userId") Long userId, @Query("timestamp") Long timestamp);
-
 }

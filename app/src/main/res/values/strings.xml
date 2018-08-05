@@ -273,4 +273,6 @@
     <string name="iee_4letter">ENFp</string>
     <string name="lse_4letter">ESTj</string>
     <string name="sli_4letter">ISTp</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
 </resources>

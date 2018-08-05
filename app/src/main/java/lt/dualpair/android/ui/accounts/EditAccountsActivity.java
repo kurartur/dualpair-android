@@ -1,11 +1,13 @@
 package lt.dualpair.android.ui.accounts;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
 
 import com.facebook.AccessToken;
@@ -25,11 +27,13 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
 import lt.dualpair.android.SocialConstants;
 import lt.dualpair.android.ui.BaseActivity;
+import lt.dualpair.android.utils.SocialUtils;
 import lt.dualpair.android.utils.ToastUtils;
 
 public class EditAccountsActivity extends BaseActivity implements CommonOnLoginCallback {
@@ -48,12 +52,19 @@ public class EditAccountsActivity extends BaseActivity implements CommonOnLoginC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupActionBar(true, getString(R.string.accounts_and_communication));
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(R.string.accounts_and_communication);
+        }
+
         setContentView(R.layout.edit_accounts_layout);
         ButterKnife.bind(this);
 
         if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {
-            linkAccount((AccountType)getIntent().getSerializableExtra(ACCOUNT_TYPE_KEY));
+            connectAccount((AccountType)getIntent().getSerializableExtra(ACCOUNT_TYPE_KEY));
         }
         viewModel = ViewModelProviders.of(this, new EditAccountsViewModel.Factory(getApplication())).get(EditAccountsViewModel.class);
         subscribeUi();
@@ -77,15 +88,25 @@ public class EditAccountsActivity extends BaseActivity implements CommonOnLoginC
     public void renderAccounts(List<SocialAccountItem> socialAccountItems) {
         accountList.setAdapter(new AccountListAdapter(socialAccountItems, new AccountListAdapter.OnItemClickListener() {
             @Override
-            public void onClick(SocialAccountItem item) {
+            public void onConnectClick(SocialAccountItem item) {
                 if (item.getUserAccount() == null) {
-                    linkAccount(item.getAccountType());
+                    connectAccount(item.getAccountType());
                 }
+            }
+
+            @Override
+            public void onDisconnectClick(SocialAccountItem item) {
+                disconnectAccount(item.getAccountType());
+            }
+
+            @Override
+            public void onConnectedItemClick(SocialAccountItem item) {
+                SocialUtils.openUserAccount(EditAccountsActivity.this, item.getUserAccount());
             }
         }));
     }
 
-    public void linkAccount(AccountType accountType) {
+    private void connectAccount(AccountType accountType) {
         switch (accountType) {
             case FB:
                 LoginManager.getInstance().registerCallback(callbackManager, new FacebookLoginCallback(this));
@@ -96,6 +117,17 @@ public class EditAccountsActivity extends BaseActivity implements CommonOnLoginC
                 break;
         }
     }
+
+    @SuppressLint("CheckResult")
+    private void disconnectAccount(AccountType accountType) {
+        viewModel.disconnectAccount(accountType == AccountType.FB ? "facebook" : "vkontakte")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .compose(bindToLifecycle())
+            .subscribe();
+    }
+
+
 
     public void onAccountAdded() {
         if (getIntent().hasExtra(ACCOUNT_TYPE_KEY)) {
