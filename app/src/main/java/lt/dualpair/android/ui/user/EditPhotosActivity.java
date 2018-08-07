@@ -1,31 +1,27 @@
 package lt.dualpair.android.ui.user;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import lt.dualpair.android.R;
+import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.ui.BaseActivity;
-import lt.dualpair.android.ui.user.EditPhotosViewModel.PhotoEditingData;
 import lt.dualpair.android.utils.DrawableUtils;
 
 
@@ -36,9 +32,6 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     private static final int MENU_ITEM_SAVE = 1;
     private static final int MENU_ITEM_HELP = 2;
-
-    public static final String PHOTOS_KEY = "PHOTOS";
-    public static final String RESULT_BUNDLE_KEY = "RESULT_BUNDLE";
 
     @Bind(R.id.photos) RecyclerView photosView;
 
@@ -77,31 +70,19 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
                 3  /*Three columns*/ ,
                 1f  /*We want our items to be 1:1 ratio*/ ));
 
-        viewModel = ViewModelProviders.of(this, new EditPhotosViewModel.Factory(getApplication())).get(EditPhotosViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(EditPhotosViewModel.class);
         subscribeUi();
-
-        GraphRequest request = GraphRequest.newGraphPathRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/me/photos",
-                new GraphRequest.Callback() {
-                    @Override
-                    public void onCompleted(GraphResponse response) {
-                        String hello = "hello";
-                    }
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "source");
-        request.setParameters(parameters);
-        request.executeAsync();
     }
 
     private void subscribeUi() {
-        viewModel.getData().observe(this, new Observer<PhotoEditingData>() {
-            @Override
-            public void onChanged(@Nullable PhotoEditingData data) {
-                render(data);
-            }
-        });
+        Disposable d = Single.zip(
+                viewModel.getPhotos(),
+                viewModel.getUserAccounts(),
+                ZipResultHolder::new
+            ).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::render);
+        disposable.add(d);
     }
 
     @Override
@@ -111,8 +92,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         dialog.dismiss();
     }
 
-    public void render(final PhotoEditingData data) {
-
+    public void render(final ZipResultHolder data) {
         adapter = new EditPhotosRecyclerAdapter(data.getPhotos(), new EditPhotosRecyclerAdapter.OnAddClickListener() {
             @Override
             public void onAddClick() {
@@ -132,12 +112,10 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         itemTouchHelper.startDrag(viewHolder);
     }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        MenuItem menuItemHelp = menu.add(Menu.NONE, MENU_ITEM_HELP, Menu.NONE, R.string.help);
-        menuItemHelp.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_help_black_48dp));
-        menuItemHelp.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         if (!isSaving) {
             MenuItem menuItemSave = menu.add(Menu.NONE, MENU_ITEM_SAVE, Menu.NONE, R.string.save);
             menuItemSave.setIcon(DrawableUtils.getActionBarIcon(this, R.drawable.ic_done_black_48dp));
@@ -159,9 +137,6 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
             case MENU_ITEM_SAVE:
                 save();
                 return true;
-            case MENU_ITEM_HELP:
-                showHelp();
-                return true;
         }
         return false;
     }
@@ -170,19 +145,6 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     protected void onDestroy() {
         super.onDestroy();
         disposable.clear();
-    }
-
-    private void showHelp() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle(getString(R.string.how_to))
-                .setMessage(R.string.photo_edit_help)
-                .setPositiveButton(getString(R.string.got_it), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-        dialogBuilder.create().show();
     }
 
     private void save() {
@@ -204,5 +166,23 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         return new Intent(activity, EditPhotosActivity.class);
     }
 
+    private static class ZipResultHolder {
+
+        private List<UserPhoto> photos;
+        private List<UserAccount> userAccounts;
+
+        public ZipResultHolder(List<UserPhoto> photos, List<UserAccount> userAccounts) {
+            this.photos = photos;
+            this.userAccounts = userAccounts;
+        }
+
+        public List<UserPhoto> getPhotos() {
+            return photos;
+        }
+
+        public List<UserAccount> getUserAccounts() {
+            return userAccounts;
+        }
+    }
 
 }

@@ -50,7 +50,7 @@ public class AvailableProviderPhotosFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity(), new EditPhotosViewModel.Factory(getActivity().getApplication())).get(EditPhotosViewModel.class);
+        viewModel = ViewModelProviders.of(getActivity()).get(EditPhotosViewModel.class);
         subscribeUi();
     }
 

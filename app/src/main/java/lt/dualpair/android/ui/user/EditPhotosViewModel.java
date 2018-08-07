@@ -1,10 +1,7 @@
 package lt.dualpair.android.ui.user;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
 import java.util.HashMap;
@@ -12,56 +9,38 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function3;
-import io.reactivex.schedulers.Schedulers;
-import lt.dualpair.android.data.local.entity.User;
 import lt.dualpair.android.data.local.entity.UserAccount;
 import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.repository.PhotoRepository;
 import lt.dualpair.android.data.repository.UserPrincipalRepository;
 import lt.dualpair.android.ui.accounts.AccountType;
 
-public class EditPhotosViewModel extends ViewModel {
+public class EditPhotosViewModel extends AndroidViewModel {
 
     private UserPrincipalRepository userPrincipalRepository;
     private PhotoRepository photoRepository;
-    private final MutableLiveData<PhotoEditingData> data;
     private final Map<AccountType, List<UserPhoto>> availablePhotos = new HashMap<>();
+    private final Flowable<List<UserPhoto>> photosFlowable;
+    private final Flowable<List<UserAccount>> userAccounts;
 
-    public EditPhotosViewModel(UserPrincipalRepository userPrincipalRepository, PhotoRepository photoRepository) {
-        this.userPrincipalRepository = userPrincipalRepository;
-        this.photoRepository = photoRepository;
-        data = new MutableLiveData<>();
-        load();
+    public EditPhotosViewModel(@NonNull Application application) {
+        super(application);
+        this.userPrincipalRepository = new UserPrincipalRepository(application);
+        this.photoRepository = new PhotoRepository(application);
+
+        photosFlowable = userPrincipalRepository.getPhotos().toFlowable();
+        userAccounts = userPrincipalRepository.getUserAccounts().toFlowable();
     }
 
-    private void load() {
-        Single.zip(
-                userPrincipalRepository.getUser(),
-                userPrincipalRepository.getPhotos(),
-                userPrincipalRepository.getUserAccounts(),
-                new Function3<User, List<UserPhoto>, List<UserAccount>, PhotoEditingData>() {
-                    @Override
-                    public PhotoEditingData apply(User user, List<UserPhoto> userPhotos, List<UserAccount> userAccounts) {
-                        return new PhotoEditingData(user, userPhotos, userAccounts);
-                    }
-            })
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new Consumer<PhotoEditingData>() {
-                @Override
-                public void accept(PhotoEditingData photoEditingData) {
-                    data.setValue(photoEditingData);
-                }
-            });
+    public Single<List<UserPhoto>> getPhotos() {
+        return photosFlowable.singleOrError();
     }
 
-    public LiveData<PhotoEditingData> getData() {
-        return data;
+    public Single<List<UserAccount>> getUserAccounts() {
+        return userAccounts.singleOrError();
     }
 
     public Completable save(List<UserPhoto> photos) {
@@ -73,52 +52,7 @@ public class EditPhotosViewModel extends ViewModel {
             return Observable.just(availablePhotos.get(accountType));
         } else {
             return photoRepository.getAvailableUserPhotos(accountType)
-                    .doOnNext(new Consumer<List<UserPhoto>>() {
-                        @Override
-                        public void accept(List<UserPhoto> userPhotos) throws Exception {
-                            availablePhotos.put(accountType, userPhotos);
-                        }
-                    });
-        }
-    }
-
-    public static class PhotoEditingData {
-        private User user;
-        private List<UserPhoto> photos;
-        private List<UserAccount> userAccounts;
-
-        public PhotoEditingData(User user, List<UserPhoto> photos, List<UserAccount> userAccounts) {
-            this.user = user;
-            this.photos = photos;
-            this.userAccounts = userAccounts;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public List<UserPhoto> getPhotos() {
-            return photos;
-        }
-
-        public List<UserAccount> getUserAccounts() {
-            return userAccounts;
-        }
-    }
-
-    public static class Factory implements ViewModelProvider.Factory {
-        private Application application;
-        public Factory(Application application) {
-            this.application = application;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            if (modelClass.isAssignableFrom(EditPhotosViewModel.class)) {
-                return (T) new EditPhotosViewModel(new UserPrincipalRepository(application), new PhotoRepository(application));
-            }
-            throw new IllegalArgumentException("Wrong classs");
+                    .doOnNext(userPhotos -> availablePhotos.put(accountType, userPhotos));
         }
     }
 }

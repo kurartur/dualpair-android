@@ -96,7 +96,7 @@ public class MatchRepository {
         match.setOpponentId(matchResource.getUser().getId());
         match.setDate(matchResource.getDate());
         match.setName(matchResource.getUser().getName());
-        match.setPhotoSource(matchResource.getUser().getPhotos().get(0).getSourceUrl());
+        match.setPhotoSource(matchResource.getUser().getPhotos().get(0).getSource());
         return match;
     }
 

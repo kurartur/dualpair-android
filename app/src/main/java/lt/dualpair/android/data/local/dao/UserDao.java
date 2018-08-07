@@ -65,7 +65,7 @@ public abstract class UserDao {
     @Query("DELETE FROM user_accounts WHERE user_id = :userId")
     public abstract void deleteUserAccounts(Long userId);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void saveUserPhotos(List<UserPhoto> userPhotos);
 
     @Transaction

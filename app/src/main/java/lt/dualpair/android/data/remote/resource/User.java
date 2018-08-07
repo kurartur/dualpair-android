@@ -17,7 +17,7 @@ public class User extends BaseResource implements Serializable {
     private Set<Sociotype> sociotypes = new HashSet<>();
     private Set<Location> locations;
     private String description;
-    private List<Photo> photos;
+    private List<PhotoResource> photos;
     private List<UserAccount> accounts = new ArrayList<>();
     private String relationshipStatus;
     private Set<String> purposesOfBeing = new HashSet<>();
@@ -54,7 +54,7 @@ public class User extends BaseResource implements Serializable {
         return description;
     }
 
-    public List<Photo> getPhotos() {
+    public List<PhotoResource> getPhotos() {
         return photos;
     }
 
@@ -101,7 +101,7 @@ public class User extends BaseResource implements Serializable {
         this.description = description;
     }
 
-    public void setPhotos(List<Photo> photos) {
+    public void setPhotos(List<PhotoResource> photos) {
         this.photos = photos;
     }
 

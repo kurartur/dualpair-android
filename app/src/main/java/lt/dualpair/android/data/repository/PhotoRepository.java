@@ -58,9 +58,7 @@ public class PhotoRepository {
                             for (int i=0; i<items.length(); i++) {
                                 JSONObject photo = items.getJSONObject(i);
                                 UserPhoto userPhoto = new UserPhoto();
-                                userPhoto.setAccountType(AccountType.VK.name());
                                 userPhoto.setUserId(userPrincipalId);
-                                userPhoto.setIdOnAccount(photo.getString("id"));
                                 userPhoto.setSourceLink(photo.getString("photo_604"));
                                 result.add(userPhoto);
                             }
@@ -96,9 +94,7 @@ public class PhotoRepository {
                 for (int j=0; j<photos.length(); j++) {
                     JSONObject photo = photos.getJSONObject(j);
                     UserPhoto userPhoto = new UserPhoto();
-                    userPhoto.setAccountType(AccountType.FB.name());
                     userPhoto.setUserId(userPrincipalId);
-                    userPhoto.setIdOnAccount(photo.getString("id"));
                     userPhoto.setSourceLink(photo.getString("source"));
                     result.add(userPhoto);
                 }

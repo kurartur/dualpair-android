@@ -7,19 +7,23 @@ import java.util.Set;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import lt.dualpair.android.data.remote.resource.Location;
-import lt.dualpair.android.data.remote.resource.Photo;
+import lt.dualpair.android.data.remote.resource.PhotoResource;
 import lt.dualpair.android.data.remote.resource.ResourceCollection;
 import lt.dualpair.android.data.remote.resource.SearchParameters;
 import lt.dualpair.android.data.remote.resource.User;
 import lt.dualpair.android.data.remote.resource.UserResponse;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -50,8 +54,9 @@ public interface UserService {
     @PATCH("api/user/{userId}")
     Completable updateUser(@Path("userId") Long userId, @Body Map<String, Object> data);
 
-    @PUT("api/user/{userId}/photos")
-    Observable<Photo> addPhoto(@Path("userId") Long userId, @Body Photo photo);
+    @Multipart
+    @POST("api/user/{userId}/photos")
+    Observable<List<PhotoResource>> setPhotos(@Path("userId") Long userId, @Part List<MultipartBody.Part> fileParts, @Part("data") RequestBody data);
 
     @POST("api/connect")
     @FormUrlEncoded
@@ -63,9 +68,6 @@ public interface UserService {
     @DELETE("api/connect")
     @FormUrlEncoded
     Completable disconnect(@Field("provider") String providerId);
-
-    @POST("api/user/{userId}/photos")
-    Completable setPhotos(@Path("userId") Long userId, @Body List<Photo> photos);
 
     @POST("api/report")
     Completable reportUser(@Body Map<String, Object> data);

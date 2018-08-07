@@ -44,9 +44,8 @@ import lt.dualpair.android.data.remote.client.user.SetSearchParametersClient;
 import lt.dualpair.android.data.remote.client.user.SetUserSociotypesClient;
 import lt.dualpair.android.data.remote.client.user.UpdateUserClient;
 import lt.dualpair.android.data.remote.resource.Location;
-import lt.dualpair.android.data.remote.resource.Photo;
+import lt.dualpair.android.data.remote.resource.PhotoResource;
 import lt.dualpair.android.data.remote.resource.SearchParameters;
-import lt.dualpair.android.ui.accounts.AccountType;
 
 public class UserPrincipalRepository {
 
@@ -210,22 +209,27 @@ public class UserPrincipalRepository {
     }
 
     public Completable savePhotos(List<UserPhoto> photos) {
-        List<Photo> photoResources = new ArrayList<>();
+        List<PhotoResource> photoResources = new ArrayList<>();
         for (UserPhoto userPhoto : photos) {
-            Photo photoResource = new Photo();
-            photoResource.setAccountType(AccountType.valueOf(userPhoto.getAccountType()));
-            photoResource.setIdOnAccount(userPhoto.getIdOnAccount());
+            PhotoResource photoResource = new PhotoResource();
+            photoResource.setId(userPhoto.getId());
             photoResource.setPosition(userPhoto.getPosition());
-            photoResource.setSourceUrl(userPhoto.getSourceLink());
+            photoResource.setSource(userPhoto.getSourceLink());
             photoResources.add(photoResource);
         }
-        return new SetPhotosClient(userId, photoResources).completable()
-                .doOnComplete(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        userDao.replaceUserPhotos(userId, photos);
+        return new SetPhotosClient(userId, photoResources).observable()
+                .doOnNext(photoResources1 -> {
+                    List<UserPhoto> userPhotos = new ArrayList<>();
+                    for (PhotoResource photoResource : photoResources1) {
+                        UserPhoto userPhoto = new UserPhoto();
+                        userPhoto.setId(photoResource.getId());
+                        userPhoto.setPosition(photoResource.getPosition());
+                        userPhoto.setSourceLink(photoResource.getSource());
+                        userPhoto.setUserId(userId);
+                        userPhotos.add(userPhoto);
                     }
-                });
+                    userDao.replaceUserPhotos(userId, userPhotos);
+                }).ignoreElements();
     }
 
     public Single<List<UserAccount>> getUserAccounts() {

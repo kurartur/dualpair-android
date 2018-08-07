@@ -26,7 +26,7 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     private static final int PHOTO_ITEM = 1;
     private static final int ADD_PHOTO_ITEM = 2;
 
-    private static final int MAX_PHOTOS = 9;
+    private static final int MAX_PHOTOS = 6;
 
     private RecyclerView recyclerView;
 
@@ -83,7 +83,7 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             case ADD_PHOTO_ITEM:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.edit_photos_add_photo_layout, parent, false);
-                return new EditPhotosRecyclerAdapter.AddPhotoHolder(parent.getContext(), v);
+                return new EditPhotosRecyclerAdapter.AddPhotoHolder(v);
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
@@ -98,7 +98,8 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 final UserPhoto photo = photos.get(position);
                 Picasso.with(context)
                         .load(photo.getSourceLink())
-                        .error(R.drawable.image_not_found)
+                        .error(R.drawable.person)
+                        .placeholder(R.drawable.person)
                         .into(photoHolder.photo);
 
                 photoHolder.delete.setVisibility(View.VISIBLE);
@@ -159,11 +160,8 @@ public class EditPhotosRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
 
     protected static class AddPhotoHolder extends RecyclerView.ViewHolder {
 
-        private Context context;
-
-        protected AddPhotoHolder(Context context, View itemView) {
+        protected AddPhotoHolder(View itemView) {
             super(itemView);
-            this.context = context;
             ButterKnife.bind(this, itemView);
         }
 

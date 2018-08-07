@@ -12,7 +12,7 @@ import lt.dualpair.android.data.local.entity.UserPhoto;
 import lt.dualpair.android.data.local.entity.UserPurposeOfBeing;
 import lt.dualpair.android.data.local.entity.UserSociotype;
 import lt.dualpair.android.data.remote.resource.Location;
-import lt.dualpair.android.data.remote.resource.Photo;
+import lt.dualpair.android.data.remote.resource.PhotoResource;
 import lt.dualpair.android.data.remote.resource.Sociotype;
 import lt.dualpair.android.data.remote.resource.User;
 
@@ -38,13 +38,12 @@ public class UserResourceMapper {
             }
         }
         List<UserPhoto> userPhotos = new ArrayList<>();
-        for (Photo photo : userResource.getPhotos()) {
+        for (PhotoResource photo : userResource.getPhotos()) {
             UserPhoto userPhoto = new UserPhoto();
+            userPhoto.setId(photo.getId());
             userPhoto.setUserId(userId);
-            userPhoto.setAccountType(photo.getAccountType().name());
-            userPhoto.setIdOnAccount(photo.getIdOnAccount());
             userPhoto.setPosition(photo.getPosition());
-            userPhoto.setSourceLink(photo.getSourceUrl());
+            userPhoto.setSourceLink(photo.getSource());
             userPhotos.add(userPhoto);
         }
         List<UserSociotype> userSociotypes = new ArrayList<>();

@@ -95,7 +95,7 @@ public class ResponseRepository {
         userResponse.setUserId(resource.getUser().getId());
         userResponse.setType(resource.getResponse());
         userResponse.setName(resource.getUser().getName());
-        userResponse.setPhotoSource(resource.getUser().getPhotos().get(0).getSourceUrl());
+        userResponse.setPhotoSource(resource.getUser().getPhotos().get(0).getSource());
         userResponse.setMatch(resource.isMatch());
         userResponse.setDate(resource.getDate());
         userResponseDao.save(userResponse);
