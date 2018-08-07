@@ -65,9 +65,8 @@ public interface UserService {
                              @Field("expiresIn") Long expiresIn,
                              @Field("scope") String scope);
 
-    @DELETE("api/connect")
-    @FormUrlEncoded
-    Completable disconnect(@Field("provider") String providerId);
+    @DELETE("api/connect/{providerId}")
+    Completable disconnect(@Path("providerId") String providerId);
 
     @POST("api/report")
     Completable reportUser(@Body Map<String, Object> data);

@@ -9,7 +9,14 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/account_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:text="@string/edit_accounts_help"/>
 
 </LinearLayout>

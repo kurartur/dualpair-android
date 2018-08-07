@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -25,19 +25,15 @@ import lt.dualpair.android.ui.BaseActivity;
 import lt.dualpair.android.utils.DrawableUtils;
 
 
-public class EditPhotosActivity extends BaseActivity implements EditPhotosRecyclerAdapter.OnStartDragListener,
-                                                                AvailablePhotosSheetDialog.OnPhotoSelectedListener {
+public class EditPhotosActivity extends BaseActivity implements AvailablePhotosSheetDialog.OnPhotoSelectedListener {
 
     private static final String TAG = EditPhotosActivity.class.getName();
 
     private static final int MENU_ITEM_SAVE = 1;
-    private static final int MENU_ITEM_HELP = 2;
 
     @Bind(R.id.photos) RecyclerView photosView;
 
     private EditPhotosRecyclerAdapter adapter;
-
-    private ItemTouchHelper itemTouchHelper;
 
     private boolean isSaving = false;
 
@@ -52,7 +48,12 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_photos_layout);
 
-        setupActionBar(true, getResources().getString(R.string.photos));
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(R.string.photos);
+        }
 
         ButterKnife.bind(this);
 
@@ -63,7 +64,7 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
                         if (position == 0) {
                             return new SpannedGridLayoutManager.SpanInfo(2, 2);
                         } else {
-                            return new SpannedGridLayoutManager.SpanInfo(1, 1);
+                            return SpannedGridLayoutManager.SpanInfo.SINGLE_CELL;
                         }
                     }
                 },
@@ -87,30 +88,16 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     @Override
     public void onPhotoSelected(UserPhoto photo) {
-        photo.setPosition(adapter.getItemCount() - 1);
         adapter.addPhoto(photo);
         dialog.dismiss();
     }
 
     public void render(final ZipResultHolder data) {
-        adapter = new EditPhotosRecyclerAdapter(data.getPhotos(), new EditPhotosRecyclerAdapter.OnAddClickListener() {
-            @Override
-            public void onAddClick() {
-                dialog = AvailablePhotosSheetDialog.getInstance(data.getUserAccounts(), EditPhotosActivity.this);
-                dialog.show(getSupportFragmentManager(), "AvailablePhotosSheetDialog");
-            }
-        }, this);
-
-        ItemTouchHelper.Callback callback =
-                new SimpleItemTouchHelperCallback(adapter);
-        itemTouchHelper = new ItemTouchHelper(callback);
-        itemTouchHelper.attachToRecyclerView(photosView);
+        adapter = new EditPhotosRecyclerAdapter(data.getPhotos(), () -> {
+            dialog = AvailablePhotosSheetDialog.getInstance(data.getUserAccounts(), EditPhotosActivity.this);
+            dialog.show(getSupportFragmentManager(), "AvailablePhotosSheetDialog");
+        });
         photosView.setAdapter(adapter);
-    }
-
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        itemTouchHelper.startDrag(viewHolder);
     }
 
     @Override
@@ -130,15 +117,13 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (super.onOptionsItemSelected(item)) {
-            return true;
-        }
         switch (item.getItemId()) {
             case MENU_ITEM_SAVE:
                 save();
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return false;
     }
 
     @Override
@@ -150,16 +135,15 @@ public class EditPhotosActivity extends BaseActivity implements EditPhotosRecycl
     private void save() {
         isSaving = true;
         invalidateOptionsMenu();
-        disposable.add(
-                viewModel.save(adapter.getPhotos())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(() -> {
-                        setResult(Activity.RESULT_OK);
-                        finish();
-                        isSaving = false;
-                    })
-        );
+        Disposable d = viewModel.save(adapter.getPhotos())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(() -> {
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                    isSaving = false;
+                });
+        disposable.add(d);
     }
 
     public static Intent createIntent(Activity activity) {

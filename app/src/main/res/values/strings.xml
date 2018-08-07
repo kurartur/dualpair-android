@@ -275,4 +275,6 @@
     <string name="sli_4letter">ISTp</string>
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
+    <string name="edit_accounts_help">Matched people will be able to reach you through one of your connected social accounts</string>
+    <string name="edit_photos_help">Press \"+\" to add photos (max. 6)\nDrag and drop to re-arrange</string>
 </resources>

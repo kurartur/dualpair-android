@@ -127,11 +127,13 @@ public class MeFragment extends BaseFragment {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(photos -> {
-                    Picasso.with(getActivity())
-                            .load(photos.get(0).getSourceLink())
-                            .placeholder(R.drawable.person)
-                            .error(R.drawable.person)
-                            .into(photoView);
+                    if (photos.size() > 0) {
+                        Picasso.with(getActivity())
+                                .load(photos.get(0).getSourceLink())
+                                .placeholder(R.drawable.person)
+                                .error(R.drawable.person)
+                                .into(photoView);
+                    }
                 }));
     }
 

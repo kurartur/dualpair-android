@@ -6,10 +6,10 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
-    private final ItemTouchHelperAdapter mAdapter;
+    private final ItemTouchHelperAdapter adapter;
 
     public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
-        mAdapter = adapter;
+        this.adapter = adapter;
     }
 
     @Override
@@ -28,11 +28,17 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target) {
         if (target instanceof EditPhotosRecyclerAdapter.PhotoHolder) {
-            mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+            adapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
             return true;
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        super.clearView(recyclerView, viewHolder);
+        adapter.onItemMoved();
     }
 
     @Override
